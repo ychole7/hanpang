@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 반응형 좌표계 & 세련된 폰트 엔진
+   낱글자 팡팡! — 캔버스 상단 공간 제거 및 구슬 밀착 엔진
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -64,17 +64,16 @@ function resize(){
   BW = W * 0.90; 
   R = BW / (COLS * 2);
   
-  // ✨ 어떤 기기든 상하단 UI 높이를 측정해서 '빈 공간'만 게임 구역으로 씁니다.
   const topUI = document.getElementById('topUI');
   const bottomUI = document.getElementById('bottomUI');
   
-  // 상단 UI 하단 끝 바로 아래(살짝 여백 추가)부터 구슬 시작
+  // ✨ 구슬의 시작(BY)을 상단 UI 여백을 잘라내어 바짝 끌어올립니다.
   const topH = topUI ? topUI.getBoundingClientRect().bottom : 140;
-  BY = topH + (R * 0.4); 
+  BY = topH - 40; 
   
-  // 하단 UI 상단 끝 위쪽에 대포가 위치하도록 설정
+  // ✨ 대포의 높이도 하단 UI 여백을 감안하여 위치를 내립니다.
   const botTop = bottomUI ? bottomUI.getBoundingClientRect().top : H - 100;
-  G.shooterY = botTop - (R * 2.2); 
+  G.shooterY = botTop - (R * 1.5); 
   
   BH = G.shooterY - BY;
   ROWH = R * 1.72;
@@ -322,7 +321,7 @@ const ASSETS={}; function loadAssets(){ return Promise.all(Object.entries(ASSET_
 
 function lighten(hex,amt){ const n=parseInt(hex.slice(1),16); return `rgb(${Math.min(255,((n>>16)&255)+amt*2)|0},${Math.min(255,((n>>8)&255)+amt*2)|0},${Math.min(255,(n&255)+amt*2)|0})`; }
 
-// ✨ 구슬의 하얀 배경 완전 삭제 및 얇은 글씨체 적용
+// ✨ 구슬의 하얀 배경 코드 삭제 (투명도 완벽 보존!)
 function drawBubbleRaw(x,y,r,s,col,glow,special){
   const rr = r * 0.94;
   const cIdx = (col || 0) % 10;
@@ -341,9 +340,9 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle= glow ? '#fff0c0' : 'rgba(0,0,0,0.1)'; ctx.lineWidth=Math.max(1.2,r*.055); ctx.globalAlpha=.85; ctx.stroke(); ctx.restore();
   if(glow){ ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle='#ffe9a0'; ctx.shadowColor='#ffd86f'; ctx.shadowBlur=r*.5; ctx.lineWidth=Math.max(1.2,r*.04); ctx.stroke(); ctx.restore(); }
   
-  // ✨ 글씨 굵기를 500으로 낮춰서 가늘고 세련되게 변경! 그림자도 은은하게!
+  // ✨ 글씨 굵기를 500으로 얇게 조절
   ctx.save(); ctx.font=`500 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
-  const ty=y+r*.06; ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=r*.12; ctx.shadowOffsetY=r*.04; 
+  const ty=y+r*.06; ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=r*.12; ctx.shadowOffsetY=r*.04; 
   ctx.fillStyle='#ffffff'; ctx.fillText(s,x,ty); ctx.restore();
 
   if(special==='gold'){ ctx.save(); ctx.strokeStyle='#fff3b0'; ctx.lineWidth=r*.09; ctx.shadowColor='#ffe08c'; ctx.shadowBlur=r*.6; ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.stroke(); ctx.shadowBlur=0; ctx.fillStyle='#fff8d8'; [[0.5,-0.7],[-0.6,0.4],[0.7,0.5],[-0.4,-0.5]].forEach(([dx,dy],i)=>{ const s2=r*0.10*(0.7+0.5*Math.sin(performance.now()/200+i)); ctx.beginPath(); ctx.arc(x+dx*r*.7,y+dy*r*.7,s2,0,7); ctx.fill(); }); ctx.restore(); }
@@ -366,7 +365,7 @@ function drawShooter(now){
   
   if(!G.fly && G.cur) { 
     const bob = Math.sin(now/420) * R * 0.05; 
-    bubble(cx0, G.shooterY - R*0.65 + bob, R*0.94, G.cur.s, G.cur.col, true); 
+    bubble(cx0, G.shooterY - R*0.6 + bob, R*0.94, G.cur.s, G.cur.col, true); 
     
     if(G.activeItem){ ctx.save(); ctx.font=`500 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
@@ -374,7 +373,7 @@ function drawShooter(now){
 function drawQueue(){
   if(!G.queue.length)return; 
   const x = W/2 + R*3.2, y = G.shooterY + R*0.6, r = R*0.75;
-  ctx.save(); ctx.font=`700 ${R*.42}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=4; 
+  ctx.save(); ctx.font=`500 ${R*.48}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=4; 
   ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.5); ctx.restore();
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
