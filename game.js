@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 구슬 하얀 배경 삭제 및 정밀 핏 엔진
+   낱글자 팡팡! — 반응형 좌표계 & 세련된 폰트 엔진
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -64,11 +64,18 @@ function resize(){
   BW = W * 0.90; 
   R = BW / (COLS * 2);
   
-  // ✨ 버블 시작점 천장(topUI) 바로 밑으로 딱 붙임! (약 140px 공간 확보)
-  BY = 140; 
+  // ✨ 어떤 기기든 상하단 UI 높이를 측정해서 '빈 공간'만 게임 구역으로 씁니다.
+  const topUI = document.getElementById('topUI');
+  const bottomUI = document.getElementById('bottomUI');
   
-  // ✨ 대포 장전 위치 완벽 정렬
-  G.shooterY = H - 110; 
+  // 상단 UI 하단 끝 바로 아래(살짝 여백 추가)부터 구슬 시작
+  const topH = topUI ? topUI.getBoundingClientRect().bottom : 140;
+  BY = topH + (R * 0.4); 
+  
+  // 하단 UI 상단 끝 위쪽에 대포가 위치하도록 설정
+  const botTop = bottomUI ? bottomUI.getBoundingClientRect().top : H - 100;
+  G.shooterY = botTop - (R * 2.2); 
+  
   BH = G.shooterY - BY;
   ROWH = R * 1.72;
   G.maxRows = Math.max(6, Math.floor((BH - R*2) / ROWH) + 1);
@@ -315,7 +322,7 @@ const ASSETS={}; function loadAssets(){ return Promise.all(Object.entries(ASSET_
 
 function lighten(hex,amt){ const n=parseInt(hex.slice(1),16); return `rgb(${Math.min(255,((n>>16)&255)+amt*2)|0},${Math.min(255,((n>>8)&255)+amt*2)|0},${Math.min(255,(n&255)+amt*2)|0})`; }
 
-// ✨ 하얀 배경 삭제! 투명도 완벽 보존
+// ✨ 구슬의 하얀 배경 완전 삭제 및 얇은 글씨체 적용
 function drawBubbleRaw(x,y,r,s,col,glow,special){
   const rr = r * 0.94;
   const cIdx = (col || 0) % 10;
@@ -334,13 +341,13 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle= glow ? '#fff0c0' : 'rgba(0,0,0,0.1)'; ctx.lineWidth=Math.max(1.2,r*.055); ctx.globalAlpha=.85; ctx.stroke(); ctx.restore();
   if(glow){ ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle='#ffe9a0'; ctx.shadowColor='#ffd86f'; ctx.shadowBlur=r*.5; ctx.lineWidth=Math.max(1.2,r*.04); ctx.stroke(); ctx.restore(); }
   
-  // ✨ 글자 두께 600으로 조절! 훨씬 세련된 굵기
-  ctx.save(); ctx.font=`600 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
-  const ty=y+r*.06; ctx.shadowColor='rgba(0,0,0,0.85)'; ctx.shadowBlur=r*.18; ctx.shadowOffsetY=r*.05; 
+  // ✨ 글씨 굵기를 500으로 낮춰서 가늘고 세련되게 변경! 그림자도 은은하게!
+  ctx.save(); ctx.font=`500 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
+  const ty=y+r*.06; ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=r*.12; ctx.shadowOffsetY=r*.04; 
   ctx.fillStyle='#ffffff'; ctx.fillText(s,x,ty); ctx.restore();
 
   if(special==='gold'){ ctx.save(); ctx.strokeStyle='#fff3b0'; ctx.lineWidth=r*.09; ctx.shadowColor='#ffe08c'; ctx.shadowBlur=r*.6; ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.stroke(); ctx.shadowBlur=0; ctx.fillStyle='#fff8d8'; [[0.5,-0.7],[-0.6,0.4],[0.7,0.5],[-0.4,-0.5]].forEach(([dx,dy],i)=>{ const s2=r*0.10*(0.7+0.5*Math.sin(performance.now()/200+i)); ctx.beginPath(); ctx.arc(x+dx*r*.7,y+dy*r*.7,s2,0,7); ctx.fill(); }); ctx.restore(); }
-  else if(special==='bomb'){ ctx.save(); ctx.font=`600 ${r*.55}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('💣', x+r*.5, y-r*.5); ctx.restore(); }
+  else if(special==='bomb'){ ctx.save(); ctx.font=`500 ${r*.55}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('💣', x+r*.5, y-r*.5); ctx.restore(); }
 }
 
 const SPR=new Map(); let FONTS_READY=false;
@@ -354,24 +361,21 @@ function drawShooter(now){
   if(img) {
     const w = R * 6.5; 
     const h = w * (img.height / img.width);
-    // 대포 완벽 위치 조준
     ctx.drawImage(img, cx0 - w/2, G.shooterY - h * 0.25, w, h); 
   }
   
   if(!G.fly && G.cur) { 
     const bob = Math.sin(now/420) * R * 0.05; 
-    // ✨ 장전 구슬 대포 입구에 딱 맞물림
-    bubble(cx0, G.shooterY - R*0.75 + bob, R*0.94, G.cur.s, G.cur.col, true); 
+    bubble(cx0, G.shooterY - R*0.65 + bob, R*0.94, G.cur.s, G.cur.col, true); 
     
-    if(G.activeItem){ ctx.save(); ctx.font=`600 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
+    if(G.activeItem){ ctx.save(); ctx.font=`500 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
 }
 function drawQueue(){
   if(!G.queue.length)return; 
-  // ✨ 다음 구슬 대포 바퀴 안 가리게 재조정
-  const x = W/2 + R*3.5, y = G.shooterY + R*0.2, r = R*0.75;
-  ctx.save(); ctx.font=`600 ${R*.48}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=6; 
-  ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.6); ctx.restore();
+  const x = W/2 + R*3.2, y = G.shooterY + R*0.6, r = R*0.75;
+  ctx.save(); ctx.font=`700 ${R*.42}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=4; 
+  ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.5); ctx.restore();
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
 }

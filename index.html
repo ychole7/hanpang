@@ -19,7 +19,7 @@
 
   <div id="bgLayer"></div>
 
-  <!-- ✨ 상단 UI -->
+  <!-- ✨ 상단 UI: 빈 공간 제거를 위해 104% 확장 및 중앙 정렬 -->
   <div id="topUI">
     <div class="top-menu-row">
       <button class="icon-btn" id="btnMenu">❚❚</button>
@@ -28,24 +28,26 @@
       <div class="stat-pill">💰<b id="uiCoins">0</b></div>
     </div>
     
-    <div class="stage-box">
-      <div class="side-title">스테이지</div>
-      <div id="uiStage" class="big-num">1</div>
-    </div>
-    
-    <div class="target-box">
-      <div class="target-title">목표 단어</div>
-      <div class="target-scroll-wrapper">
-        <div id="targetBar"></div>
+    <!-- ✨ 완벽한 중앙 정렬을 위한 Flex Box -->
+    <div class="top-board-row">
+      <div class="side-box">
+        <div class="side-title">스테이지</div>
+        <div id="uiStage" class="big-num">1</div>
       </div>
-    </div>
-    
-    <div class="score-box">
-      <div class="side-title">점수</div>
-      <div id="uiScoreBig" class="big-num">0</div>
+      <div class="center-box">
+        <div class="target-title">목표 단어</div>
+        <div class="target-scroll-wrapper">
+          <div id="targetBar"></div>
+        </div>
+      </div>
+      <div class="side-box">
+        <div class="side-title">점수</div>
+        <div id="uiScoreBig" class="big-num">0</div>
+      </div>
     </div>
   </div>
 
+  <!-- ✨ 게임 구역을 화면 전체로 확장하여 자동 계산 -->
   <div id="gameArea">
     <canvas id="cv"></canvas>
   </div>
