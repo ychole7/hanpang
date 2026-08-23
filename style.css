@@ -17,7 +17,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 /* ✨ 상단 UI: 104%로 키우고 중앙 정렬하여 빈 공간 완벽 차단, top: 0으로 복구 */
 #topUI {
-  position: absolute; top: 0; left: -2%; width: 104%; 
+  position: absolute; top: -1; left: -2%; width: 104%; 
   height: 15vh; min-height: 135px; max-height: 165px; z-index: 10;
   background: url('assets/ui_top.png') center bottom / 100% 100% no-repeat;
 }
@@ -49,7 +49,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 /* ✨ 하단 UI: bottom 0 복구 & 여백 차단을 위해 104% 확장 */
 #bottomUI {
-  position: absolute; bottom: 0; left: -2%; width: 104%; 
+  position: absolute; bottom: -2; left: -2%; width: 104%; 
   height: 12vh; min-height: 95px; max-height: 125px; z-index: 10;
   background: url('assets/ui_bottom.png') center top / 100% 100% no-repeat;
   display: flex; justify-content: center; align-items: flex-start; gap: 4vw;
