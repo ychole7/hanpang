@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 이미지 찌그러짐 원천 차단 & 투명구멍 수리
+   낱글자 팡팡! — 폰트 두께 조절 및 투명도 완벽 복구
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -57,15 +57,15 @@ function resize(){
   DPR = Math.min(window.devicePixelRatio||1,2.5);
   W = box.width; H = box.height;
   cv.width = W * DPR; cv.height = H * DPR;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
 
-  // ✨ 빈 공간 꽉 채우기 & 구슬 시작점 천장 밀착
-  BX = W * 0.02; 
-  BW = W * 0.96; 
+  BX = W * 0.05; 
+  BW = W * 0.90; 
   R = BW / (COLS * 2);
-  BY = R * 0.8; // ui_top 바로 아래부터 꽉 차게 시작!
+  BY = R * 0.8; 
   
-  G.shooterY = H - (R * 4.2); // 대포 조준 위치
+  G.shooterY = H - (R * 4.2); 
   BH = G.shooterY - BY;
   ROWH = R * 1.72;
   G.maxRows = Math.max(6, Math.floor((BH - R*2) / ROWH) + 1);
@@ -312,20 +312,15 @@ const ASSETS={}; function loadAssets(){ return Promise.all(Object.entries(ASSET_
 
 function lighten(hex,amt){ const n=parseInt(hex.slice(1),16); return `rgb(${Math.min(255,((n>>16)&255)+amt*2)|0},${Math.min(255,((n>>8)&255)+amt*2)|0},${Math.min(255,(n&255)+amt*2)|0})`; }
 
-// ✨ 이미지 찌그러짐 원천 차단 로직 적용! (가로세로 비율 강제 유지)
+// ✨ 하얀 배경 삭제 및 두께 700 조절
 function drawBubbleRaw(x,y,r,s,col,glow,special){
   const rr = r * 0.94;
   const cIdx = (col || 0) % 10;
   const img = ASSETS['ball_' + cIdx];
-
-  // ✨ 빛 반사 구멍 메우기 (하얀 바탕을 깔아 투명도 방지)
-  ctx.save(); ctx.beginPath(); ctx.arc(x, y, rr * 0.96, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.restore();
   
   if(img && !special) {
-    // 찌그러짐 절대 방어: 원본 이미지의 비율을 그대로 가져옵니다.
     const ratio = img.height / img.width;
-    let dw = rr * 2, dh = rr * 2;
+    let dw = rr * 2.1, dh = rr * 2.1;
     if(img.width > img.height) { dh = dw * ratio; } else { dw = dh / ratio; }
     ctx.drawImage(img, x - dw/2, y - dh/2, dw, dh);
   } else {
@@ -336,7 +331,8 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle= glow ? '#fff0c0' : 'rgba(0,0,0,0.1)'; ctx.lineWidth=Math.max(1.2,r*.055); ctx.globalAlpha=.85; ctx.stroke(); ctx.restore();
   if(glow){ ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle='#ffe9a0'; ctx.shadowColor='#ffd86f'; ctx.shadowBlur=r*.5; ctx.lineWidth=Math.max(1.2,r*.04); ctx.stroke(); ctx.restore(); }
   
-  ctx.save(); ctx.font=`800 ${r*1.0}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
+  // ✨ 글자 두께를 800에서 700으로 약간 얇게 변경
+  ctx.save(); ctx.font=`700 ${r*1.0}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
   const ty=y+r*.06; ctx.shadowColor='rgba(0,0,0,0.85)'; ctx.shadowBlur=r*.18; ctx.shadowOffsetY=r*.05; 
   ctx.fillStyle='#ffffff'; ctx.fillText(s,x,ty); ctx.restore();
 
@@ -355,23 +351,20 @@ function drawShooter(now){
   if(img) {
     const w = R * 6.5; 
     const h = w * (img.height / img.width);
-    // 대포를 약간 밑으로 내려서 자연스럽게 배치
     ctx.drawImage(img, cx0 - w/2, G.shooterY - h * 0.25, w, h); 
   }
   
   if(!G.fly && G.cur) { 
     const bob = Math.sin(now/420) * R * 0.05; 
-    // ✨ 장전 구슬 위치를 위로 끄집어 올려서 대포 입구에 안착
     bubble(cx0, G.shooterY - R*0.6 + bob, R*0.94, G.cur.s, G.cur.col, true); 
     
-    if(G.activeItem){ ctx.save(); ctx.font=`${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
+    if(G.activeItem){ ctx.save(); ctx.font=`700 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
 }
 function drawQueue(){
   if(!G.queue.length)return; 
-  // ✨ 다음 구슬 위치를 우측 아래로 자연스럽게 이동 (대포 바퀴와 안 겹치게)
   const x = W/2 + R*3.2, y = G.shooterY + R*0.5, r = R*0.75;
-  ctx.save(); ctx.font=`800 ${R*.48}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=6; 
+  ctx.save(); ctx.font=`700 ${R*.48}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=6; 
   ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.5); ctx.restore();
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);

@@ -19,7 +19,7 @@
 
   <div id="bgLayer"></div>
 
-  <!-- ✨ 상단 UI: 화면을 꽉 채우고 내부 글씨를 절대좌표로 배치 -->
+  <!-- ✨ 상단 UI: 빈틈없이 꽉 채우고 절대 좌표계 도입 -->
   <div id="topUI">
     <div class="top-menu-row">
       <button class="icon-btn" id="btnMenu">❚❚</button>
@@ -28,13 +28,11 @@
       <div class="stat-pill">💰<b id="uiCoins">0</b></div>
     </div>
     
-    <!-- 좌측: 스테이지 -->
     <div class="stage-box">
       <div class="side-title">스테이지</div>
       <div id="uiStage" class="big-num">1</div>
     </div>
     
-    <!-- 중앙: 목표 단어 (흰색 텍스트 & 가로 스크롤) -->
     <div class="target-box">
       <div class="target-title">목표 단어</div>
       <div class="target-scroll-wrapper">
@@ -42,7 +40,6 @@
       </div>
     </div>
     
-    <!-- 우측: 점수 -->
     <div class="score-box">
       <div class="side-title">점수</div>
       <div id="uiScoreBig" class="big-num">0</div>
@@ -53,7 +50,6 @@
     <canvas id="cv"></canvas>
   </div>
 
-  <!-- ✨ 하단 UI 패널 -->
   <div id="bottomUI">
     <button class="item-btn" id="btnHint"><div class="badge" id="uiHint">3</div></button>
     <button class="item-btn" id="btnSwap"><div class="badge" id="uiSwap">3</div></button>

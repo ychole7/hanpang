@@ -3,7 +3,8 @@
 html,body{height:100%;margin:0;padding:0;overflow:hidden;overscroll-behavior:none;background:#000;}
 body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:700;user-select:none;touch-action:none;}
 
-#app { position: relative; width: 100vw; height: 100dvh; max-height: 100%; overflow: hidden; }
+/* ✨ width를 100vw 대신 100%로 변경하여 강제 여백 제거 */
+#app { position: relative; width: 100%; height: 100dvh; max-height: 100%; overflow: hidden; }
 
 /* 인트로 */
 #introScreen { position: absolute; inset: 0; z-index: 200; background: url('assets/intro_bg.png') center / cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12vh; }
@@ -15,27 +16,25 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 /* 배경 */
 #bgLayer { position: absolute; inset: 0; z-index: 0; background: url('assets/bg_main.png') center / cover no-repeat; }
 
-/* ✨ 상단 UI (좌우 100vw 꽉 채우기 & 100% 100% 비율 매칭) */
+/* ✨ 상단 UI 빈틈없이 천장에 밀착 */
 #topUI {
-  position: absolute; top: 0; left: 0; width: 100vw; height: 145px; z-index: 10;
+  position: absolute; top: 0; left: 0; width: 100%; height: 145px; z-index: 10; margin: 0; padding: 0;
   background: url('assets/ui_top.png') center top / 100% 100% no-repeat;
 }
 .top-menu-row { display: flex; gap: 8px; padding: max(8px, env(safe-area-inset-top)) 16px 0; align-items: center; }
 
-/* ✨ 나무 홈의 한가운데로 위치를 강제 고정하는 절대 좌표계 */
-.stage-box { position: absolute; left: 3%; top: 62%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
-.score-box { position: absolute; right: 3%; top: 62%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
-.target-box { position: absolute; left: 26%; right: 26%; top: 38%; display: flex; flex-direction: column; align-items: center; }
+/* ✨ 스테이지, 점수 중앙 완벽 정렬 */
+.stage-box { position: absolute; left: 3%; top: 58%; transform: translateY(-50%); width: 22%; text-align: center; }
+.score-box { position: absolute; right: 3%; top: 58%; transform: translateY(-50%); width: 22%; text-align: center; }
+.side-title { color: #f5e3ae; opacity: 0.95; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.8); margin-bottom: 4px; }
+.big-num { color: #ffffff; font-size: 26px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
 
-/* 시안처럼 밝은 골드/화이트 톤 및 "목표단어 화이트 적용" */
-.side-title { color: #f5e3ae; opacity: 0.95; font-size: 13px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.9); margin-bottom: 2px; }
-.big-num { color: #ffffff; font-size: 26px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
-.target-title { font-size: 11px; color: #ffffff; margin-bottom: 4px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
-
-/* ✨ 목표 단어 좌우 스와이프 기능 (단어가 10개라도 문제없음!) */
-.target-scroll-wrapper { width: 100%; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 4px; }
+/* ✨ 목표 단어 제목 상향, 단어 칩 중앙 하향 */
+.target-box { position: absolute; left: 24%; right: 24%; top: 0; height: 100%; }
+.target-title { position: absolute; top: 38%; left: 50%; transform: translateX(-50%); font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.target-scroll-wrapper { position: absolute; top: 68%; left: 0; width: 100%; transform: translateY(-50%); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
 .target-scroll-wrapper::-webkit-scrollbar { display: none; }
-#targetBar { display: inline-flex; flex-wrap: nowrap; justify-content: center; gap: 4px; padding: 0 4px; min-width: 100%; }
+#targetBar { display: inline-flex; flex-wrap: nowrap; justify-content: center; gap: 4px; padding: 0 8px; min-width: 100%; }
 
 .tchip { background: #fffdf5; border: 2px solid #dcb274; border-radius: 999px; padding: 4px 12px; font-size: 14px; color: #5a3a22; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: 900; }
 .tchip.done { background: #7ba05b; color: #fff; border-color: #55783a; }
@@ -43,17 +42,16 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .icon-btn { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(145deg,#4a2e1b,#2a1c0a); border: 2px solid #e8c169; color: #f5e3ae; font-size: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.5); cursor: pointer; padding:0; }
 .stat-pill { background: rgba(20,12,6,0.85); border: 1.5px solid #a86f2e; border-radius: 999px; padding: 4px 10px; font-size: 13px; color: #f5e3ae; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 900; }
 
-/* ✨ 하단 UI (바닥에 꽉 붙이고 아이템 위치 정렬) */
+/* ✨ 하단 UI 빈틈없이 바닥에 밀착 */
 #bottomUI {
-  position: absolute; bottom: 0; left: 0; width: 100vw; height: calc(100px + env(safe-area-inset-bottom)); z-index: 10;
+  position: absolute; bottom: 0; left: 0; width: 100%; height: calc(100px + env(safe-area-inset-bottom)); z-index: 10; margin: 0; padding: 0;
   background: url('assets/ui_bottom.png') center bottom / 100% 100% no-repeat;
-  display: flex; justify-content: center; align-items: flex-start; gap: 14px;
-  padding-top: 24px; /* 나무판 홈에 들어가도록 위에서 밀어내기 */
+  display: flex; justify-content: center; align-items: center; gap: 14px;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* 찌그러짐 방지! contain으로 원본 비율 유지 */
 .item-btn {
-  flex: 0 0 54px; width: 54px; height: 54px; border-radius: 50%;
+  flex: 0 0 56px; width: 56px; height: 56px; border-radius: 50%;
   border: none !important; background-color: transparent !important;
   background-size: contain; background-position: center; background-repeat: no-repeat;
   box-shadow: 0 4px 8px rgba(0,0,0,0.5); cursor: pointer; padding: 0;
@@ -68,18 +66,17 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 #btnHint { background-image: url('assets/item_hint.png'); }
 #btnSwap { background-image: url('assets/item_swap.png'); }
 
-/* 아이템 갯수 표시 (뱃지) 확실히 노출되도록 위치 및 z-index 보정 */
 .item-btn .badge {
-  position: absolute; right: -6px; bottom: -6px; background: #e52e71; color: #fff;
+  position: absolute; right: -4px; bottom: -4px; background: #e52e71; color: #fff;
   font-size: 13px; font-weight: 900; padding: 2px 8px; border-radius: 12px;
   border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.6); z-index: 20;
 }
 
-/* ✨ 게임 구역 높이 빈틈없이 딱 맞추기 */
-#gameArea { position: absolute; top: 140px; bottom: 105px; left: 0; width: 100vw; z-index: 5; }
+/* 게임 구역 */
+#gameArea { position: absolute; top: 145px; bottom: 100px; left: 0; width: 100%; z-index: 5; }
 canvas { display: block; width: 100%; height: 100%; }
 
-/* 모달 및 지도 (기존 동일) */
+/* 모달 및 지도 */
 .veil{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,5,2,.85);backdrop-filter:blur(4px);z-index:50;}
 .veil.on{display:grid}
 .card{background:linear-gradient(180deg,#3a2717,#2a1c12);border:2px solid #c8962f;border-radius:20px;padding:24px 26px;text-align:center;max-width:84%;box-shadow:0 8px 30px rgba(0,0,0,.8),inset 0 0 20px rgba(200,150,47,.12)}
