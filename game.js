@@ -37,7 +37,7 @@ function randCol(){ return Math.floor(Math.random()*10); }
 
 let cv, ctx;
 let W=0,H=0,R=0,ROWH=0,DPR=1, BX=0,BY=0,BW=0,BH=0;
-const COLS=7;
+const COLS=9;
 
 function initCanvas() {
   cv = document.getElementById('cv');
@@ -79,7 +79,7 @@ function resize(){
   BY = areaTop + R * 0.15;
 
   // 대포: 입구(mouth) 중심이 shooterY에 오도록 배치
-  G.cannonW = R * 5.0;
+  G.cannonW = R * 7.4;
   const canH = G.cannonW * (1303/1207);
   G.shooterY = areaBot - canH * 0.80;
 
@@ -119,7 +119,7 @@ function buildStage(){
   const main=shuffle(DICT_BY_CAT[G.goal]).slice(0,7), others=shuffle(CATS.filter(c=>c!==G.goal)).slice(0,2).flatMap(c=>shuffle(DICT_BY_CAT[c]).slice(0,3));
   G.words=[...new Set([...G.targets,...main,...others])];
   const syl=new Set(); for(const w of G.words) for(const ch of w) syl.add(ch); G.pool=[...syl];
-  const rows=Math.min(G.maxRows, Math.max(2, 2+Math.floor((G.stage-1)/2)));
+  const rows=Math.min(G.maxRows-1, Math.min(9, 4+Math.floor((G.stage-1)/2)));
   G.parity=0; G.grid=[]; resetFillCount();
   for(let r=0;r<rows;r++){ const row=[]; G.grid.push(row); for(let c=0;c<cellsIn(r);c++) row.push({s:fillSyllable(c,r),col:randCol()}); }
   const seeds=shuffle(G.targets.filter(w=>w.length<=3));
@@ -143,7 +143,7 @@ function buildFreeStage(){
   G.words.push(...shuffle(GENERIC_WORDS).slice(0,16));
   const syl=new Set(); for(const w of G.words) for(const ch of w) syl.add(ch); G.pool=[...syl];
   G.targets=[]; G.done={}; G.wordsCompleted=0; G.freeGoal=6+Math.floor((G.stage-1)*1.5);
-  const rows=Math.min(G.maxRows,4); G.parity=0; G.grid=[]; resetFillCount();
+  const rows=Math.min(G.maxRows-1,5); G.parity=0; G.grid=[]; resetFillCount();
   for(let r=0;r<rows;r++){ const row=[]; G.grid.push(row); for(let c=0;c<cellsIn(r);c++) row.push({s:fillSyllable(c,r),col:randCol()}); }
   for(let i=0;i<3;i++) plantWord(pick(G.words.filter(w=>w.length<=3)),rows);
   
@@ -367,28 +367,28 @@ function drawShooter(now){
   const MOUTH = 0.126;                       // cannon.png 입구 중심의 세로 비율
 
   if(img) {
-    const w = G.cannonW || R * 5.0;
+    const w = G.cannonW || R * 7.4;
     const h = w * (img.height / img.width);
     ctx.drawImage(img, cx0 - w/2, G.shooterY - h * MOUTH, w, h);
   }
 
   if(!G.fly && G.cur) {
     const bob = Math.sin(now/420) * R * 0.05;
-    bubble(cx0, G.shooterY + bob, R*0.94, G.cur.s, G.cur.col, true);
+    bubble(cx0, G.shooterY + bob, R*1.18, G.cur.s, G.cur.col, true);
 
-    if(G.activeItem){ ctx.save(); ctx.font=`500 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'\u{1F4A3}':'\u{1F308}', cx0+R*0.95, G.shooterY+bob-R*0.95); ctx.restore(); }
+    if(G.activeItem){ ctx.save(); ctx.font=`500 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'\u{1F4A3}':'\u{1F308}', cx0+R*1.25, G.shooterY+bob-R*1.25); ctx.restore(); }
   }
 }
 function drawQueue(){
   if(!G.queue.length)return;
   // 시안처럼 대포 '왼쪽'에 다음 구슬 + 교체 화살표
-  const x = W/2 - R*3.3, y = G.shooterY + R*1.7, r = R*0.72;
+  const x = W/2 - R*4.4, y = G.shooterY + R*2.4, r = R*1.0;
   G.queueHit = {x, y, r: r*1.7};
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.12,0,7); ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fill(); ctx.restore();
   bubble(x, y, r, G.queue[0].s, G.queue[0].col);
   ctx.save(); ctx.font=`700 ${R*.6}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillStyle='#ffe9b8'; ctx.shadowColor='rgba(0,0,0,.8)'; ctx.shadowBlur=5;
-  ctx.fillText('\u21C4', (x + W/2)/2, y - R*0.2); ctx.restore();
+  ctx.fillText('\u21C4', (x + W/2)/2, y - R*0.35); ctx.restore();
 }
 function draw(now){
   ctx.clearRect(0,0,W,H); ctx.save(); if(G.shake>0.3){ ctx.translate((Math.random()-0.5)*G.shake, (Math.random()-0.5)*G.shake); }
@@ -441,12 +441,19 @@ window.addEventListener('load', () => {
 });
 
 function renderTargetBar(){
-  const bar=document.getElementById('targetBar'); if(!bar)return;
+  const bar=document.getElementById('targetBar'), dots=document.getElementById('targetDots');
+  if(!bar)return;
   if(G.mode==='theme'&&G.targets.length){
-    bar.innerHTML = G.targets.map(w=>`<span class="tchip${G.done[w]?' done':''}">${G.done[w]?'✓ ':''}${w}</span>`).join('');
+    const cur = G.targets.find(w=>!G.done[w]) || G.targets[G.targets.length-1];
+    bar.className='tword'+(G.done[cur]?' done':'');
+    bar.style.fontSize = (cur.length>=4 ? 20 : cur.length>=3 ? 25 : 30)+'cqh';
+    bar.textContent = [...cur].join(' ');
+    if(dots) dots.innerHTML = G.targets.map(w=>`<i class="tdot${G.done[w]?' done':''}"></i>`).join('');
   }else if(G.mode==='free'){
-    bar.innerHTML = `<span class="tchip${G.wordsCompleted>=G.freeGoal?' done':''}">단어 ${G.wordsCompleted}/${G.freeGoal}개</span>`;
-  }else{ bar.innerHTML=''; }
+    bar.className='tword'; bar.style.fontSize='20cqh';
+    bar.textContent = `단어 ${G.wordsCompleted} / ${G.freeGoal}`;
+    if(dots) dots.innerHTML='';
+  }else{ bar.textContent=''; if(dots) dots.innerHTML=''; }
 }
 
 function syncUI(){
