@@ -5,7 +5,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #app { position: relative; width: 100vw; height: 100dvh; max-height: 100%; overflow: hidden; }
 
-/* 인트로 */
+/* 인트로 화면 */
 #introScreen { position: absolute; inset: 0; z-index: 200; background: url('assets/intro_bg.png') center / cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12vh; }
 #introScreen.hidden { display: none; }
 .intro-start-btn { background: linear-gradient(180deg, #ff8a00, #e52e71); border: 3px solid #ffe08c; border-radius: 999px; padding: 18px 45px; font-family: 'Pretendard', sans-serif; font-weight: 900; font-size: 24px; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.6); box-shadow: 0 8px 25px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.4); cursor: pointer; animation: pulseStart 1.5s infinite; }
@@ -22,7 +22,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 }
 .top-menu-row { display: flex; gap: 8px; padding: max(8px, env(safe-area-inset-top)) 16px 0; align-items: center; }
 
-/* ✨ 나무 홈에 딱 맞게 절대 좌표로 배치 (좌, 우, 중앙) */
+/* 나무 홈에 딱 맞게 절대 좌표로 배치 (좌, 우, 중앙) */
 .stage-box { position: absolute; left: 5%; top: 56%; width: 22%; text-align: center; }
 .score-box { position: absolute; right: 5%; top: 56%; width: 22%; text-align: center; }
 .target-box { position: absolute; left: 30%; right: 30%; top: 44%; text-align: center; }
@@ -32,7 +32,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .big-num { color: #ffffff; font-size: 26px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
 .target-title { font-size: 12px; color: #8c5a2b; margin-bottom: 8px; font-weight: 900; letter-spacing: 1px; }
 
-/* ✨ 단어 많아지면 밖으로 안 넘치고 스크롤 되게 변경! */
+/* 단어 많아지면 밖으로 안 넘치고 스크롤 되게 변경! */
 .target-scroll-wrapper { width: 100%; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 4px; }
 .target-scroll-wrapper::-webkit-scrollbar { display: none; }
 #targetBar { display: inline-flex; flex-wrap: nowrap; justify-content: center; gap: 6px; padding: 0 8px; min-width: 100%; }
@@ -51,14 +51,11 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
   padding-bottom: max(16px, env(safe-area-inset-bottom));
 }
 
-/* ✨ 아이템 찌그러짐 원천 차단: 400% 200% 가 아닌 400% auto 로 비율 완벽 유지! */
+/* ✨ 개별 파일 적용! flex: 0 0 60px와 contain으로 절대 안 찌그러짐! */
 .item-btn {
   flex: 0 0 60px; width: 60px; height: 60px; border-radius: 50%;
   border: none !important; background-color: transparent !important;
-  background-image: url('assets/item.png'); 
-  background-size: 400% auto; /* 👈 이게 찌그러짐 방지의 핵심입니다! */
-  background-position-y: 0%; /* 탑 줄의 아이콘만 사용 */
-  background-repeat: no-repeat;
+  background-size: contain; background-position: center; background-repeat: no-repeat;
   box-shadow: 0 4px 8px rgba(0,0,0,0.5); cursor: pointer; padding: 0;
   transition: transform 0.1s;
 }
@@ -66,10 +63,11 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .item-btn[disabled] { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
 .item-btn.active { box-shadow: 0 0 20px rgba(255,215,106,0.9); animation: pulseStart 1s infinite; }
 
-#btnRainbow { background-position-x: 0%; }
-#btnBomb { background-position-x: 33.333%; }
-#btnHint { background-position-x: 66.666%; }
-#btnSwap { background-position-x: 100%; }
+/* ✨ 방금 오려주신 개별 이미지를 직접 연결합니다! */
+#btnRainbow { background-image: url('assets/item_rainbow.png'); }
+#btnBomb { background-image: url('assets/item_bomb.png'); }
+#btnHint { background-image: url('assets/item_hint.png'); }
+#btnSwap { background-image: url('assets/item_swap.png'); } /* 교체 아이콘 추가용 */
 
 .item-btn .badge {
   position: absolute; right: -2px; bottom: -2px; background: #e52e71; color: #fff;
@@ -81,7 +79,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 #gameArea { position: absolute; top: 175px; bottom: 100px; left: 0; width: 100%; z-index: 5; }
 canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
-/* 모달 및 지도 (기존 동일) */
+/* 모달 및 지도 */
 .veil{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,5,2,.85);backdrop-filter:blur(4px);z-index:50;}
 .veil.on{display:grid}
 .card{background:linear-gradient(180deg,#3a2717,#2a1c12);border:2px solid #c8962f;border-radius:20px;padding:24px 26px;text-align:center;max-width:84%;box-shadow:0 8px 30px rgba(0,0,0,.8),inset 0 0 20px rgba(200,150,47,.12)}
