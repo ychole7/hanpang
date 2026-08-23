@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 100% 핏(Fit) 엔진 & 빛 반사 복구
+   낱글자 팡팡! — 이미지 찌그러짐 원천 차단 & 투명구멍 수리
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -57,16 +57,15 @@ function resize(){
   DPR = Math.min(window.devicePixelRatio||1,2.5);
   W = box.width; H = box.height;
   cv.width = W * DPR; cv.height = H * DPR;
-  cv.style.width = W + 'px'; cv.style.height = H + 'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
 
-  BX = W * 0.05; 
-  BW = W * 0.90; 
+  // ✨ 빈 공간 꽉 채우기 & 구슬 시작점 천장 밀착
+  BX = W * 0.02; 
+  BW = W * 0.96; 
   R = BW / (COLS * 2);
-  BY = 10 + R; 
+  BY = R * 0.8; // ui_top 바로 아래부터 꽉 차게 시작!
   
-  // ✨ 대포 높이를 살짝 더 내려서 게임판 공간 확보
-  G.shooterY = H - (R * 3.8); 
+  G.shooterY = H - (R * 4.2); // 대포 조준 위치
   BH = G.shooterY - BY;
   ROWH = R * 1.72;
   G.maxRows = Math.max(6, Math.floor((BH - R*2) / ROWH) + 1);
@@ -313,27 +312,28 @@ const ASSETS={}; function loadAssets(){ return Promise.all(Object.entries(ASSET_
 
 function lighten(hex,amt){ const n=parseInt(hex.slice(1),16); return `rgb(${Math.min(255,((n>>16)&255)+amt*2)|0},${Math.min(255,((n>>8)&255)+amt*2)|0},${Math.min(255,(n&255)+amt*2)|0})`; }
 
+// ✨ 이미지 찌그러짐 원천 차단 로직 적용! (가로세로 비율 강제 유지)
 function drawBubbleRaw(x,y,r,s,col,glow,special){
   const rr = r * 0.94;
   const cIdx = (col || 0) % 10;
   const img = ASSETS['ball_' + cIdx];
 
-  // ✨ 구멍 메우기: 하얀색 꽉 찬 동그라미를 바탕에 깔아줍니다!
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(x, y, rr * 0.98, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff'; // 투명한 구멍 사이로 하얀 빛 반사가 보이게 함
-  ctx.fill();
-  ctx.restore();
+  // ✨ 빛 반사 구멍 메우기 (하얀 바탕을 깔아 투명도 방지)
+  ctx.save(); ctx.beginPath(); ctx.arc(x, y, rr * 0.96, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.restore();
   
   if(img && !special) {
-    ctx.drawImage(img, x - rr, y - rr, rr * 2, rr * 2);
+    // 찌그러짐 절대 방어: 원본 이미지의 비율을 그대로 가져옵니다.
+    const ratio = img.height / img.width;
+    let dw = rr * 2, dh = rr * 2;
+    if(img.width > img.height) { dh = dw * ratio; } else { dw = dh / ratio; }
+    ctx.drawImage(img, x - dw/2, y - dh/2, dw, dh);
   } else {
     let [c1,c2]=colByIdx(cIdx); if(special==='gold'){ c1='#ffe9a8'; c2='#c8962f'; } else if(special==='bomb'){ c1='#e8a878'; c2='#a85f2f'; }
     ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.clip(); const g=ctx.createRadialGradient(x-rr*.32,y-rr*.38,rr*.12, x,y,rr*1.15); g.addColorStop(0, lighten(c1,18)); g.addColorStop(.45, c1); g.addColorStop(1, c2); ctx.fillStyle=g; ctx.fillRect(x-rr,y-rr,rr*2,rr*2); ctx.restore();
   }
 
-  ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle= glow ? '#fff0c0' : 'rgba(0,0,0,0.15)'; ctx.lineWidth=Math.max(1.2,r*.055); ctx.globalAlpha=.85; ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle= glow ? '#fff0c0' : 'rgba(0,0,0,0.1)'; ctx.lineWidth=Math.max(1.2,r*.055); ctx.globalAlpha=.85; ctx.stroke(); ctx.restore();
   if(glow){ ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle='#ffe9a0'; ctx.shadowColor='#ffd86f'; ctx.shadowBlur=r*.5; ctx.lineWidth=Math.max(1.2,r*.04); ctx.stroke(); ctx.restore(); }
   
   ctx.save(); ctx.font=`800 ${r*1.0}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
@@ -355,22 +355,22 @@ function drawShooter(now){
   if(img) {
     const w = R * 6.5; 
     const h = w * (img.height / img.width);
-    // 대포를 약간 밑으로 내려서 조준
+    // 대포를 약간 밑으로 내려서 자연스럽게 배치
     ctx.drawImage(img, cx0 - w/2, G.shooterY - h * 0.25, w, h); 
   }
   
   if(!G.fly && G.cur) { 
     const bob = Math.sin(now/420) * R * 0.05; 
-    // ✨ 구슬 장전 위치를 살짝 위로 올려 대포 입구에 딱 맞춤
-    bubble(cx0, G.shooterY - R*0.65 + bob, R*0.94, G.cur.s, G.cur.col, true); 
+    // ✨ 장전 구슬 위치를 위로 끄집어 올려서 대포 입구에 안착
+    bubble(cx0, G.shooterY - R*0.6 + bob, R*0.94, G.cur.s, G.cur.col, true); 
     
     if(G.activeItem){ ctx.save(); ctx.font=`${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
 }
 function drawQueue(){
   if(!G.queue.length)return; 
-  // ✨ 다음 구슬 위치를 우측 아래로 자연스럽게 이동
-  const x = W/2 + R*2.8, y = G.shooterY + R*0.8, r = R*0.75;
+  // ✨ 다음 구슬 위치를 우측 아래로 자연스럽게 이동 (대포 바퀴와 안 겹치게)
+  const x = W/2 + R*3.2, y = G.shooterY + R*0.5, r = R*0.75;
   ctx.save(); ctx.font=`800 ${R*.48}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=6; 
   ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.5); ctx.restore();
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
