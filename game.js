@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 낱개 구슬 & 아이템 직접 매핑 엔진
+   낱글자 팡팡! — 100% 핏(Fit) 엔진 & 빛 반사 복구
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -65,7 +65,8 @@ function resize(){
   R = BW / (COLS * 2);
   BY = 10 + R; 
   
-  G.shooterY = H - (R * 4.0); 
+  // ✨ 대포 높이를 살짝 더 내려서 게임판 공간 확보
+  G.shooterY = H - (R * 3.8); 
   BH = G.shooterY - BY;
   ROWH = R * 1.72;
   G.maxRows = Math.max(6, Math.floor((BH - R*2) / ROWH) + 1);
@@ -303,7 +304,6 @@ function soundOn(){ return SAVE && SAVE.soundOn!==false; }
 function tone(freq0,freq1,dur,gain,type,delay){ if(!soundOn())return; const ax=getActx(); if(!ax)return; try{ const t0=ax.currentTime+(delay||0); const o=ax.createOscillator(),g=ax.createGain(); o.type=type||'triangle'; o.frequency.setValueAtTime(freq0,t0); if(freq1) o.frequency.exponentialRampToValueAtTime(freq1,t0+dur*0.55); g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(gain,t0+0.015); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur); o.connect(g); g.connect(ax.destination); o.start(t0); o.stop(t0+dur+0.02); }catch(e){} }
 const SFX={ pop(){ tone(520+Math.random()*260,880,0.17,0.07,'triangle'); }, click(){ tone(700,900,0.06,0.05,'square'); }, wordComplete(combo,bonus){ const base=440+Math.min(combo,5)*40; const ratios=bonus?[1,1.26,1.5,2]:[1,1.26,1.5]; ratios.forEach((r,i)=>tone(base*r,base*r*1.15,0.22,0.09,'triangle',i*0.045)); }, miss(){ tone(260,180,0.14,0.045,'sine'); }, rowAdd(){ tone(180,120,0.3,0.06,'sawtooth'); }, stageClear(){ [0,1,2,3].forEach(i=>tone(523.25*Math.pow(2,i/12*4), null, 0.28,0.08,'triangle',i*0.11)); }, gameOver(){ tone(300,90,0.6,0.08,'sawtooth'); }, buy(){ tone(700,1100,0.14,0.07,'triangle'); tone(1050,1400,0.16,0.06,'triangle',0.06); } };
 
-// ✨ 낱개 파일 10종, 아이템 4종 개별 매핑 (누락 시 게임 뻗지 않도록 fallback 세팅)
 const ASSET_SRC={ 
   cannon:'assets/cannon.png', 
   ball_0:'assets/ball_0.png', ball_1:'assets/ball_1.png', ball_2:'assets/ball_2.png', ball_3:'assets/ball_3.png', ball_4:'assets/ball_4.png',
@@ -313,22 +313,26 @@ const ASSETS={}; function loadAssets(){ return Promise.all(Object.entries(ASSET_
 
 function lighten(hex,amt){ const n=parseInt(hex.slice(1),16); return `rgb(${Math.min(255,((n>>16)&255)+amt*2)|0},${Math.min(255,((n>>8)&255)+amt*2)|0},${Math.min(255,(n&255)+amt*2)|0})`; }
 
-// ✨ 낱개 이미지 그대로 캔버스에 그리기
 function drawBubbleRaw(x,y,r,s,col,glow,special){
   const rr = r * 0.94;
   const cIdx = (col || 0) % 10;
   const img = ASSETS['ball_' + cIdx];
+
+  // ✨ 구멍 메우기: 하얀색 꽉 찬 동그라미를 바탕에 깔아줍니다!
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, rr * 0.98, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff'; // 투명한 구멍 사이로 하얀 빛 반사가 보이게 함
+  ctx.fill();
+  ctx.restore();
   
   if(img && !special) {
-    // 이미지가 있으면 통째로 꽉 차게 그리기! 
     ctx.drawImage(img, x - rr, y - rr, rr * 2, rr * 2);
   } else {
-    // 업로드 전이거나 특수 구슬(황금/폭탄)일 때의 예비 랜더링
     let [c1,c2]=colByIdx(cIdx); if(special==='gold'){ c1='#ffe9a8'; c2='#c8962f'; } else if(special==='bomb'){ c1='#e8a878'; c2='#a85f2f'; }
     ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.clip(); const g=ctx.createRadialGradient(x-rr*.32,y-rr*.38,rr*.12, x,y,rr*1.15); g.addColorStop(0, lighten(c1,18)); g.addColorStop(.45, c1); g.addColorStop(1, c2); ctx.fillStyle=g; ctx.fillRect(x-rr,y-rr,rr*2,rr*2); ctx.restore();
   }
 
-  // 테두리 빛 및 글씨
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle= glow ? '#fff0c0' : 'rgba(0,0,0,0.15)'; ctx.lineWidth=Math.max(1.2,r*.055); ctx.globalAlpha=.85; ctx.stroke(); ctx.restore();
   if(glow){ ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle='#ffe9a0'; ctx.shadowColor='#ffd86f'; ctx.shadowBlur=r*.5; ctx.lineWidth=Math.max(1.2,r*.04); ctx.stroke(); ctx.restore(); }
   
@@ -351,21 +355,25 @@ function drawShooter(now){
   if(img) {
     const w = R * 6.5; 
     const h = w * (img.height / img.width);
-    ctx.drawImage(img, cx0 - w/2, G.shooterY - h * 0.1, w, h); 
+    // 대포를 약간 밑으로 내려서 조준
+    ctx.drawImage(img, cx0 - w/2, G.shooterY - h * 0.25, w, h); 
   }
   
   if(!G.fly && G.cur) { 
     const bob = Math.sin(now/420) * R * 0.05; 
-    bubble(cx0, G.shooterY - R*0.5 + bob, R*0.94, G.cur.s, G.cur.col, true); 
+    // ✨ 구슬 장전 위치를 살짝 위로 올려 대포 입구에 딱 맞춤
+    bubble(cx0, G.shooterY - R*0.65 + bob, R*0.94, G.cur.s, G.cur.col, true); 
     
     if(G.activeItem){ ctx.save(); ctx.font=`${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
 }
 function drawQueue(){
   if(!G.queue.length)return; 
-  const x = W/2 + R*3.6, y = G.shooterY + R*0.4, r = R*0.75;
-  ctx.save(); ctx.font=`800 ${R*.48}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=6; ctx.fillText('다음: '+G.queue[0].s,x,y-r*1.6); ctx.restore();
-  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.1,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
+  // ✨ 다음 구슬 위치를 우측 아래로 자연스럽게 이동
+  const x = W/2 + R*2.8, y = G.shooterY + R*0.8, r = R*0.75;
+  ctx.save(); ctx.font=`800 ${R*.48}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=6; 
+  ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.5); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
 }
 function draw(now){
