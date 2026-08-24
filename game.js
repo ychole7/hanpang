@@ -410,7 +410,7 @@ function draw(now){
         if(y<=BY+R)break; 
         if(y<BY+BH&&hitsBubble(x,y))break; 
         // 5간격마다 점을 찍어 시안처럼 여유있게 배치
-        if(i%5===0)G.trajPts.push([x,y]); 
+        if(i%2===0)G.trajPts.push([x,y]); 
       } 
     }
     const pts=G.trajPts; 
