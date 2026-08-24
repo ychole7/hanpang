@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 이펙트 엔진 업그레이드 (별가루, 궤적 꼬리, 타격감)
+   낱글자 팡팡! — 메인화면 나가기 전 '경고 팝업' 로직 추가
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -86,7 +86,6 @@ function resize(){
 let _rz; window.addEventListener('resize',()=>{ clearTimeout(_rz); _rz=setTimeout(resize,120); });
 window.addEventListener('orientationchange',()=>{ clearTimeout(_rz); _rz=setTimeout(resize,120); });
 
-// ✨ 맵 패턴 엔진
 const MAP_PATTERNS = {
   'basic': [ [1,1,1,1,1,1,1], [1,1,1,1,1,1] ],
   'wave': [ [1,1,0,0,1,1,1], [0,1,1,0,0,1], [1,0,0,1,1,1,0], [0,0,1,1,0,1] ],
@@ -95,7 +94,6 @@ const MAP_PATTERNS = {
   'diamond': [ [0,0,0,1,0,0,0], [0,0,1,1,0,0], [0,0,1,1,1,0,0], [0,1,1,1,1,0], [0,0,1,1,1,0,0], [0,0,1,1,0,0] ]
 };
 
-// ✨ 파티클 풀 사이즈를 늘리고, 모양(shape) 속성 추가
 const G={ grid:[],parity:0,stage:1,score:0,combo:0,started:false,mode:'theme',goal:'과일',pool:[],words:[],targets:[],done:{},cur:null,queue:[],fly:null,aim:null,dragging:false,toasts:[],waves:[],pops:[],shake:0,flash:0,shooterY:0,maxRows:10,dryShots:0, allowedMisses:5, swaps:3,hints:3,hintCells:null,bombs:2,rainbows:2,activeItem:null,wordsCompleted:0,freeGoal:8,locked:true,shots:0,trajA:null,trajPts:[],banner:null };
 const PARTICLE_POOL=Array.from({length:200},()=>({active:false,x:0,y:0,vx:0,vy:0,life:0,col:'#000',r:0,shape:'circle',rot:0,vr:0}));
 function getParticle(){ for(let p of PARTICLE_POOL) if(!p.active) return p; return null; }
@@ -257,7 +255,6 @@ function stepFly(){
     f.x+=f.vx/6; f.y+=f.vy/6;
     if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
-    // ✨ 빛의 꼬리 (Comet Trail) 이펙트 추가!
     if(Math.random()<0.5) {
       const p = getParticle();
       if(p) {
@@ -279,7 +276,6 @@ function explodeAt(c,r){
   setTimeout(()=>{
     let n=0; for(const [cc,rr] of cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; burst(cx(cc,rr),cy(rr),'#ff9a5c'); addWave(cx(cc,rr),cy(rr),'#ff9a5c',R*4); G.grid[rr][cc]=null; n++; }
     
-    // ✨ 폭탄 터질 때 타격감(메가 플래시) 극대화!
     addShake(20); flash(0.5); doVibe(80); 
     
     G.score+=n*80; G.combo=0; G.dryShots=0; toast('펑! +'+(n*80)); dropFloaters(); G.locked=false; checkState(); syncUI();
@@ -310,20 +306,18 @@ function floodMatch(c0,r0,key){
 }
 function clearCells(cells){ const t0=performance.now(); for(const [cc,rr] of cells) if(G.grid[rr]&&G.grid[rr][cc]) G.grid[rr][cc].glow=t0; }
 
-// ✨ 단어 완성 시 쏟아지는 '별가루 폭죽(Star Burst)' 엔진!
 function starBurst(x, y, col) {
   for(let i=0; i<25; i++) {
     const p = getParticle(); if(!p) continue;
     const a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 6;
     p.active = true; p.x = x; p.y = y; 
-    p.vx = Math.cos(a) * sp; p.vy = Math.sin(a) * sp - 4; // 하늘로 확 솟구치도록!
+    p.vx = Math.cos(a) * sp; p.vy = Math.sin(a) * sp - 4; 
     p.life = 1.2 + Math.random() * 0.6; 
     p.col = Math.random() < 0.4 ? '#ffffff' : col;
     p.r = 4 + Math.random() * 6;
-    // 동그라미와 5각 별(star) 모양을 섞어서 생성
     p.shape = Math.random() < 0.6 ? 'star' : 'circle';
     p.rot = Math.random() * Math.PI; 
-    p.vr = (Math.random() - 0.5) * 0.2; // 회전 속도
+    p.vr = (Math.random() - 0.5) * 0.2; 
   }
 }
 
@@ -343,10 +337,9 @@ function resolve(c,r){
     word.cells.forEach(([cc,rr],i)=>{ 
       setTimeout(()=>{ 
         addWave(cx(cc,rr),cy(rr),'#ffe08c',R*3); 
-        // ✨ 단어 구슬이 터질 때마다 화려한 별가루 폭죽 발사!
         starBurst(cx(cc,rr), cy(rr), colorOf(G.grid[rr][cc])[0]);
         if(i>0)SFX.pop(); 
-      }, i*80); // 연쇄 폭발 간격을 살짝 늦춰서 더 극적으로!
+      }, i*80); 
     });
 
     if(word.word.length>=4){ for(let i=0;i<20;i++){ const p=getParticle(); if(p){ const ang=Math.random()*Math.PI*2, sp=1+Math.random()*4; p.active=true; p.x=W/2; p.y=H*0.4; p.vx=Math.cos(ang)*sp; p.vy=Math.sin(ang)*sp; p.life=1.4; p.col='#ffe08c'; p.r=2+Math.random()*3; p.shape='star'; } } G.banner={text:word.word,life:1.6,bonus:true,big:true}; }
@@ -445,7 +438,7 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.fillText(s,x,ty); ctx.restore();
 
   if(special==='gold'){ ctx.save(); ctx.strokeStyle='#fff3b0'; ctx.lineWidth=r*.09; ctx.shadowColor='#ffe08c'; ctx.shadowBlur=r*.6; ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.stroke(); ctx.shadowBlur=0; ctx.fillStyle='#fff8d8'; [[0.5,-0.7],[-0.6,0.4],[0.7,0.5],[-0.4,-0.5]].forEach(([dx,dy],i)=>{ const s2=r*0.10*(0.7+0.5*Math.sin(performance.now()/200+i)); ctx.beginPath(); ctx.arc(x+dx*r*.7,y+dy*r*.7,s2,0,7); ctx.fill(); }); ctx.restore(); }
-  else if(special==='bomb'){ ctx.save(); ctx.font=`700 ${r*.55}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('💣', x+r*.5, y-r*.5); ctx.restore(); }
+  else if(special==='bomb'){ ctx.save(); ctx.font=`600 ${r*.55}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('💣', x+r*.5, y-r*.5); ctx.restore(); }
 }
 
 const SPR=new Map(); let FONTS_READY=false;
@@ -478,7 +471,6 @@ function drawQueue(){
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
 }
 
-// ✨ 이펙트 그리기 엔진 강화! (별가루 파티클 대응)
 function draw(now){
   ctx.clearRect(0,0,W,H); ctx.save(); if(G.shake>0.3){ ctx.translate((Math.random()-0.5)*G.shake, (Math.random()-0.5)*G.shake); }
   
@@ -490,7 +482,7 @@ function draw(now){
         if(y<BY+BH){ if(x<BX+R){x=BX+R;vx*=-1;} if(x>BX+BW-R){x=BX+BW-R;vx*=-1;} } 
         if(y<=BY+R)break; 
         if(y<BY+BH&&hitsBubble(x,y))break; 
-        if(i%2===0)G.trajPts.push([x,y]); // 촘촘한 가이드 선 유지
+        if(i%2===0)G.trajPts.push([x,y]); 
       } 
     }
     const pts=G.trajPts; 
@@ -519,7 +511,6 @@ function draw(now){
   for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++){ const b=at(c,r); if(!b)continue; let rr=R*.94, bx=cx(c,r), by=cy(r); if(b.born){const t=Math.min(1,(now-b.born)/220);rr*=(.62+.38*t+.12*Math.sin(t*Math.PI));} if(b.nope){ const dt=now-b.nope; if(dt<400) bx+=Math.sin(dt/28)*Math.max(0,4-dt/100); else b.nope=0; } bubble(bx,by,rr,b.s,b.col,!!b.glow,b.special); }
   if(G.fly)bubble(G.fly.x,G.fly.y,R*.94,G.fly.s,G.fly.col);
   
-  // ✨ 별 모양 파티클 지원 렌더링 로직
   for(let p of PARTICLE_POOL) if(p.active){ 
     ctx.save();
     ctx.globalAlpha=Math.max(0, Math.min(1, p.life)); 
@@ -530,7 +521,7 @@ function draw(now){
     ctx.beginPath();
     
     if(p.shape === 'star') {
-      for(let j=0; j<10; j++){ // 5각 별 그리기 (내각, 외각 번갈아가며)
+      for(let j=0; j<10; j++){ 
         const rad = j % 2 === 0 ? p.r : p.r * 0.4;
         ctx.lineTo(Math.cos(j * Math.PI * 0.2) * rad, Math.sin(j * Math.PI * 0.2) * rad);
       }
@@ -553,17 +544,16 @@ function draw(now){
   if (G.combo >= 3) { ctx.save(); const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 150); ctx.lineWidth = 14; ctx.strokeStyle = `rgba(255, 177, 92, ${pulse * 0.7})`; ctx.strokeRect(0, 0, W, H); ctx.restore(); }
 }
 
-// ✨ 파티클 물리 엔진 (회전력, 중력 차등화)
 function tick(now){
   stepFly();
   for(let p of PARTICLE_POOL) if(p.active) { 
     p.x+=p.vx; p.y+=p.vy; 
     if(p.shape === 'star') {
-      p.vy += 0.1; // 별은 조금 더 사뿐히 떨어짐
+      p.vy += 0.1; 
       if(p.rot !== undefined) p.rot += p.vr; 
       p.life -= 0.018; 
     } else {
-      p.vy += 0.22; // 동그라미는 빠르게 떨어짐
+      p.vy += 0.22; 
       p.life -= 0.028; 
     }
     if(p.life<=0) p.active=false; 
@@ -605,6 +595,8 @@ window.addEventListener('load', () => {
         <button class="btn" id="goBtn" style="width:100%;">이어서 하기</button>
         <div style="margin-top:16px; display:flex; gap:10px;">
           <button class="btn" id="restartBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">새로 시작</button>
+          
+          <!-- ✨ 메인 화면 버튼 누르면 팝업 열기 연결 -->
           <button class="btn" id="switchBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">메인 화면</button>
         </div>
       `);
@@ -621,8 +613,38 @@ window.addEventListener('load', () => {
         if(SAVE.vibeOn !== false && navigator.vibrate) navigator.vibrate(20);
       };
       document.getElementById('goBtn').onclick = () => { hide(); G.locked = false; };
-      document.getElementById('switchBtn').onclick = (ev) => { ev.preventDefault(); hide(); openMap(); };
       document.getElementById('restartBtn').onclick = (ev) => { ev.preventDefault(); if (!spendLife()) return; hide(); startGame(false, G.stage); };
+
+      // ✨ 메인 화면 클릭 시, 바로 나가지 않고 한 번 더 물어보는 경고 팝업!
+      document.getElementById('switchBtn').onclick = (ev) => { 
+        ev.preventDefault(); 
+        show(`
+          <h2>그만하기</h2>
+          <div style="font-size:40px; margin:10px 0;">😿</div>
+          <p style="margin:10px 0; line-height:1.4;">
+            타이틀로 나가시겠어요?<br>
+            <span style="font-size:13px; color:#ff9a5c;">이번 플레이에서 얻은 점수가 사라집니다.</span>
+          </p>
+          <div style="display:flex; gap:10px; margin-top:16px;">
+            <button class="btn" id="cancelQuitBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">취소</button>
+            <button class="btn" id="confirmQuitBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">나가기</button>
+          </div>
+        `);
+        
+        // 취소하면 게임으로 복귀
+        document.getElementById('cancelQuitBtn').onclick = () => {
+          SFX.click();
+          hide();
+          G.locked = false; 
+        };
+        
+        // 나가기 하면 맵(메인)으로 이동
+        document.getElementById('confirmQuitBtn').onclick = () => {
+          SFX.click();
+          hide();
+          openMap(); 
+        };
+      };
     };
   }
 
@@ -686,7 +708,7 @@ function win(){
 function lose(){
   G.locked=true; SFX.gameOver(); const canRevive=(SAVE.revives||0)>0;
   show(`<h2>아쉬워요!</h2><p>버블이 바닥까지 내려왔어요.<br>스테이지 ${G.stage} · ${G.score.toLocaleString()}점</p>${canRevive?`<button class="btn" id="revive" style="border-color:#ff6b81;color:#ffe0e6;text-shadow:0 0 10px #ff6b81;box-shadow:0 0 16px rgba(255,107,129,.55),inset 0 0 14px rgba(255,107,129,.25);margin-top:14px">❤️ 부활권 사용 (보유 ${SAVE.revives})</button>`:''}<button class="btn" id="go" style="margin-top:${canRevive?10:16}px">다시 하기</button>`);
-  if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
+  if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
 function intro() {
@@ -749,7 +771,6 @@ function boot(){
   initCanvas();
   resize(); 
   
-  // ✨ 강제 100스테이지 오픈 테스트용 (주석 처리 시 원복)
   applyDebugZones(); 
   
   G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
