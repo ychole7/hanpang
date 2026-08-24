@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 스테이지 진입 오류(least 변수 선언 누락) 완벽 수정 버전
+   낱글자 팡팡! — 신규 맵 배경(성문 아래, 길 위쪽 흐름) 맞춤 좌표 재조정 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -106,7 +106,6 @@ const AXES=[ {fwd:(c,r)=>[c+1,r],back:(c,r)=>[c-1,r]}, {fwd:(c,r)=>[c+po(r),r+1]
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
 let _fillCount={}; function resetFillCount(){ _fillCount={}; }
 
-// ✨ 버그 수정: least 변수 대신 leastUsed 배열을 정상 참조하도록 수정 완료
 function fillSyllable(c,r){ 
   const avoid=new Set(); 
   if(c>0 && G.grid[r] && G.grid[r][c-1]) avoid.add(G.grid[r][c-1].s); 
@@ -830,11 +829,11 @@ function renderMapLives(){
 const ZONES=[ {key:'forest', img:'assets/map_bg.png'} ]; 
 function zoneIdx(lv){ return Math.min(4, Math.floor((lv-1)/100)); }
 
+// ✨ 성문이 아래에 있고 위로 올라가는 신규 맵 일러스트 곡선 흐름에 완벽 맞춤형 좌표 재설계!
 const PATH_POINTS={ 
   forest: [ 
-    [50,95],[55,92],[60,89],[63,85],[62,80],[58,76],[52,73],[47,70],[44,65],[45,60],
-    [50,55],[55,52],[60,49],[63,45],[61,40],[55,36],[48,33],[43,29],[42,24],[45,19],
-    [50,15],[56,12],[62,9],[58,6],[52,4]
+    [50,88],[45,82],[50,76],[58,70],[55,64],[45,59],[40,53],[48,47],[56,42],[52,36],
+    [44,31],[45,25],[52,20],[58,15],[52,10]
   ] 
 };
 const PATH_IMG_ASPECT={ forest: 2.16 };
