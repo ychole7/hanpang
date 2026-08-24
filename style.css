@@ -33,7 +33,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .big-num { color: #ffffff; font-size: 26px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
 
 /* ✨ 목표 단어: 위로 올림 (20%) */
-.target-title { position: absolute; top: 5%; left: 50%; transform: translateX(-50%); font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 1px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+.target-title { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 1px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 
 /* ✨ 제시어(칩): 스테이지/점수와 동일한 62% 라인에 안착 */
 .target-scroll-wrapper { position: absolute; top: 62%; left: 0; width: 100%; transform: translateY(-50%); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
