@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 메인화면 나가기 전 '경고 팝업' 로직 추가
+   낱글자 팡팡! — 메인화면(로비) 완벽 개편 & 나가기 팝업 
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -569,86 +569,107 @@ function tick(now){
 function aimAt(px,py){ const dx=px-W/2,dy=py-G.shooterY; let a=Math.atan2(dy,dx); const lim=.22; if(a>-lim)a=-lim; if(a<-Math.PI+lim)a=-Math.PI+lim; G.aim=a; }
 function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect(); const scaleX = cv.width / rect.width / DPR; const scaleY = cv.height / rect.height / DPR; return [(e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY]; }
 
-window.addEventListener('load', () => {
-  const btnSettings = document.getElementById('btnSettings');
-  if (btnSettings) {
-    btnSettings.onclick = () => {
-      if (veil.classList.contains('on')) return;
-      G.locked = true;
-      SFX.click();
+// ✨ 모달 설정창 (맵 화면과 인게임 통합 관리)
+function openSettings(isMap) {
+  if (veil.classList.contains('on')) return;
+  G.locked = true;
+  SFX.click();
 
-      const sOn = soundOn() ? '🔊' : '🔇';
-      const vOn = (SAVE.vibeOn !== false) ? '📳' : '📴';
+  const sOn = soundOn() ? '🔊' : '🔇';
+  const vOn = (SAVE.vibeOn !== false) ? '📳' : '📴';
 
+  let extraBtns = '';
+  if(isMap) {
+    extraBtns = `<button class="btn" id="modalCloseBtn" style="width:100%; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">닫기</button>`;
+  } else {
+    extraBtns = `
+      <button class="btn" id="goBtn" style="width:100%;">이어서 하기</button>
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <button class="btn" id="restartBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">새로 시작</button>
+        <button class="btn" id="switchBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">메인 화면</button>
+      </div>
+    `;
+  }
+
+  show(`
+    <h2>⚙️ 설정</h2>
+    <div style="display:flex; justify-content:center; gap:20px; margin: 20px 0;">
+      <div style="text-align:center;">
+        <button class="icon-btn" id="modalSound" style="width:54px; height:54px; font-size:24px;">${sOn}</button>
+        <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">소리</div>
+      </div>
+      <div style="text-align:center;">
+        <button class="icon-btn" id="modalVibe" style="width:54px; height:54px; font-size:24px;">${vOn}</button>
+        <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">진동</div>
+      </div>
+    </div>
+    ${extraBtns}
+  `);
+
+  document.getElementById('modalSound').onclick = function() {
+    SAVE.soundOn = !soundOn(); saveGame(true);
+    this.textContent = soundOn() ? '🔊' : '🔇';
+    if(soundOn()) SFX.click();
+  };
+  document.getElementById('modalVibe').onclick = function() {
+    SAVE.vibeOn = SAVE.vibeOn === false ? true : false; saveGame(true);
+    this.textContent = SAVE.vibeOn !== false ? '📳' : '📴';
+    if(soundOn()) SFX.click();
+    if(SAVE.vibeOn !== false && navigator.vibrate) navigator.vibrate(20);
+  };
+  
+  if(isMap) {
+    document.getElementById('modalCloseBtn').onclick = () => { hide(); G.locked = false; };
+  } else {
+    document.getElementById('goBtn').onclick = () => { hide(); G.locked = false; };
+    document.getElementById('restartBtn').onclick = (ev) => { ev.preventDefault(); if (!spendLife()) return; hide(); startGame(false, G.stage); };
+    
+    // ✨ 메인 화면 클릭 시, 바로 나가지 않고 한 번 더 물어보는 경고 팝업!
+    document.getElementById('switchBtn').onclick = (ev) => { 
+      ev.preventDefault(); 
       show(`
-        <h2>⚙️ 설정</h2>
-        <div style="display:flex; justify-content:center; gap:20px; margin: 20px 0;">
-          <div style="text-align:center;">
-            <button class="icon-btn" id="modalSound" style="width:54px; height:54px; font-size:24px;">${sOn}</button>
-            <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">소리</div>
-          </div>
-          <div style="text-align:center;">
-            <button class="icon-btn" id="modalVibe" style="width:54px; height:54px; font-size:24px;">${vOn}</button>
-            <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">진동</div>
-          </div>
-        </div>
-        <button class="btn" id="goBtn" style="width:100%;">이어서 하기</button>
-        <div style="margin-top:16px; display:flex; gap:10px;">
-          <button class="btn" id="restartBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">새로 시작</button>
-          
-          <!-- ✨ 메인 화면 버튼 누르면 팝업 열기 연결 -->
-          <button class="btn" id="switchBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">메인 화면</button>
+        <h2>그만하기</h2>
+        <div style="font-size:40px; margin:10px 0;">😿</div>
+        <p style="margin:10px 0; line-height:1.4;">
+          타이틀로 나가시겠어요?<br>
+          <span style="font-size:13px; color:#ff9a5c;">이번 플레이에서 얻은 점수가 사라집니다.</span>
+        </p>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button class="btn" id="cancelQuitBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">취소</button>
+          <button class="btn" id="confirmQuitBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">나가기</button>
         </div>
       `);
-
-      document.getElementById('modalSound').onclick = function() {
-        SAVE.soundOn = !soundOn(); saveGame(true);
-        this.textContent = soundOn() ? '🔊' : '🔇';
-        if(soundOn()) SFX.click();
+      
+      // 취소하면 게임으로 복귀
+      document.getElementById('cancelQuitBtn').onclick = () => {
+        SFX.click();
+        hide();
+        G.locked = false; 
       };
-      document.getElementById('modalVibe').onclick = function() {
-        SAVE.vibeOn = SAVE.vibeOn === false ? true : false; saveGame(true);
-        this.textContent = SAVE.vibeOn !== false ? '📳' : '📴';
-        if(soundOn()) SFX.click();
-        if(SAVE.vibeOn !== false && navigator.vibrate) navigator.vibrate(20);
-      };
-      document.getElementById('goBtn').onclick = () => { hide(); G.locked = false; };
-      document.getElementById('restartBtn').onclick = (ev) => { ev.preventDefault(); if (!spendLife()) return; hide(); startGame(false, G.stage); };
-
-      // ✨ 메인 화면 클릭 시, 바로 나가지 않고 한 번 더 물어보는 경고 팝업!
-      document.getElementById('switchBtn').onclick = (ev) => { 
-        ev.preventDefault(); 
-        show(`
-          <h2>그만하기</h2>
-          <div style="font-size:40px; margin:10px 0;">😿</div>
-          <p style="margin:10px 0; line-height:1.4;">
-            타이틀로 나가시겠어요?<br>
-            <span style="font-size:13px; color:#ff9a5c;">이번 플레이에서 얻은 점수가 사라집니다.</span>
-          </p>
-          <div style="display:flex; gap:10px; margin-top:16px;">
-            <button class="btn" id="cancelQuitBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">취소</button>
-            <button class="btn" id="confirmQuitBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">나가기</button>
-          </div>
-        `);
-        
-        // 취소하면 게임으로 복귀
-        document.getElementById('cancelQuitBtn').onclick = () => {
-          SFX.click();
-          hide();
-          G.locked = false; 
-        };
-        
-        // 나가기 하면 맵(메인)으로 이동
-        document.getElementById('confirmQuitBtn').onclick = () => {
-          SFX.click();
-          hide();
-          openMap(); 
-        };
+      
+      // 나가기 하면 맵(메인)으로 이동
+      document.getElementById('confirmQuitBtn').onclick = () => {
+        SFX.click();
+        hide();
+        openMap(); 
       };
     };
   }
+}
+
+window.addEventListener('load', () => {
+  const btnSettings = document.getElementById('btnSettings');
+  if (btnSettings) btnSettings.onclick = () => openSettings(false);
+  
+  const btnMapSettings = document.getElementById('btnMapSettings');
+  if (btnMapSettings) btnMapSettings.onclick = () => openSettings(true);
 
   const btnShop=document.getElementById('btnShop'); if(btnShop) btnShop.onclick=()=>{ if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
+  
+  // 맵 하단 상점 버튼 연결
+  const navShop = document.getElementById('navShop');
+  if (navShop) navShop.onclick = () => { SFX.click(); openShop(); };
+
   const btnSwap=document.getElementById('btnSwap'); if(btnSwap) btnSwap.onclick=()=>{ if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
   const btnHint=document.getElementById('btnHint'); if(btnHint) btnHint.onclick=()=>{ if(G.hints<=0||G.fly||G.locked)return; SFX.click(); const hit=completionsFor(G.cur.s); if(!hit.length){toast('이 글자로는 만들 단어가 없어요');return;} hit.sort((a,b)=>(b.cat===G.goal)-(a.cat===G.goal)||b.word.length-a.word.length); G.hints--; G.hintCells=[[hit[0].c,hit[0].r]]; toast(hit[0].word,[[hit[0].c,hit[0].r]]); syncUI(); };
   const btnBomb=document.getElementById('btnBomb'); if(btnBomb) btnBomb.onclick=()=>{ if(G.bombs<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='bomb' ? null : 'bomb'; syncUI(); };
@@ -708,7 +729,7 @@ function win(){
 function lose(){
   G.locked=true; SFX.gameOver(); const canRevive=(SAVE.revives||0)>0;
   show(`<h2>아쉬워요!</h2><p>버블이 바닥까지 내려왔어요.<br>스테이지 ${G.stage} · ${G.score.toLocaleString()}점</p>${canRevive?`<button class="btn" id="revive" style="border-color:#ff6b81;color:#ffe0e6;text-shadow:0 0 10px #ff6b81;box-shadow:0 0 16px rgba(255,107,129,.55),inset 0 0 14px rgba(255,107,129,.25);margin-top:14px">❤️ 부활권 사용 (보유 ${SAVE.revives})</button>`:''}<button class="btn" id="go" style="margin-top:${canRevive?10:16}px">다시 하기</button>`);
-  if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
+  if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
 function intro() {
@@ -744,13 +765,51 @@ function startGame(resume, atStage){
 }
 
 let _mapLivesTimer=null;
-function renderMapLives(){ const el=document.getElementById('mapLives'); if(!el)return; const s=computeLives(); if(s.count>=MAX_LIVES){ el.innerHTML=`❤️ ${s.count}/${MAX_LIVES}`; return; } const sec=Math.ceil(secToNextLife()); el.innerHTML=`❤️ ${s.count}/${MAX_LIVES} <small>${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</small>`; }
+// ✨ 메인화면과 인게임 하트를 동시 관리
+function renderMapLives(){ 
+  const s=computeLives(); 
+  const uiLives = document.getElementById('uiLives'); 
+  if(uiLives) uiLives.textContent = s.count;
+
+  const mapLives = document.getElementById('mapUI_lives');
+  const mapTimer = document.getElementById('mapUI_timer');
+  if(mapLives) mapLives.textContent = s.count;
+  
+  if(mapTimer) {
+    if(s.count>=MAX_LIVES){ 
+      mapTimer.textContent = 'MAX'; 
+    } else {
+      const sec=Math.ceil(secToNextLife()); 
+      mapTimer.textContent = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`; 
+    }
+  }
+}
+
 const ZONES=[ {key:'forest', img:'assets/bg_main.png'} ]; function zoneIdx(lv){ return Math.min(4, Math.floor((lv-1)/100)); }
 const PATH_POINTS={ forest: [ [58.33,99.31],[64.43,97.62],[51.48,96.65],[36.81,95.95],[37.76,94.58],[52.81,94.12],[66.52,93.36],[56.05,91.97],[41.38,91.32],[45.57,89.79], [58.33,88.69],[47.67,87.29],[33.76,86.96],[26.9,85.51],[41.19,84.95],[53.57,84.3],[47.29,82.96],[59.19,82.06],[74.67,81.28],[74.67,80.11], [59.67,79.63],[46.57,79.16],[46.81,77.82],[57.05,76.47],[41.1,75.67],[61.19,74.32],[54.33,73.03],[40.43,71.79],[46.9,70.61],[57.29,69.66], [68.24,68.61],[59.67,67.54],[48,66.87],[38.71,65.93],[38.48,64.48],[49.19,63.67],[59.67,62.93],[68.24,61.92],[59.43,61.05],[48.48,60.31], [39.19,59.57],[37.95,58.1],[49.76,57.35],[59.67,56.51],[57.76,55.07],[47.48,54.31],[40.14,53.06],[51.1,52.22],[58.71,51.28],[46.33,50.51], [60.62,49.52],[53.95,48.21],[43.1,47.35],[37.95,45.71],[49.95,45.04],[57.76,44.04],[58.71,42.77],[48.62,41.92],[39.19,41.15],[39.9,39.77], [51.1,39.2],[61.1,38.46],[61.81,37.05],[50.38,36.31],[38.95,35.44],[45.38,34.26],[39.67,32.37],[55.29,33.29],[61,32.0],[50.33,31.06], [39.67,30.11],[48.43,28.82],[59.29,27.69],[57.57,26.4],[49.95,25.46],[56.43,24.6],[48.24,23.54],[25,22.82],[37.38,22.15],[48.43,21.45], [55.67,20.21],[47.67,19.08],[37.19,18.28],[28.81,17.15],[39.48,16.23],[50.33,15.48],[60.24,14.54],[59.1,13.09],[48.81,12.47],[40.43,11.55], [33.95,8.59],[48.24,10.13],[58.33,9.16],[63.29,7.92],[52.62,7.09],[41.57,6.23],[31.1,5.58],[25.19,4.64],[37.29,4.35],[45.62,3.28] ] };
 const PATH_IMG_ASPECT={ forest: 6398/900 };
 
 function openMap(_isRetry){
-  const mv=document.getElementById('mapVeil'); if(mv)mv.classList.add('on'); const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const allCleared = maxUnlocked>=MAX_STAGE && stars[MAX_STAGE]!=null; const TOTAL = MAX_STAGE; 
+  const ms=document.getElementById('mapScreen'); if(ms)ms.classList.add('on'); 
+  const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const allCleared = maxUnlocked>=MAX_STAGE && stars[MAX_STAGE]!=null; const TOTAL = MAX_STAGE; 
+  
+  // 메인 화면 재화 동기화
+  const elCoins = document.getElementById('mapUI_coins');
+  if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
+
+  // 게임시작(최고 스테이지) 버튼 연동
+  const playBtn = document.getElementById('btnMapPlay');
+  if(playBtn) {
+    playBtn.onclick = () => {
+      if(!spendLife()) return;
+      SFX.click();
+      ms.classList.remove('on');
+      clearInterval(_mapLivesTimer);
+      G.mode = 'theme';
+      startGame(false, maxUnlocked);
+    };
+  }
+
   const scrollEl=document.getElementById('mapScroll'); const containerW=scrollEl.clientWidth||390; const curZone=zoneIdx(TOTAL);
   function xPct(lv){ return 50+Math.sin(lv*0.9)*26+((Math.sin(lv*12.9898)*43758.5453)%1 - 0.5)*10; }
   const zoneH=[]; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zoneH[z] = PATH_POINTS[key] ? containerW*PATH_IMG_ASPECT[key] : 100*108; } const H = zoneH.reduce((a,b)=>a+b,0) + 120; const zoneTop=[], zoneBot=[]; { let bot=H-60; for(let z=0; z<=curZone; z++){ zoneBot[z]=bot; zoneTop[z]=bot-zoneH[z]; bot=zoneTop[z]; } }
@@ -758,11 +817,36 @@ function openMap(_isRetry){
   let zonesHtml=''; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zonesHtml += `<img src="${ZONES[z].img}" style="position:absolute;left:0;top:${zoneTop[z]}px;width:100%;height:${zoneH[z]}px;z-index:0;pointer-events:none;object-fit:cover;">`; }
   let nodesHtml='', pathPts=[]; for(let lv=1; lv<=TOTAL; lv++){ const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext, isMilestone = lv%MILESTONE_EVERY===0, isFinal = lv===MAX_STAGE, cls = done?'done':(isNext?'next':'locked'), extraCls = isFinal?' mfinal':(isMilestone?' mmilestone':''), p=nodePos(lv); pathPts.push([p.x,p.y]); const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; const icon = isFinal ? '👑' : (isMilestone ? '🎁' : lv); nodesHtml += `<div class="mnode ${cls}${extraCls}" data-lv="${lv}" style="left:${p.x}%;top:${p.y}px">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':icon}${starHtml}</div>`; }
   let pathD=''; pathPts.forEach((p,i)=>{ if(i===0) pathD+=`M${p[0]},${p[1]}`; else pathD+=` C${pathPts[i-1][0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${p[1]}`; });
+  
+  // Inner HTML 삽입
   scrollEl.innerHTML=`<div id="mapInner" style="height:${H}px">${allCleared?`<div style="position:absolute;left:50%;top:20px;transform:translateX(-50%);color:#f5e3ae;text-align:center;font-size:14px;padding:6px 16px;white-space:nowrap;z-index:3">🏆 100 스테이지 완주! 대단해요</div>`:''}${zonesHtml}<svg viewBox="0 0 100 ${H}" preserveAspectRatio="none" style="position:absolute;left:0;top:0;width:100%;height:${H}px;z-index:1;pointer-events:none"><path d="${pathD}" fill="none" stroke="#fff3c4" stroke-width="0.7" stroke-linecap="round" stroke-dasharray="0.5 1.2" opacity="0.45" vector-effect="non-scaling-stroke"/></svg>${nodesHtml}</div>`;
+  
   if(!_isRetry){ requestAnimationFrame(()=>{ if(Math.abs(scrollEl.clientWidth - containerW) > 2){ openMap(true); return; } }); } renderMapLives(); clearInterval(_mapLivesTimer); _mapLivesTimer=setInterval(renderMapLives,1000);
-  const tabsEl=document.getElementById('seasonTabs'); if(tabsEl){ if(ZONES.length <= 1){ tabsEl.innerHTML=''; } else { let tabsHtml=''; for(let z=0; z<ZONES.length; z++) tabsHtml += `<div class="stab ${z<=curZone?'':'locked'}" data-z="${z}">S${z+1}</div>`; tabsEl.innerHTML=tabsHtml; tabsEl.querySelectorAll('.stab').forEach(t=>{ t.onclick=()=>{ const z=+t.dataset.z; if(z>curZone) return; SFX.click(); scrollEl.scrollTo({top: Math.max(0, (zoneTop[z]+zoneBot[z])/2 - scrollEl.clientHeight/2), behavior:'smooth'}); }; }); } }
+  
+  // 현 위치 (스크롤 이동) 버튼 연동
+  const pinBtn = document.getElementById('btnMapCurrent');
+  if(pinBtn) {
+    pinBtn.onclick = () => {
+      SFX.click();
+      const nextEl=scrollEl.querySelector('.mnode.next')||scrollEl.querySelector('.mnode.done:last-of-type'); 
+      if(nextEl) nextEl.scrollIntoView({block:'center', behavior:'smooth'});
+    };
+  }
+
   requestAnimationFrame(()=>{ const nextEl=scrollEl.querySelector('.mnode.next')||scrollEl.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
-  scrollEl.querySelectorAll('.mnode').forEach(el=>{ el.onclick=()=>{ const lv=+el.dataset.lv; if(el.classList.contains('locked') || !spendLife()) return; SFX.click(); document.getElementById('mapVeil').classList.remove('on'); clearInterval(_mapLivesTimer); G.mode='theme'; startGame(false, lv); }; });
+  
+  // 맵 노드 직접 클릭해서 이동하기 (기존 기능 유지)
+  scrollEl.querySelectorAll('.mnode').forEach(el=>{ 
+    el.onclick=()=>{ 
+      const lv=+el.dataset.lv; 
+      if(el.classList.contains('locked') || !spendLife()) return; 
+      SFX.click(); 
+      ms.classList.remove('on'); 
+      clearInterval(_mapLivesTimer); 
+      G.mode='theme'; 
+      startGame(false, lv); 
+    }; 
+  });
 }
 
 function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelStars={}); for(let i=1;i<=Math.max(1, MAX_STAGE-1);i++){ if(ls[i]==null) ls[i]=3; } }

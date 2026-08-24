@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0a0604">
-<title>한글팡!</title>
+<title>낱글자 팡팡!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
@@ -13,44 +13,28 @@
 <body>
 
 <div id="app">
-  <!-- 인트로(스플래시) 화면 -->
   <div id="introScreen">
     <button class="intro-start-btn" id="btnStartAdventure">🚀 모험 시작하기</button>
   </div>
 
   <div id="bgLayer"></div>
 
-  <!-- ✨ 상단 UI: 톱니바퀴(설정) 버튼으로 깔끔하게 정리 -->
+  <!-- 인게임 상단 UI -->
   <div id="topUI">
     <div class="top-menu-row">
       <button class="icon-btn" id="btnSettings">⚙️</button>
       <div class="stat-pill">❤️<b id="uiLives">6</b></div>
       <div class="stat-pill">💰<b id="uiCoins">0</b></div>
     </div>
-    
-    <div class="stage-box">
-      <div class="side-title">스테이지</div>
-      <div id="uiStage" class="big-num">1</div>
-    </div>
-    
-    <div class="target-box">
-      <div class="target-title">목표 단어</div>
-      <div class="target-scroll-wrapper">
-        <div id="targetBar"></div>
-      </div>
-    </div>
-    
-    <div class="score-box">
-      <div class="side-title">점수</div>
-      <div id="uiScoreBig" class="big-num">0</div>
-    </div>
+    <div class="stage-box"><div class="side-title">스테이지</div><div id="uiStage" class="big-num">1</div></div>
+    <div class="target-box"><div class="target-title">목표 단어</div><div class="target-scroll-wrapper"><div id="targetBar"></div></div></div>
+    <div class="score-box"><div class="side-title">점수</div><div id="uiScoreBig" class="big-num">0</div></div>
   </div>
 
-  <div id="gameArea">
-    <canvas id="cv"></canvas>
-  </div>
+  <!-- 인게임 게임 구역 -->
+  <div id="gameArea"><canvas id="cv"></canvas></div>
 
-  <!-- 하단 UI -->
+  <!-- 인게임 하단 UI -->
   <div id="bottomUI">
     <button class="item-btn" id="btnHint"><div class="badge" id="uiHint">3</div></button>
     <button class="item-btn" id="btnSwap"><div class="badge" id="uiSwap">3</div></button>
@@ -59,7 +43,42 @@
   </div>
 
   <div class="veil" id="veil"><div class="card" id="card"></div></div>
-  <div id="mapVeil"><div id="mapScroll"></div><div id="mapLives"></div><div id="seasonTabs"></div></div>
+  
+  <!-- ✨ 새롭게 개편된 메인 화면 (지도 로비) -->
+  <div id="mapScreen">
+    <div id="mapScroll"><div id="mapInner"></div></div>
+    
+    <!-- 메인 상단 고정 UI -->
+    <div id="mapTopBar">
+      <button class="map-icon-btn" id="btnMapSettings">⚙️</button>
+      <div class="map-stat-pill" id="mapLivesPill">
+        <div style="font-size:20px; margin-right:4px;">❤️</div>
+        <div style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.1;">
+          <b id="mapUI_lives" style="font-size:16px;">5</b>
+          <span id="mapUI_timer" style="font-size:11px; color:#a08660;">00:00</span>
+        </div>
+        <button class="plus-btn" onclick="SFX.click()">+</button>
+      </div>
+      <div class="map-stat-pill" id="mapCoinsPill">
+        <div style="font-size:20px; margin-right:4px;">💰</div>
+        <b id="mapUI_coins" style="font-size:16px;">0</b>
+        <button class="plus-btn" onclick="SFX.click(); openShop();">+</button>
+      </div>
+    </div>
+
+    <!-- 메인 중앙 하단 액션 (게임 시작) -->
+    <div id="mapActionBox">
+      <button id="btnMapPlay">게임시작 <div class="heart-cost">-1❤️</div></button>
+      <button id="btnMapCurrent">📍<br><small>현 위치</small></button>
+    </div>
+
+    <!-- 메인 하단 네비게이션 탭 -->
+    <div id="mapBottomBar">
+      <button class="map-nav-btn" id="navRank" onclick="SFX.click(); toast('순위 기능은 준비 중입니다!')">🏆<br><span>순위</span></button>
+      <button class="map-nav-btn active" id="navHome">🏠<br><span>홈</span></button>
+      <button class="map-nav-btn" id="navShop">🏪<br><span>상점</span></button>
+    </div>
+  </div>
 </div>
 
 <script src="game.js"></script>
