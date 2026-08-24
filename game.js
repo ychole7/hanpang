@@ -1,12 +1,12 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 설정창 팝업(소리/진동/나가기) 완벽 세팅
+   낱글자 팡팡! — 시작버튼 복구 & 설정창 도입 완료
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
 function loadSave(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return null; const d=JSON.parse(raw); if(!d.free) d.free={stage:1,score:0,bestScore:0,bestStage:1}; if(!d.theme) d.theme={stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}; if(typeof d.coins!=='number') d.coins=0; if(typeof d.revives!=='number') d.revives=0; if(typeof d.totalStars!=='number') d.totalStars=0; if(!d.lives) d.lives={count:6,lastUpdate:Date.now()}; return d; }catch(e){ return null; } }
 let SAVE = loadSave() || { free:{stage:1,score:0,bestScore:0,bestStage:1}, theme:{stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}, lastMode:'theme', coins:0, revives:0, totalStars:0, lives:{count:6,lastUpdate:Date.now()} };
 
-// ✨ 진동 설정 초기값 세팅 (없으면 기본 켜짐)
+// 진동 설정 초기값 (기본 켜짐)
 if(typeof SAVE.vibeOn === 'undefined') SAVE.vibeOn = true;
 
 const MAX_LIVES=6, LIFE_REGEN_MS=60000;
@@ -226,8 +226,6 @@ function stepFly(){
     for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++) if(at(c,r) && (f.x-cx(c,r))**2+(f.y-cy(r))**2<(R*1.82)**2){ settle(f);return; }
   }
 }
-
-// ✨ 진동 함수 추가! (게임 액션마다 햅틱 반응)
 function doVibe(ms){ if(SAVE && SAVE.vibeOn!==false && navigator.vibrate){ try{ navigator.vibrate(ms); }catch(e){} } }
 
 function explodeAt(c,r){
@@ -311,11 +309,8 @@ function checkState(){
   if(count===0){win();return;} if(G.targets.length && G.targets.every(w=>G.done[w])){win();return;} if(cy(lowest)+R>BY+BH) lose();
 }
 
-function addShake(amt){ G.shake=Math.min(G.shake+amt, 14); doVibe(30); } 
-function addWave(x,y,col,maxR){ G.waves.push({x,y,col,r:R*0.3,maxR:maxR||R*2.4,life:1}); } 
-function addPop(x,y,text,col){ G.pops.push({x,y,text,col:col||'#fff6d0',life:1,vy:-1.2}); } 
-function flash(a){ G.flash=Math.max(G.flash,a); }
-function burst(x,y,col){ doVibe(15); for(let i=0;i<14;i++){ const p=getParticle(); if(!p) continue; const a=Math.random()*Math.PI*2,sp=1+Math.random()*4.5; p.active=true; p.x=x; p.y=y; p.vx=Math.cos(a)*sp; p.vy=Math.sin(a)*sp-1; p.life=1; p.col=col; p.r=2+Math.random()*4; } SFX.pop(); }
+function addShake(amt){ G.shake=Math.min(G.shake+amt, 14); } function addWave(x,y,col,maxR){ G.waves.push({x,y,col,r:R*0.3,maxR:maxR||R*2.4,life:1}); } function addPop(x,y,text,col){ G.pops.push({x,y,text,col:col||'#fff6d0',life:1,vy:-1.2}); } function flash(a){ G.flash=Math.max(G.flash,a); }
+function burst(x,y,col){ for(let i=0;i<14;i++){ const p=getParticle(); if(!p) continue; const a=Math.random()*Math.PI*2,sp=1+Math.random()*4.5; p.active=true; p.x=x; p.y=y; p.vx=Math.cos(a)*sp; p.vy=Math.sin(a)*sp-1; p.life=1; p.col=col; p.r=2+Math.random()*4; } SFX.pop(); }
 function toast(text,cells){ let x=W/2,y=H*0.34; if(cells&&cells.length){ x=cells.reduce((a,[c,r])=>a+cx(c,r),0)/cells.length; y=cells.reduce((a,[c,r])=>a+cy(r),0)/cells.length; } G.toasts.push({text,x,y,life:1}); }
 
 let actx=null; function getActx(){ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); return actx; }catch(e){ return null; } }
@@ -353,6 +348,7 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.font=`700 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
   const ty=y+r*.06; 
   
+  // 💡 [글씨 색상 설정] 여기에 짙은 회색 글씨를 적용할 구슬 번호를 적으세요!
   const brightBalls = [0, 1, 3, 5, 8, 9]; 
   const isBright = brightBalls.includes(cIdx) || special === 'gold';
 
@@ -434,52 +430,58 @@ function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect();
 
 // ✨ 톱니바퀴(설정) 버튼 모달창 연결 & 햅틱(진동) 토글
 window.addEventListener('load', () => {
-  const btnSettings=document.getElementById('btnSettings'); if(btnSettings) btnSettings.onclick=()=>{
-    if(veil.classList.contains('on'))return; G.locked=true; SFX.click();
-    
-    const sOn = soundOn() ? '🔊' : '🔇';
-    const vOn = (SAVE.vibeOn!==false) ? '📳' : '📴';
-    
-    show(`
-      <h2>⚙️ 설정</h2>
-      <div style="display:flex; justify-content:center; gap:20px; margin: 20px 0;">
-        <div style="text-align:center;">
-          <button class="icon-btn" id="modalSound" style="width:54px; height:54px; font-size:24px;">${sOn}</button>
-          <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">소리</div>
-        </div>
-        <div style="text-align:center;">
-          <button class="icon-btn" id="modalVibe" style="width:54px; height:54px; font-size:24px;">${vOn}</button>
-          <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">진동</div>
-        </div>
-      </div>
-      <button class="btn" id="go" style="width:100%;">이어서 하기</button>
-      <div style="margin-top:16px; display:flex; gap:10px;">
-        <button class="btn" id="restart" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">새로 시작</button>
-        <button class="btn" id="switch" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">메인 화면</button>
-      </div>
-    `);
-    
-    document.getElementById('modalSound').onclick = function() {
-      SAVE.soundOn = !soundOn(); saveGame(true);
-      this.textContent = soundOn() ? '🔊' : '🔇';
-      if(soundOn()) SFX.click();
-    };
-    document.getElementById('modalVibe').onclick = function() {
-      SAVE.vibeOn = SAVE.vibeOn === false ? true : false; saveGame(true);
-      this.textContent = SAVE.vibeOn!==false ? '📳' : '📴';
-      if(soundOn()) SFX.click();
-      if(SAVE.vibeOn!==false && navigator.vibrate) navigator.vibrate(20);
-    };
-    document.getElementById('go').onclick=()=>{hide();G.locked=false;}; 
-    document.getElementById('switch').onclick=ev=>{ev.preventDefault();hide();openMap();}; 
-    document.getElementById('restart').onclick=ev=>{ev.preventDefault();if(!spendLife())return;hide();startGame(false, G.stage);};
-  };
+  const btnSettings = document.getElementById('btnSettings');
+  if (btnSettings) {
+    btnSettings.onclick = () => {
+      if (veil.classList.contains('on')) return;
+      G.locked = true;
+      SFX.click();
 
+      const sOn = soundOn() ? '🔊' : '🔇';
+      const vOn = (SAVE.vibeOn !== false) ? '📳' : '📴';
+
+      show(`
+        <h2>⚙️ 설정</h2>
+        <div style="display:flex; justify-content:center; gap:20px; margin: 20px 0;">
+          <div style="text-align:center;">
+            <button class="icon-btn" id="modalSound" style="width:54px; height:54px; font-size:24px;">${sOn}</button>
+            <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">소리</div>
+          </div>
+          <div style="text-align:center;">
+            <button class="icon-btn" id="modalVibe" style="width:54px; height:54px; font-size:24px;">${vOn}</button>
+            <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">진동</div>
+          </div>
+        </div>
+        <button class="btn" id="goBtn" style="width:100%;">이어서 하기</button>
+        <div style="margin-top:16px; display:flex; gap:10px;">
+          <button class="btn" id="restartBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">새로 시작</button>
+          <button class="btn" id="switchBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">메인 화면</button>
+        </div>
+      `);
+
+      document.getElementById('modalSound').onclick = function() {
+        SAVE.soundOn = !soundOn(); saveGame(true);
+        this.textContent = soundOn() ? '🔊' : '🔇';
+        if(soundOn()) SFX.click();
+      };
+      document.getElementById('modalVibe').onclick = function() {
+        SAVE.vibeOn = SAVE.vibeOn === false ? true : false; saveGame(true);
+        this.textContent = SAVE.vibeOn !== false ? '📳' : '📴';
+        if(soundOn()) SFX.click();
+        if(SAVE.vibeOn !== false && navigator.vibrate) navigator.vibrate(20);
+      };
+      document.getElementById('goBtn').onclick = () => { hide(); G.locked = false; };
+      document.getElementById('switchBtn').onclick = (ev) => { ev.preventDefault(); hide(); openMap(); };
+      document.getElementById('restartBtn').onclick = (ev) => { ev.preventDefault(); if (!spendLife()) return; hide(); startGame(false, G.stage); };
+    };
+  }
+
+  const btnShop=document.getElementById('btnShop'); if(btnShop) btnShop.onclick=()=>{ if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
   const btnSwap=document.getElementById('btnSwap'); if(btnSwap) btnSwap.onclick=()=>{ if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
   const btnHint=document.getElementById('btnHint'); if(btnHint) btnHint.onclick=()=>{ if(G.hints<=0||G.fly||G.locked)return; SFX.click(); const hit=completionsFor(G.cur.s); if(!hit.length){toast('이 글자로는 만들 단어가 없어요');return;} hit.sort((a,b)=>(b.cat===G.goal)-(a.cat===G.goal)||b.word.length-a.word.length); G.hints--; G.hintCells=[[hit[0].c,hit[0].r]]; toast(hit[0].word,[[hit[0].c,hit[0].r]]); syncUI(); };
   const btnBomb=document.getElementById('btnBomb'); if(btnBomb) btnBomb.onclick=()=>{ if(G.bombs<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='bomb' ? null : 'bomb'; syncUI(); };
   const btnRainbow=document.getElementById('btnRainbow'); if(btnRainbow) btnRainbow.onclick=()=>{ if(G.rainbows<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='rainbow' ? null : 'rainbow'; syncUI(); };
-
+  
   if(cv) { cv.addEventListener('pointerdown',e=>{G.dragging=true;aimAt(...localPt(e));}); cv.addEventListener('pointermove',e=>{if(G.dragging)aimAt(...localPt(e));}); cv.addEventListener('pointerup',()=>{ if(!G.dragging)return; G.dragging=false; if(G.aim!=null)shoot(G.aim); G.aim=null; }); cv.addEventListener('pointercancel',()=>{G.dragging=false;G.aim=null;}); }
 });
 
@@ -534,18 +536,25 @@ function win(){
 function lose(){
   G.locked=true; SFX.gameOver(); const canRevive=(SAVE.revives||0)>0;
   show(`<h2>아쉬워요!</h2><p>버블이 바닥까지 내려왔어요.<br>스테이지 ${G.stage} · ${G.score.toLocaleString()}점</p>${canRevive?`<button class="btn" id="revive" style="border-color:#ff6b81;color:#ffe0e6;text-shadow:0 0 10px #ff6b81;box-shadow:0 0 16px rgba(255,107,129,.55),inset 0 0 14px rgba(255,107,129,.25);margin-top:14px">❤️ 부활권 사용 (보유 ${SAVE.revives})</button>`:''}<button class="btn" id="go" style="margin-top:${canRevive?10:16}px">다시 하기</button>`);
-  if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
+  if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
+// ✨ 모험 시작하기 버튼 이벤트 (명시적인 display 관리 추가)
 function intro() {
   const introSc = document.getElementById('introScreen');
-  if (introSc) introSc.classList.remove('hidden');
+  if (introSc) {
+    introSc.style.display = 'flex';
+    introSc.classList.remove('hidden');
+  }
 
   const btnStartAdv = document.getElementById('btnStartAdventure');
   if (btnStartAdv) {
     btnStartAdv.onclick = () => {
       SFX.click(); 
-      if (introSc) introSc.classList.add('hidden'); 
+      if (introSc) {
+        introSc.classList.add('hidden'); 
+        introSc.style.display = 'none';
+      }
       G.mode = 'theme'; 
       openMap(); 
     };
@@ -588,15 +597,14 @@ function openMap(_isRetry){
 function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelStars={}); for(let i=1;i<=Math.max(1, MAX_STAGE-1);i++){ if(ls[i]==null) ls[i]=3; } }
 
 function boot(){ 
-  syncMuteBtn(); 
   initCanvas();
   resize(); 
   try{ if(new URLSearchParams(location.search).get('testmap')==='1') applyDebugZones(); }catch(e){} 
   G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
   intro(); 
   requestAnimationFrame(tick); 
-  loadAssets().then(()=>{ BOARDLAYER=null; }); 
+  loadAssets().catch(()=>{}); 
 }
 
-function markFontsReady(){ FONTS_READY=true; SPR.clear(); BOARDLAYER=null; }
-if(document.fonts&&document.fonts.ready){ boot(); Promise.all([document.fonts.load("800 20px 'Pretendard'"),document.fonts.load("700 20px 'Pretendard'")]).then(()=>document.fonts.ready).then(markFontsReady).catch(()=>{ setTimeout(markFontsReady,800); }); setTimeout(()=>{ if(!FONTS_READY) markFontsReady(); },2000); } else { window.addEventListener('load',()=>{ boot(); setTimeout(markFontsReady,600); }); }
+function markFontsReady(){ FONTS_READY=true; SPR.clear(); }
+if(document.fonts&&document.fonts.ready){ boot(); Promise.all([document.fonts.load("800 20px 'Pretendard'"),document.fonts.load("700 20px 'Pretendard'"),document.fonts.load("600 20px 'Pretendard'"),document.fonts.load("500 20px 'Pretendard'")]).then(()=>document.fonts.ready).then(markFontsReady).catch(()=>{ setTimeout(markFontsReady,800); }); setTimeout(()=>{ if(!FONTS_READY) markFontsReady(); },2000); } else { window.addEventListener('load',()=>{ boot(); setTimeout(markFontsReady,600); }); }

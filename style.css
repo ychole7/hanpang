@@ -5,9 +5,9 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #app { position: relative; width: 100%; height: 100dvh; max-height: 100%; overflow: hidden; }
 
-/* 인트로 */
+/* ✨ 인트로가 무조건 닫히도록 !important 추가 */
 #introScreen { position: absolute; inset: 0; z-index: 200; background: url('assets/intro_bg.png') center / cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12vh; }
-#introScreen.hidden { display: none; }
+#introScreen.hidden { display: none !important; }
 .intro-start-btn { background: linear-gradient(180deg, #ff8a00, #e52e71); border: 3px solid #ffe08c; border-radius: 999px; padding: 18px 45px; font-family: 'Pretendard', sans-serif; font-weight: 900; font-size: 24px; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.6); box-shadow: 0 8px 25px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.4); cursor: pointer; animation: pulseStart 1.5s infinite; }
 .intro-start-btn:active { transform: translateY(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.6); }
 @keyframes pulseStart { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
@@ -15,7 +15,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 /* 배경 */
 #bgLayer { position: absolute; inset: 0; z-index: 0; background: url('assets/bg_main.png') center / cover no-repeat; }
 
-/* 상단 UI */
+/* 상단 UI (-20px 위로 밀어내어 여백 제거) */
 #topUI {
   position: absolute; top: -20px; left: -2%; width: 104%; 
   height: 165px; z-index: 10; margin: 0; padding: 0;
@@ -23,7 +23,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 }
 .top-menu-row { display: flex; gap: 8px; padding: calc(26px + env(safe-area-inset-top)) 16px 0; align-items: center; }
 
-/* 나무판 정렬 */
+/* 스테이지, 점수를 제시어와 맞추어 70% 라인으로 하향! */
 .stage-box { position: absolute; left: 4%; top: 70%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
 .score-box { position: absolute; right: 4%; top: 70%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
 .target-box { position: absolute; left: 24%; right: 24%; top: 0; height: 100%; }
@@ -31,7 +31,10 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .side-title { color: #f5e3ae; opacity: 0.95; font-size: 13px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); margin-bottom: 2px; }
 .big-num { color: #ffffff; font-size: 26px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
 
+/* 목표 단어 텍스트 위치: 38% */
 .target-title { position: absolute; top: 38%; left: 50%; transform: translateX(-50%); font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 1px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+
+/* 제시어(칩) 위치: 70% */
 .target-scroll-wrapper { position: absolute; top: 70%; left: 0; width: 100%; transform: translateY(-50%); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
 .target-scroll-wrapper::-webkit-scrollbar { display: none; }
 #targetBar { display: inline-flex; flex-wrap: nowrap; justify-content: center; gap: 4px; padding: 0 8px; min-width: 100%; }
