@@ -68,7 +68,7 @@ function resize(){
   const bottomUI = document.getElementById('bottomUI');
   
   const topH = topUI ? topUI.getBoundingClientRect().bottom : 140;
-  BY = topH - 40; 
+  BY = topH - 20; 
   
   const botTop = bottomUI ? bottomUI.getBoundingClientRect().top : H - 100;
   G.shooterY = botTop - (R * 3.4); 
