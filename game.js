@@ -71,7 +71,7 @@ function resize(){
   BY = topH + (R * 0.2); 
   
   const botTop = bottomUI ? bottomUI.getBoundingClientRect().top : H - 100;
-  G.shooterY = botTop - (R * 3.4); 
+  G.shooterY = botTop - (R * 4.0); 
   
   BH = G.shooterY - BY;
   ROWH = R * 1.72;
@@ -361,7 +361,7 @@ function drawShooter(now){
   
   if(!G.fly && G.cur) { 
     const bob = Math.sin(now/420) * R * 0.05; 
-    bubble(cx0, G.shooterY - R*0.6 + bob, R*0.94, G.cur.s, G.cur.col, true); 
+    bubble(cx0, G.shooterY - R*0.8 + bob, R*0.94, G.cur.s, G.cur.col, true); 
     
     if(G.activeItem){ ctx.save(); ctx.font=`500 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
