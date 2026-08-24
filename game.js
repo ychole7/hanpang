@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 메인화면(로비) 완벽 개편 & 나가기 팝업 
+   낱글자 팡팡! — 메인 로비 하단 탭 흐름 구조 및 랭킹 팝업 탑재
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -624,7 +624,6 @@ function openSettings(isMap) {
     document.getElementById('goBtn').onclick = () => { hide(); G.locked = false; };
     document.getElementById('restartBtn').onclick = (ev) => { ev.preventDefault(); if (!spendLife()) return; hide(); startGame(false, G.stage); };
     
-    // ✨ 메인 화면 클릭 시, 바로 나가지 않고 한 번 더 물어보는 경고 팝업!
     document.getElementById('switchBtn').onclick = (ev) => { 
       ev.preventDefault(); 
       show(`
@@ -640,14 +639,12 @@ function openSettings(isMap) {
         </div>
       `);
       
-      // 취소하면 게임으로 복귀
       document.getElementById('cancelQuitBtn').onclick = () => {
         SFX.click();
         hide();
         G.locked = false; 
       };
       
-      // 나가기 하면 맵(메인)으로 이동
       document.getElementById('confirmQuitBtn').onclick = () => {
         SFX.click();
         hide();
@@ -666,9 +663,43 @@ window.addEventListener('load', () => {
 
   const btnShop=document.getElementById('btnShop'); if(btnShop) btnShop.onclick=()=>{ if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
   
-  // 맵 하단 상점 버튼 연결
+  // ✨ 메인 하단 네비게이션 탭 동작 제어 구조
+  const navHome = document.getElementById('navHome');
   const navShop = document.getElementById('navShop');
-  if (navShop) navShop.onclick = () => { SFX.click(); openShop(); };
+  const navRank = document.getElementById('navRank');
+
+  if(navHome) navHome.onclick = () => {
+    SFX.click();
+    // 홈(지도 최상단 혹은 최고 레벨 근처로 스크롤 이동 등 연출 가능)
+    const scrollEl = document.getElementById('mapScroll');
+    if(scrollEl) scrollEl.scrollTo({top: 0, behavior:'smooth'});
+  };
+
+  if(navShop) navShop.onclick = () => {
+    SFX.click();
+    openShop(); // 기존 인게임 상점 모달창 팝업 연동
+  };
+
+  if(navRank) navRank.onclick = () => {
+    SFX.click();
+    // ✨ 영상에서 보신 '랭킹 모달창' 팝업 구현!
+    show(`
+      <h2>🏆 랭킹</h2>
+      <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px;">
+        <button class="btn" style="padding:6px 14px; font-size:13px; margin:0;" onclick="SFX.click()">일간</button>
+        <button class="btn" style="padding:6px 14px; font-size:13px; margin:0; opacity:0.6;" onclick="SFX.click()">주간</button>
+        <button class="btn" style="padding:6px 14px; font-size:13px; margin:0; opacity:0.6;" onclick="SFX.click()">전체</button>
+      </div>
+      <div style="max-height:40vh; overflow-y:auto; background:rgba(0,0,0,0.3); border-radius:12px; padding:10px; text-align:left; font-size:14px; color:#eafcff;">
+        <div style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between;"><span>🥇 1위. 세종대왕</span><b style="color:#ffe08c">98,500점</b></div>
+        <div style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between;"><span>🥈 2위. 훈민정음</span><b style="color:#ffe08c">85,200점</b></div>
+        <div style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between;"><span>🥉 3위. 기획자님</span><b style="color:#ffe08c">77,700점</b></div>
+        <div style="padding:8px; display:flex; justify-content:space-between; opacity:0.7;"><span>4위. 훈민정음</span><span>65,100점</span></div>
+      </div>
+      <button class="btn" id="rankCloseBtn" style="margin-top:14px; padding:8px 24px; font-size:15px;">닫기</button>
+    `);
+    document.getElementById('rankCloseBtn').onclick = () => { SFX.click(); hide(); };
+  };
 
   const btnSwap=document.getElementById('btnSwap'); if(btnSwap) btnSwap.onclick=()=>{ if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
   const btnHint=document.getElementById('btnHint'); if(btnHint) btnHint.onclick=()=>{ if(G.hints<=0||G.fly||G.locked)return; SFX.click(); const hit=completionsFor(G.cur.s); if(!hit.length){toast('이 글자로는 만들 단어가 없어요');return;} hit.sort((a,b)=>(b.cat===G.goal)-(a.cat===G.goal)||b.word.length-a.word.length); G.hints--; G.hintCells=[[hit[0].c,hit[0].r]]; toast(hit[0].word,[[hit[0].c,hit[0].r]]); syncUI(); };
@@ -765,7 +796,6 @@ function startGame(resume, atStage){
 }
 
 let _mapLivesTimer=null;
-// ✨ 메인화면과 인게임 하트를 동시 관리
 function renderMapLives(){ 
   const s=computeLives(); 
   const uiLives = document.getElementById('uiLives'); 
@@ -793,11 +823,9 @@ function openMap(_isRetry){
   const ms=document.getElementById('mapScreen'); if(ms)ms.classList.add('on'); 
   const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const allCleared = maxUnlocked>=MAX_STAGE && stars[MAX_STAGE]!=null; const TOTAL = MAX_STAGE; 
   
-  // 메인 화면 재화 동기화
   const elCoins = document.getElementById('mapUI_coins');
   if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
 
-  // 게임시작(최고 스테이지) 버튼 연동
   const playBtn = document.getElementById('btnMapPlay');
   if(playBtn) {
     playBtn.onclick = () => {
@@ -818,24 +846,12 @@ function openMap(_isRetry){
   let nodesHtml='', pathPts=[]; for(let lv=1; lv<=TOTAL; lv++){ const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext, isMilestone = lv%MILESTONE_EVERY===0, isFinal = lv===MAX_STAGE, cls = done?'done':(isNext?'next':'locked'), extraCls = isFinal?' mfinal':(isMilestone?' mmilestone':''), p=nodePos(lv); pathPts.push([p.x,p.y]); const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; const icon = isFinal ? '👑' : (isMilestone ? '🎁' : lv); nodesHtml += `<div class="mnode ${cls}${extraCls}" data-lv="${lv}" style="left:${p.x}%;top:${p.y}px">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':icon}${starHtml}</div>`; }
   let pathD=''; pathPts.forEach((p,i)=>{ if(i===0) pathD+=`M${p[0]},${p[1]}`; else pathD+=` C${pathPts[i-1][0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${p[1]}`; });
   
-  // Inner HTML 삽입
   scrollEl.innerHTML=`<div id="mapInner" style="height:${H}px">${allCleared?`<div style="position:absolute;left:50%;top:20px;transform:translateX(-50%);color:#f5e3ae;text-align:center;font-size:14px;padding:6px 16px;white-space:nowrap;z-index:3">🏆 100 스테이지 완주! 대단해요</div>`:''}${zonesHtml}<svg viewBox="0 0 100 ${H}" preserveAspectRatio="none" style="position:absolute;left:0;top:0;width:100%;height:${H}px;z-index:1;pointer-events:none"><path d="${pathD}" fill="none" stroke="#fff3c4" stroke-width="0.7" stroke-linecap="round" stroke-dasharray="0.5 1.2" opacity="0.45" vector-effect="non-scaling-stroke"/></svg>${nodesHtml}</div>`;
   
   if(!_isRetry){ requestAnimationFrame(()=>{ if(Math.abs(scrollEl.clientWidth - containerW) > 2){ openMap(true); return; } }); } renderMapLives(); clearInterval(_mapLivesTimer); _mapLivesTimer=setInterval(renderMapLives,1000);
   
-  // 현 위치 (스크롤 이동) 버튼 연동
-  const pinBtn = document.getElementById('btnMapCurrent');
-  if(pinBtn) {
-    pinBtn.onclick = () => {
-      SFX.click();
-      const nextEl=scrollEl.querySelector('.mnode.next')||scrollEl.querySelector('.mnode.done:last-of-type'); 
-      if(nextEl) nextEl.scrollIntoView({block:'center', behavior:'smooth'});
-    };
-  }
-
   requestAnimationFrame(()=>{ const nextEl=scrollEl.querySelector('.mnode.next')||scrollEl.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
   
-  // 맵 노드 직접 클릭해서 이동하기 (기존 기능 유지)
   scrollEl.querySelectorAll('.mnode').forEach(el=>{ 
     el.onclick=()=>{ 
       const lv=+el.dataset.lv; 
