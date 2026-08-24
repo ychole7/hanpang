@@ -429,7 +429,7 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.font=`700 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
   const ty=y+r*.06; 
   
-  const brightBalls = [0, 1, 3, 5, 8, 9]; 
+  const brightBalls = [0, 1, 5, 9]; 
   const isBright = brightBalls.includes(cIdx) || special === 'gold';
 
   if(isBright) {
