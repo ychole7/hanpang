@@ -1,12 +1,12 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 시작버튼 복구 & 설정창 도입 완료 (가이드 궤적 시안 반영)
+   낱글자 팡팡! — 스테이지 자동 밸런싱 & 패턴 엔진 도입
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
 function loadSave(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return null; const d=JSON.parse(raw); if(!d.free) d.free={stage:1,score:0,bestScore:0,bestStage:1}; if(!d.theme) d.theme={stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}; if(typeof d.coins!=='number') d.coins=0; if(typeof d.revives!=='number') d.revives=0; if(typeof d.totalStars!=='number') d.totalStars=0; if(!d.lives) d.lives={count:6,lastUpdate:Date.now()}; return d; }catch(e){ return null; } }
 let SAVE = loadSave() || { free:{stage:1,score:0,bestScore:0,bestStage:1}, theme:{stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}, lastMode:'theme', coins:0, revives:0, totalStars:0, lives:{count:6,lastUpdate:Date.now()} };
 
-// 진동 설정 초기값 (기본 켜짐)
+// 진동 설정
 if(typeof SAVE.vibeOn === 'undefined') SAVE.vibeOn = true;
 
 const MAX_LIVES=6, LIFE_REGEN_MS=60000;
@@ -72,10 +72,10 @@ function resize(){
   const bottomUI = document.getElementById('bottomUI');
   
   const topH = topUI ? topUI.getBoundingClientRect().bottom : 140;
-  BY = topH - 1; 
+  BY = topH + (R * 0.2); 
   
   const botTop = bottomUI ? bottomUI.getBoundingClientRect().top : H - 100;
-  G.shooterY = botTop - (R * 3.9); 
+  G.shooterY = botTop - (R * 3.4); 
   
   BH = G.shooterY - BY;
   ROWH = R * 1.72;
@@ -87,7 +87,41 @@ function resize(){
 let _rz; window.addEventListener('resize',()=>{ clearTimeout(_rz); _rz=setTimeout(resize,120); });
 window.addEventListener('orientationchange',()=>{ clearTimeout(_rz); _rz=setTimeout(resize,120); });
 
-const G={ grid:[],parity:0,stage:1,score:0,combo:0,started:false,mode:'theme',goal:'과일',pool:[],words:[],targets:[],done:{},cur:null,queue:[],fly:null,aim:null,dragging:false,toasts:[],waves:[],pops:[],shake:0,flash:0,shooterY:0,maxRows:10,dryShots:0,swaps:3,hints:3,hintCells:null,bombs:2,rainbows:2,activeItem:null,wordsCompleted:0,freeGoal:8,locked:true,shots:0,trajA:null,trajPts:[],banner:null };
+// ✨ 스테이지별 맵 배치 패턴 모음 (1=구슬, 0=빈공간)
+// 첫째 줄은 홀수(7개), 둘째 줄은 짝수(6개) 규칙을 따릅니다.
+const MAP_PATTERNS = {
+  'basic': [ [1,1,1,1,1,1,1], [1,1,1,1,1,1] ],
+  'wave': [
+    [1,1,0,0,1,1,1], 
+     [0,1,1,0,0,1], 
+    [1,0,0,1,1,1,0], 
+     [0,0,1,1,0,1]
+  ],
+  'heart': [
+    [0,1,1,0,1,1,0], 
+     [1,1,1,1,1,1], 
+    [0,1,1,1,1,1,0], 
+     [0,1,1,1,1,0], 
+    [0,0,1,1,1,0,0], 
+     [0,0,1,1,0,0]
+  ],
+  'pillars': [
+    [1,1,0,0,0,1,1], 
+     [1,1,0,0,1,1], 
+    [1,1,0,0,0,1,1], 
+     [1,1,0,0,1,1]
+  ],
+  'diamond': [
+    [0,0,0,1,0,0,0],
+     [0,0,1,1,0,0],
+    [0,0,1,1,1,0,0],
+     [0,1,1,1,1,0],
+    [0,0,1,1,1,0,0],
+     [0,0,1,1,0,0]
+  ]
+};
+
+const G={ grid:[],parity:0,stage:1,score:0,combo:0,started:false,mode:'theme',goal:'과일',pool:[],words:[],targets:[],done:{},cur:null,queue:[],fly:null,aim:null,dragging:false,toasts:[],waves:[],pops:[],shake:0,flash:0,shooterY:0,maxRows:10,dryShots:0, allowedMisses:5, swaps:3,hints:3,hintCells:null,bombs:2,rainbows:2,activeItem:null,wordsCompleted:0,freeGoal:8,locked:true,shots:0,trajA:null,trajPts:[],banner:null };
 const PARTICLE_POOL=Array.from({length:100},()=>({active:false,x:0,y:0,vx:0,vy:0,life:0,col:'#000',r:0}));
 function getParticle(){ for(let p of PARTICLE_POOL) if(!p.active) return p; return null; }
 const po=r=>(r+G.parity)&1, cellsIn=r=>po(r)===0?COLS:COLS-1, cx=(c,r)=>BX+R+c*2*R+(po(r)?R:0), cy=r=>BY+R+r*ROWH;
@@ -100,22 +134,57 @@ let _fillCount={}; function resetFillCount(){ _fillCount={}; }
 function fillSyllable(c,r){ const avoid=new Set(); if(c>0 && G.grid[r] && G.grid[r][c-1]) avoid.add(G.grid[r][c-1].s); if(r>0){ for(const [nc,nr] of nbrs(c,r)){ if(nr<r && G.grid[nr] && G.grid[nr][nc]) avoid.add(G.grid[nr][nc].s); } } let candidates=G.pool.filter(s=>!avoid.has(s)); if(!candidates.length) candidates=[...G.pool]; let minUse=Infinity; for(const s of candidates) minUse=Math.min(minUse,_fillCount[s]||0); const leastUsed=candidates.filter(s=>(_fillCount[s]||0)<=minUse+1); const chosen=pick(leastUsed.length?leastUsed:candidates); _fillCount[chosen]=(_fillCount[chosen]||0)+1; return chosen; }
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
+// ✨ 인공지능 난이도 및 레벨 디자인 엔진
 function buildStage(){
   G.waves=[]; G.pops=[]; G.shake=0; G.flash=0; PARTICLE_POOL.forEach(p=>p.active=false);
   if(G.mode==='free'){ buildFreeStage(); return; }
+  
+  const diffLevel = Math.min(100, G.stage);
   G.goal=CATS[(G.stage-1)%CATS.length];
-  const nTarget=Math.min(5,3+Math.floor((G.stage-1)/2));
+  
+  // ✨ 난이도 곡선 1: 목표 단어 개수 증가 (초반 2개 -> 후반 6개)
+  const nTarget = Math.min(6, 2 + Math.floor(diffLevel / 15));
+  
   const short=shuffle(DICT_BY_CAT[G.goal].filter(w=>w.length===2)), long=shuffle(DICT_BY_CAT[G.goal].filter(w=>w.length>=3));
   let pickPool=[...short]; if(G.stage>=3) pickPool=[...short.slice(0,3),...long];
   G.targets=shuffle(pickPool).slice(0,nTarget);
   if(G.targets.length<nTarget) G.targets=[...G.targets,...shuffle(DICT_BY_CAT[G.goal]).slice(0,nTarget-G.targets.length)];
   G.done={}; G.targets.forEach(w=>G.done[w]=false);
+  
   const main=shuffle(DICT_BY_CAT[G.goal]).slice(0,7), others=shuffle(CATS.filter(c=>c!==G.goal)).slice(0,2).flatMap(c=>shuffle(DICT_BY_CAT[c]).slice(0,3));
   G.words=[...new Set([...G.targets,...main,...others])];
   const syl=new Set(); for(const w of G.words) for(const ch of w) syl.add(ch); G.pool=[...syl];
-  const rows=Math.min(G.maxRows, Math.max(2, 2+Math.floor((G.stage-1)/2)));
+  
+  // ✨ 난이도 곡선 2: 맵의 깊이(줄 수) 조절 (최소 3줄 -> 최대 7줄)
+  const rows = Math.min(G.maxRows, 3 + Math.floor(diffLevel / 20));
+  
+  // ✨ 난이도 곡선 3: 실수(허공에 쏘기) 허용 횟수 감소 쫄깃함! (5번 -> 2번)
+  G.allowedMisses = Math.max(2, 5 - Math.floor(diffLevel / 25));
+  
+  // ✨ 맵 패턴 선택 알고리즘 (레벨업 할수록 다양한 모양 추가)
+  let availablePatterns = ['basic'];
+  if(diffLevel > 5) availablePatterns.push('wave');
+  if(diffLevel > 15) availablePatterns.push('pillars');
+  if(diffLevel > 25) availablePatterns.push('heart');
+  if(diffLevel > 40) availablePatterns.push('diamond');
+  
+  const patternKey = pick(availablePatterns);
+  const pattern = MAP_PATTERNS[patternKey];
+  
   G.parity=0; G.grid=[]; resetFillCount();
-  for(let r=0;r<rows;r++){ const row=[]; G.grid.push(row); for(let c=0;c<cellsIn(r);c++) row.push({s:fillSyllable(c,r),col:randCol()}); }
+  for(let r=0;r<rows;r++){ 
+    const row=[]; 
+    G.grid.push(row); 
+    const patRow = pattern[r % pattern.length];
+    for(let c=0;c<cellsIn(r);c++) {
+      if(patRow && patRow[c] === 1) {
+        row.push({s:fillSyllable(c,r),col:randCol()});
+      } else {
+        row.push(null); // 패턴에 따라 구멍 뚫어주기
+      }
+    }
+  }
+  
   const seeds=shuffle(G.targets.filter(w=>w.length<=3));
   for(let i=0;i<Math.min(2,seeds.length);i++) plantWord(seeds[i],rows);
   plantWord(pick(main),rows);
@@ -138,6 +207,7 @@ function buildFreeStage(){
   const syl=new Set(); for(const w of G.words) for(const ch of w) syl.add(ch); G.pool=[...syl];
   G.targets=[]; G.done={}; G.wordsCompleted=0; G.freeGoal=6+Math.floor((G.stage-1)*1.5);
   const rows=Math.min(G.maxRows,4); G.parity=0; G.grid=[]; resetFillCount();
+  G.allowedMisses = 4;
   for(let r=0;r<rows;r++){ const row=[]; G.grid.push(row); for(let c=0;c<cellsIn(r);c++) row.push({s:fillSyllable(c,r),col:randCol()}); }
   for(let i=0;i<3;i++) plantWord(pick(G.words.filter(w=>w.length<=3)),rows);
   
@@ -251,9 +321,9 @@ function findWordAt(c0,r0){
   const dfs=(c,r,str,path,visited)=>{
     if(str.length>=2){ const rev=[...str].reverse().join(''); let hit=DICT.has(str)?str:(DICT.has(rev)?rev:null); if(hit && (!best||hit.length>best.word.length)) best={word:hit,cells:path.slice()}; }
     if(str.length>=MAXW)return;
-    for(const [nc,nr] of nbrs(c,r)){ const k=nc+','+nr; if(visited.has(k))continue; const b=at(nc,nr); if(!b)continue; visited.add(k); path.push([nc,nr]); dfs(nc,nr,str+b.s,path,visited); path.pop(); visited.delete(k); }
+    for(const [nc,nr] of nbrs(c,r)){ const k=nc+nr; if(visited.has(k))continue; const b=at(nc,nr); if(!b)continue; visited.add(k); path.push([nc,nr]); dfs(nc,nr,str+b.s,path,visited); path.pop(); visited.delete(k); }
   };
-  dfs(c0,r0,b0.s,[[c0,r0]],new Set([c0+','+r0])); return best;
+  dfs(c0,r0,b0.s,[[c0,r0]],new Set([c0+r0])); return best;
 }
 function floodMatch(c0,r0,key){
   const b0=at(c0,r0); if(!b0)return []; const target=key==='col'?b0.col:b0.s; const seen=new Set(),stack=[[c0,r0]],out=[];
@@ -295,9 +365,20 @@ function resolve(c,r){
     G.locked=true; const t0=performance.now(); for(const [cc,rr] of group) if(G.grid[rr]&&G.grid[rr][cc]) G.grid[rr][cc].glow=t0;
     setTimeout(()=>{ for(const [cc,rr] of group){ if(!G.grid[rr]||!G.grid[rr][cc])continue; burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); addWave(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; } dropFloaters(); G.locked=false; checkState(); syncUI(); },300); return;
   }
+  
+  // ✨ 실패 처리 및 압박 시스템 연동!
   G.combo=0; G.dryShots++; SFX.miss(); if(G.grid[r]&&G.grid[r][c]) G.grid[r][c].nope=performance.now(); addShake(2);
-  const left=5-G.dryShots; if(left>0 && left<=2) addPop(cx(c,r), cy(r)+R*0.7, left+'번 더 실패 시 새 줄', '#ffb15c');
-  if(G.dryShots>=5){G.dryShots=0; SFX.rowAdd(); G.parity^=1; const row=[]; for(let cc=0;cc<cellsIn(0);cc++){ const avoid=cc>0?row[cc-1].s:null; let cand=G.pool.filter(x=>x!==avoid); if(!cand.length)cand=[...G.pool]; let mn=Infinity; for(const x of cand) mn=Math.min(mn,_fillCount[x]||0); const least=cand.filter(x=>(_fillCount[x]||0)<=mn+1); const ch=pick(least.length?least:cand); _fillCount[ch]=(_fillCount[ch]||0)+1; row.push({s:ch,col:randCol()}); } G.grid.unshift(row); toast('새 줄이 내려왔어요!');} checkState(); syncUI();
+  
+  const left = G.allowedMisses - G.dryShots; 
+  if(left > 0 && left <= 2) addPop(cx(c,r), cy(r)+R*0.7, left+'번 더 실패 시 새 줄', '#ffb15c');
+  
+  if(G.dryShots >= G.allowedMisses){
+    G.dryShots=0; SFX.rowAdd(); G.parity^=1; const row=[]; 
+    // 패널티로 꽉 찬 한 줄이 내려옵니다.
+    for(let cc=0;cc<cellsIn(0);cc++){ const avoid=cc>0?row[cc-1].s:null; let cand=G.pool.filter(x=>x!==avoid); if(!cand.length)cand=[...G.pool]; let mn=Infinity; for(const x of cand) mn=Math.min(mn,_fillCount[x]||0); const least=cand.filter(x=>(_fillCount[x]||0)<=mn+1); const ch=pick(least.length?least:cand); _fillCount[ch]=(_fillCount[ch]||0)+1; row.push({s:ch,col:randCol()}); } 
+    G.grid.unshift(row); toast('새 줄이 내려왔어요!');
+  } 
+  checkState(); syncUI();
 }
 function dropFloaters(){
   const keep=new Set(),stack=[]; if(G.grid[0])for(let c=0;c<cellsIn(0);c++) if(G.grid[0][c]){keep.add('0,'+c);stack.push([c,0]);}
@@ -348,7 +429,6 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.font=`700 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
   const ty=y+r*.06; 
   
-  // 💡 밝은 색 구슬에 짙은 회색 글씨를 적용합니다.
   const brightBalls = [0, 1, 3, 5, 8, 9]; 
   const isBright = brightBalls.includes(cIdx) || special === 'gold';
 
@@ -395,12 +475,9 @@ function drawQueue(){
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
 }
-
-// ✨ 가이드 선(궤적) 그리기 로직 교체: 영롱한 핑크빛 반딧불이 스타일 
 function draw(now){
   ctx.clearRect(0,0,W,H); ctx.save(); if(G.shake>0.3){ ctx.translate((Math.random()-0.5)*G.shake, (Math.random()-0.5)*G.shake); }
   
-  // ✨ 여기서 가이드 선을 새롭게 그립니다!
   if(G.aim!=null&&!G.fly&&!G.locked){
     if(G.trajA!==G.aim){
       G.trajA=G.aim; let x=W/2,y=G.shooterY,vx=Math.cos(G.aim)*R*.62,vy=Math.sin(G.aim)*R*.62; G.trajPts=[]; 
@@ -409,27 +486,25 @@ function draw(now){
         if(y<BY+BH){ if(x<BX+R){x=BX+R;vx*=-1;} if(x>BX+BW-R){x=BX+BW-R;vx*=-1;} } 
         if(y<=BY+R)break; 
         if(y<BY+BH&&hitsBubble(x,y))break; 
-        // 5간격마다 점을 찍어 시안처럼 여유있게 배치
+        // 점 간격을 2로 설정 (촘촘하게)
         if(i%2===0)G.trajPts.push([x,y]); 
       } 
     }
     const pts=G.trajPts; 
     ctx.save(); 
     pts.forEach((p,i)=>{ 
-      // 끝으로 갈수록 크기가 조금씩 작아짐
       const sz = 1 - (i / pts.length) * 0.3; 
-      const dotR = R * 0.16 * sz; 
+      // 점 크기 미세 조정 (0.12)
+      const dotR = R * 0.12 * sz; 
       
-      // 바깥 핑크빛 글로우 효과
       ctx.beginPath();
       ctx.arc(p[0],p[1],dotR,0,7);
-      ctx.fillStyle='#ffb1c8'; // 연핑크 코어
-      ctx.shadowColor='#ff3385'; // 핫핑크 그림자
+      ctx.fillStyle='#ffb1c8'; 
+      ctx.shadowColor='#ff3385'; 
       ctx.shadowBlur=dotR*4;
       ctx.fill();
       ctx.shadowBlur=0;
       
-      // 안쪽 하얀색 심지 (더 영롱하게)
       ctx.beginPath();
       ctx.arc(p[0],p[1],dotR*0.45,0,7);
       ctx.fillStyle='#ffffff';
