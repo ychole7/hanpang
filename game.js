@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 쏘면 멈추는 버그(인접 좌표 오타) 완벽 수정 버전
+   낱글자 팡팡! — 인트로 '모험 시작하기' 버튼 전환 및 로비 연동 복구 완료
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -16,7 +16,7 @@ let _saveTimer=null; function saveGame(immediate){ const write=()=>{ try{ const 
 
 const DICT_BY_CAT = {
   '과일': ['사과','포도','딸기','수박','참외','자두','바나나','오렌지','레몬','복숭아','체리','망고','멜론','키위','앵두','살구','자몽','석류','토마토','대추','모과','매실','앵도','귤','감','배','밤','파인애플','블루베리','무화과','한라봉','청포도','머루','다래'],
-  '동물': ['사자','호랑이','코끼리','토끼','다람쥐','거북이','고양이','강아지','원숭이','기린','하마','얼룩말','여우','늑대','사슴','너구리','개구리','병아리','오리','돼지','판ダ','펭귄','악어','고래','두더지','고슴도치','치타','표범','물개','바다표범','부엉이','까치','참새','비둘기','수달','청설모','두루미'],
+  '동물': ['사자','호랑이','코끼리','토끼','다람쥐','거북이','고양이','강아지','원숭이','기린','하마','얼룩말','여우','늑대','사슴','너구리','개구리','병아리','오리','돼지','판다','펭귄','악어','고래','두더지','고슴도치','치타','표범','물개','바다표범','부엉이','까치','참새','비둘기','수달','청설모','두루미'],
   '먹거리': ['김밥','라면','김치','만두','피자','치킨','우유','국수','초밥','카레','계란','감자','고구마','두부','도넛','사탕','과자','주스','떡볶이','케이크','빙수','호빵','비빔밥','불고기','갈비','냉면','짜장면','짬뽕','순대','어묵','호떡','붕어빵','식혜','미역국','된장국','유부초밥','주먹밥'],
   '탈것': ['자동차','기차','비행기','자전거','버스','택시','트럭','로켓','소방차','구급차','경찰차','지하철','헬기','요트','유모차','오토바이','포클레인','트랙터','케이블카','잠수함','여객선','우주선','열기구','썰매','기관차','전동차','화물차'],
   '자연': ['나무','바다','하늘','구름','바람','무지개','태양','호수','파도','번개','안개','이슬','모래','폭포','언덕','계곡','노을','새벽','폭우','서리','우박','고드름','들판','절벽','동굴','갯벌','습지','오아시스','메아리','아지랑이','물결','샛별']
@@ -105,7 +105,7 @@ const AXES=[ {fwd:(c,r)=>[c+1,r],back:(c,r)=>[c-1,r]}, {fwd:(c,r)=>[c+po(r),r+1]
 
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
 let _fillCount={}; function resetFillCount(){ _fillCount={}; }
-function fillSyllable(c,r){ const avoid=new Set(); if(c>0 && G.grid[r] && G.grid[r][c-1]) avoid.add(G.grid[r][c-1].s); if(r>0){ for(const [nc,nr] of nbrs(c,r)){ if(nr<r && G.grid[nr] && G.grid[nr][nc]) avoid.add(G.grid[nr][nc].s); } } let candidates=G.pool.filter(s=>!avoid.has(s)); if(!candidates.length) candidates=[...G.pool]; let minUse=Infinity; for(const s of candidates) minUse=Math.min(minUse,_fillCount[s]||0); const leastUsed=candidates.filter(s=>(_fillCount[s]||0)<=minUse+1); const chosen=pick(leastUsed.length?leastUsed:candidates); _fillCount[chosen]=(_fillCount[chosen]||0)+1; return chosen; }
+function fillSyllable(c,r){ const avoid=new Set(); if(c>0 && G.grid[r] && G.grid[r][c-1]) avoid.add(G.grid[r][c-1].s); if(r>0){ for(const [nc,nr] of nbrs(c,r)){ if(nr<r && G.grid[nr] && G.grid[nr][nc]) avoid.add(G.grid[nr][nc].s); } } let candidates=G.pool.filter(s=>!avoid.has(s)); if(!candidates.length) candidates=[...G.pool]; let minUse=Infinity; for(const s of candidates) minUse=Math.min(minUse,_fillCount[s]||0); const leastUsed=candidates.filter(s=>(_fillCount[s]||0)<=minUse+1); const chosen=pick(leastUsed.length?least:candidates); _fillCount[chosen]=(_fillCount[chosen]||0)+1; return chosen; }
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function buildStage(){
@@ -291,7 +291,6 @@ function settle(f){
   G.grid[r][c]={s,col:f.col,born:performance.now()}; addShake(1.5); addWave(cx(c,r),cy(r),'#fff',R*1.4); resolve(c,r);
 }
 
-// ✨ 버그 수정 완료: 좌표 키 생성 시 콤보 누락(nc+nr)을 정상적인 쉼표 포함 문자열(nc+','+nr)로 복원
 function findWordAt(c0,r0){
   const b0=at(c0,r0); if(!b0)return null; let best=null;
   const dfs=(c,r,str,path,visited)=>{
@@ -301,7 +300,6 @@ function findWordAt(c0,r0){
   };
   dfs(c0,r0,b0.s,[[c0,r0]],new Set([c0+','+r0])); return best;
 }
-
 function floodMatch(c0,r0,key){
   const b0=at(c0,r0); if(!b0)return []; const target=key==='col'?b0.col:b0.s; const seen=new Set(),stack=[[c0,r0]],out=[];
   while(stack.length){ const [c,r]=stack.pop(); const k=c+','+r; if(seen.has(k))continue; seen.add(k); const b=at(c,r); if(!b)continue; const v=key==='col'?b.col:b.s; if(v!==target)continue; out.push([c,r]); for(const [nc,nr] of nbrs(c,r)) stack.push([nc,nr]); } return out;
@@ -348,7 +346,7 @@ function resolve(c,r){
     setTimeout(()=>{
       let goldHit=0; const bombCells=[];
       for(const [cc,rr] of word.cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
-      let chain=0; for(const [wc,wr] of word.cells) for(const [nc,nr] of nbrs(wc,wr)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; chain++; } G.score+=chain*30;
+      let chain=0; for(let [wc,wr] of word.cells) for(const [nc,nr] of nbrs(wc,wr)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; chain++; } G.score+=chain*30;
       if(goldHit){ const gb=goldHit*300; G.score+=gb; SAVE.coins=(SAVE.coins||0)+goldHit*10; addPop(px,py-R*1.6,'✨ 황금 +'+gb,'#ffe08c'); flash(0.2); }
       for(const [bc,br] of bombCells){ for(const [nc,nr] of nbrs(bc,br)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; G.score+=60; } addWave(cx(bc,br),cy(br),'#ff9a5c',R*3); addShake(8); }
       dropFloaters(); G.locked=false; checkState(); syncUI();
@@ -762,6 +760,7 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
+// ✨ 인트로 '모험 시작하기' 버튼 클릭 이벤트 완전 복구
 function intro() {
   const introSc = document.getElementById('introScreen');
   if (introSc) {
@@ -793,3 +792,105 @@ function startGame(resume, atStage){
   } 
   G.started=true; buildStage(); G.locked=false; saveGame(true); 
 }
+
+let _mapLivesTimer=null;
+function renderMapLives(){ 
+  const s=computeLives(); 
+  const uiLives = document.getElementById('uiLives'); 
+  if(uiLives) uiLives.textContent = s.count;
+
+  const mapLives = document.getElementById('mapUI_lives');
+  const mapTimer = document.getElementById('mapUI_timer');
+  if(mapLives) mapLives.textContent = s.count;
+  
+  if(mapTimer) {
+    if(s.count>=MAX_LIVES){ 
+      mapTimer.textContent = 'MAX'; 
+    } else {
+      const sec=Math.ceil(secToNextLife()); 
+      mapTimer.textContent = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`; 
+    }
+  }
+}
+
+const ZONES=[ {key:'forest', img:'assets/map_bg.png'} ]; 
+function zoneIdx(lv){ return Math.min(4, Math.floor((lv-1)/100)); }
+
+const PATH_POINTS={ 
+  forest: [ 
+    [50,95],[55,92],[60,89],[63,85],[62,80],[58,76],[52,73],[47,70],[44,65],[45,60],
+    [50,55],[55,52],[60,49],[63,45],[61,40],[55,36],[48,33],[43,29],[42,24],[45,19],
+    [50,15],[56,12],[62,9],[58,6],[52,4]
+  ] 
+};
+const PATH_IMG_ASPECT={ forest: 2.16 };
+
+function openMap(_isRetry){
+  const ms=document.getElementById('mapScreen'); if(ms)ms.classList.add('on'); 
+  const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const allCleared = maxUnlocked>=MAX_STAGE && stars[MAX_STAGE]!=null; const TOTAL = MAX_STAGE; 
+  
+  const elCoins = document.getElementById('mapUI_coins');
+  if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
+
+  const playBtn = document.getElementById('btnMapPlay');
+  if(playBtn) {
+    playBtn.onclick = () => {
+      if(!spendLife()) return;
+      SFX.click();
+      ms.classList.remove('on');
+      clearInterval(_mapLivesTimer);
+      G.mode = 'theme';
+      startGame(false, maxUnlocked);
+    };
+  }
+
+  const scrollEl=document.getElementById('mapScroll'); const containerW=scrollEl.clientWidth||390; const curZone=zoneIdx(TOTAL);
+  function xPct(lv){ return 50+Math.sin(lv*0.9)*26+((Math.sin(lv*12.9898)*43758.5453)%1 - 0.5)*10; }
+  const zoneH=[]; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zoneH[z] = PATH_POINTS[key] ? containerW*PATH_IMG_ASPECT[key] : 100*108; } const H = zoneH.reduce((a,b)=>a+b,0) + 120; const zoneTop=[], zoneBot=[]; { let bot=H-60; for(let z=0; z<=curZone; z++){ zoneBot[z]=bot; zoneTop[z]=bot-zoneH[z]; bot=zoneTop[z]; } }
+  
+  function nodePos(lv){ 
+    const pts = PATH_POINTS.forest;
+    const idx = Math.floor(((lv - 1) / (TOTAL - 1)) * (pts.length - 1));
+    const raw = pts[idx] || [50, 50];
+    return { x: raw[0], y: (raw[1] / 100) * H }; 
+  }
+
+  let zonesHtml=''; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zonesHtml += `<img src="${ZONES[z].img}" style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;object-fit:cover;">`; }
+  let nodesHtml='', pathPts=[]; for(let lv=1; lv<=TOTAL; lv++){ const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext, isMilestone = lv%MILESTONE_EVERY===0, isFinal = lv===MAX_STAGE, cls = done?'done':(isNext?'next':'locked'), extraCls = isFinal?' mfinal':(isMilestone?' mmilestone':''), p=nodePos(lv); pathPts.push([p.x,p.y]); const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; const icon = isFinal ? '👑' : (isMilestone ? '🎁' : lv); nodesHtml += `<div class="mnode ${cls}${extraCls}" data-lv="${lv}" style="left:${p.x}%;top:${p.y}px">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':icon}${starHtml}</div>`; }
+  let pathD=''; pathPts.forEach((p,i)=>{ if(i===0) pathD+=`M${p[0]},${p[1]}`; else pathD+=` C${pathPts[i-1][0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${p[1]}`; });
+  
+  scrollEl.innerHTML=`<div id="mapInner" style="height:${Math.max(scrollEl.clientHeight, 1200)}px">${allCleared?`<div style="position:absolute;left:50%;top:20px;transform:translateX(-50%);color:#f5e3ae;text-align:center;font-size:14px;padding:6px 16px;white-space:nowrap;z-index:3">🏆 100 스테이지 완주! 대단해요</div>`:''}${zonesHtml}<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none"><path d="${pathD}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1 2" vector-effect="non-scaling-stroke"/></svg>${nodesHtml}</div>`;
+  
+  if(!_isRetry){ requestAnimationFrame(()=>{ if(Math.abs(scrollEl.clientWidth - containerW) > 2){ openMap(true); return; } }); } renderMapLives(); clearInterval(_mapLivesTimer); _mapLivesTimer=setInterval(renderMapLives,1000);
+  
+  requestAnimationFrame(()=>{ const nextEl=scrollEl.querySelector('.mnode.next')||scrollEl.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
+  
+  scrollEl.querySelectorAll('.mnode').forEach(el=>{ 
+    el.onclick=()=>{ 
+      const lv=+el.dataset.lv; 
+      if(el.classList.contains('locked') || !spendLife()) return; 
+      SFX.click(); 
+      ms.classList.remove('on'); 
+      clearInterval(_mapLivesTimer); 
+      G.mode='theme'; 
+      startGame(false, lv); 
+    }; 
+  });
+}
+
+function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelStars={}); for(let i=1;i<=Math.max(1, MAX_STAGE-1);i++){ if(ls[i]==null) ls[i]=3; } }
+
+function boot(){ 
+  initCanvas();
+  resize(); 
+  
+  applyDebugZones(); 
+  
+  G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
+  intro(); 
+  requestAnimationFrame(tick); 
+  loadAssets().catch(()=>{}); 
+}
+
+function markFontsReady(){ FONTS_READY=true; SPR.clear(); }
+if(document.fonts&&document.fonts.ready){ boot(); Promise.all([document.fonts.load("800 20px 'Pretendard'"),document.fonts.load("700 20px 'Pretendard'"),document.fonts.load("600 20px 'Pretendard'"),document.fonts.load("500 20px 'Pretendard'")]).then(()=>document.fonts.ready).then(markFontsReady).catch(()=>{ setTimeout(markFontsReady,800); }); setTimeout(()=>{ if(!FONTS_READY) markFontsReady(); },2000); } else { window.addEventListener('load',()=>{ boot(); setTimeout(markFontsReady,600); }); }
