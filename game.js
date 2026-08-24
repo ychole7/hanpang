@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 시작버튼 복구 & 설정창 도입 완료
+   낱글자 팡팡! — 시작버튼 복구 & 설정창 도입 완료 (가이드 궤적 시안 반영)
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -348,7 +348,7 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.font=`700 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
   const ty=y+r*.06; 
   
-  // 💡 [글씨 색상 설정] 여기에 짙은 회색 글씨를 적용할 구슬 번호를 적으세요!
+  // 💡 밝은 색 구슬에 짙은 회색 글씨를 적용합니다.
   const brightBalls = [0, 1, 3, 5, 8, 9]; 
   const isBright = brightBalls.includes(cIdx) || special === 'gold';
 
@@ -382,7 +382,7 @@ function drawShooter(now){
   
   if(!G.fly && G.cur) { 
     const bob = Math.sin(now/420) * R * 0.05; 
-    bubble(cx0, G.shooterY - R*1.0 + bob, R*0.94, G.cur.s, G.cur.col, true); 
+    bubble(cx0, G.shooterY - R*0.6 + bob, R*0.94, G.cur.s, G.cur.col, true); 
     
     if(G.activeItem){ ctx.save(); ctx.font=`600 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
@@ -395,12 +395,49 @@ function drawQueue(){
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
 }
+
+// ✨ 가이드 선(궤적) 그리기 로직 교체: 영롱한 핑크빛 반딧불이 스타일 
 function draw(now){
   ctx.clearRect(0,0,W,H); ctx.save(); if(G.shake>0.3){ ctx.translate((Math.random()-0.5)*G.shake, (Math.random()-0.5)*G.shake); }
+  
+  // ✨ 여기서 가이드 선을 새롭게 그립니다!
   if(G.aim!=null&&!G.fly&&!G.locked){
-    if(G.trajA!==G.aim){G.trajA=G.aim; let x=W/2,y=G.shooterY,vx=Math.cos(G.aim)*R*.62,vy=Math.sin(G.aim)*R*.62; G.trajPts=[]; for(let i=0;i<200;i++){ x+=vx;y+=vy; if(y<BY+BH){ if(x<BX+R){x=BX+R;vx*=-1;} if(x>BX+BW-R){x=BX+BW-R;vx*=-1;} } if(y<=BY+R)break; if(y<BY+BH&&hitsBubble(x,y))break; if(i%4===0)G.trajPts.push([x,y]); } }
-    const pts=G.trajPts; ctx.save();ctx.fillStyle='#f0d896';ctx.shadowColor='#c8962f';ctx.shadowBlur=8; pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p[0],p[1],R*.13*(1-i/pts.length*.5),0,7);ctx.fill();}); if(pts.length>2){ const a=pts[pts.length-1],b2=pts[pts.length-2]; ctx.translate(a[0],a[1]);ctx.rotate(Math.atan2(a[1]-b2[1],a[0]-b2[0])+Math.PI/2); ctx.beginPath(); ctx.moveTo(0,-R*.42);ctx.lineTo(R*.30,R*.18);ctx.lineTo(-R*.30,R*.18); ctx.closePath();ctx.fill(); } ctx.restore();
+    if(G.trajA!==G.aim){
+      G.trajA=G.aim; let x=W/2,y=G.shooterY,vx=Math.cos(G.aim)*R*.62,vy=Math.sin(G.aim)*R*.62; G.trajPts=[]; 
+      for(let i=0;i<200;i++){ 
+        x+=vx;y+=vy; 
+        if(y<BY+BH){ if(x<BX+R){x=BX+R;vx*=-1;} if(x>BX+BW-R){x=BX+BW-R;vx*=-1;} } 
+        if(y<=BY+R)break; 
+        if(y<BY+BH&&hitsBubble(x,y))break; 
+        // 5간격마다 점을 찍어 시안처럼 여유있게 배치
+        if(i%5===0)G.trajPts.push([x,y]); 
+      } 
+    }
+    const pts=G.trajPts; 
+    ctx.save(); 
+    pts.forEach((p,i)=>{ 
+      // 끝으로 갈수록 크기가 조금씩 작아짐
+      const sz = 1 - (i / pts.length) * 0.3; 
+      const dotR = R * 0.16 * sz; 
+      
+      // 바깥 핑크빛 글로우 효과
+      ctx.beginPath();
+      ctx.arc(p[0],p[1],dotR,0,7);
+      ctx.fillStyle='#ffb1c8'; // 연핑크 코어
+      ctx.shadowColor='#ff3385'; // 핫핑크 그림자
+      ctx.shadowBlur=dotR*4;
+      ctx.fill();
+      ctx.shadowBlur=0;
+      
+      // 안쪽 하얀색 심지 (더 영롱하게)
+      ctx.beginPath();
+      ctx.arc(p[0],p[1],dotR*0.45,0,7);
+      ctx.fillStyle='#ffffff';
+      ctx.fill(); 
+    }); 
+    ctx.restore();
   }
+  
   if(G.hintCells){ ctx.save(); const pulse=.5+.5*Math.sin(now/180); ctx.strokeStyle=`rgba(255,232,140,${.5+pulse*.5})`;ctx.shadowColor='#ffe08c';ctx.shadowBlur=14; ctx.lineWidth=4;ctx.setLineDash([7,7]); for(const [c,r] of G.hintCells){ctx.beginPath();ctx.arc(cx(c,r),cy(r),R*1.05,0,7);ctx.stroke();} ctx.restore(); }
   for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++){ const b=at(c,r); if(!b)continue; let rr=R*.94, bx=cx(c,r), by=cy(r); if(b.born){const t=Math.min(1,(now-b.born)/220);rr*=(.62+.38*t+.12*Math.sin(t*Math.PI));} if(b.nope){ const dt=now-b.nope; if(dt<400) bx+=Math.sin(dt/28)*Math.max(0,4-dt/100); else b.nope=0; } bubble(bx,by,rr,b.s,b.col,!!b.glow,b.special); }
   if(G.fly)bubble(G.fly.x,G.fly.y,R*.94,G.fly.s,G.fly.col);
@@ -428,7 +465,6 @@ function tick(now){
 function aimAt(px,py){ const dx=px-W/2,dy=py-G.shooterY; let a=Math.atan2(dy,dx); const lim=.22; if(a>-lim)a=-lim; if(a<-Math.PI+lim)a=-Math.PI+lim; G.aim=a; }
 function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect(); const scaleX = cv.width / rect.width / DPR; const scaleY = cv.height / rect.height / DPR; return [(e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY]; }
 
-// ✨ 톱니바퀴(설정) 버튼 모달창 연결 & 햅틱(진동) 토글
 window.addEventListener('load', () => {
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) {
@@ -536,10 +572,9 @@ function win(){
 function lose(){
   G.locked=true; SFX.gameOver(); const canRevive=(SAVE.revives||0)>0;
   show(`<h2>아쉬워요!</h2><p>버블이 바닥까지 내려왔어요.<br>스테이지 ${G.stage} · ${G.score.toLocaleString()}점</p>${canRevive?`<button class="btn" id="revive" style="border-color:#ff6b81;color:#ffe0e6;text-shadow:0 0 10px #ff6b81;box-shadow:0 0 16px rgba(255,107,129,.55),inset 0 0 14px rgba(255,107,129,.25);margin-top:14px">❤️ 부활권 사용 (보유 ${SAVE.revives})</button>`:''}<button class="btn" id="go" style="margin-top:${canRevive?10:16}px">다시 하기</button>`);
-  if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
+  if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
-// ✨ 모험 시작하기 버튼 이벤트 (명시적인 display 관리 추가)
 function intro() {
   const introSc = document.getElementById('introScreen');
   if (introSc) {
