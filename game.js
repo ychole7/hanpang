@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 메인 로비 하단 탭 흐름 구조 및 랭킹 팝업 탑재
+   낱글자 팡팡! — 메인 로비 배경 이미지(map_bg.png) 교체 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -283,6 +283,7 @@ function explodeAt(c,r){
 }
 function settle(f){
   let best=null,bd=1e9;
+  for(let c=0;c<cellsIn(r);c++){} // dummy
   for(const [c,r] of openCells()){ const d=(f.x-cx(c,r))**2+(f.y-cy(r))**2; if(d<bd){bd=d;best=[c,r];} }
   if(!best){ while(G.grid.length<=0) G.grid.push(new Array(cellsIn(G.grid.length)).fill(null)); for(let c=0;c<cellsIn(0);c++){ if(G.grid[0][c])continue; const d=(f.x-cx(c,0))**2+(f.y-cy(0))**2; if(d<bd){bd=d;best=[c,0];} } }
   G.fly=null; if(!best)return; const [c,r]=best; while(G.grid.length<=r) G.grid.push(new Array(cellsIn(G.grid.length)).fill(null));
@@ -663,26 +664,23 @@ window.addEventListener('load', () => {
 
   const btnShop=document.getElementById('btnShop'); if(btnShop) btnShop.onclick=()=>{ if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
   
-  // ✨ 메인 하단 네비게이션 탭 동작 제어 구조
   const navHome = document.getElementById('navHome');
   const navShop = document.getElementById('navShop');
   const navRank = document.getElementById('navRank');
 
   if(navHome) navHome.onclick = () => {
     SFX.click();
-    // 홈(지도 최상단 혹은 최고 레벨 근처로 스크롤 이동 등 연출 가능)
     const scrollEl = document.getElementById('mapScroll');
     if(scrollEl) scrollEl.scrollTo({top: 0, behavior:'smooth'});
   };
 
   if(navShop) navShop.onclick = () => {
     SFX.click();
-    openShop(); // 기존 인게임 상점 모달창 팝업 연동
+    openShop();
   };
 
   if(navRank) navRank.onclick = () => {
     SFX.click();
-    // ✨ 영상에서 보신 '랭킹 모달창' 팝업 구현!
     show(`
       <h2>🏆 랭킹</h2>
       <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px;">
@@ -815,9 +813,18 @@ function renderMapLives(){
   }
 }
 
-const ZONES=[ {key:'forest', img:'assets/bg_main.png'} ]; function zoneIdx(lv){ return Math.min(4, Math.floor((lv-1)/100)); }
-const PATH_POINTS={ forest: [ [58.33,99.31],[64.43,97.62],[51.48,96.65],[36.81,95.95],[37.76,94.58],[52.81,94.12],[66.52,93.36],[56.05,91.97],[41.38,91.32],[45.57,89.79], [58.33,88.69],[47.67,87.29],[33.76,86.96],[26.9,85.51],[41.19,84.95],[53.57,84.3],[47.29,82.96],[59.19,82.06],[74.67,81.28],[74.67,80.11], [59.67,79.63],[46.57,79.16],[46.81,77.82],[57.05,76.47],[41.1,75.67],[61.19,74.32],[54.33,73.03],[40.43,71.79],[46.9,70.61],[57.29,69.66], [68.24,68.61],[59.67,67.54],[48,66.87],[38.71,65.93],[38.48,64.48],[49.19,63.67],[59.67,62.93],[68.24,61.92],[59.43,61.05],[48.48,60.31], [39.19,59.57],[37.95,58.1],[49.76,57.35],[59.67,56.51],[57.76,55.07],[47.48,54.31],[40.14,53.06],[51.1,52.22],[58.71,51.28],[46.33,50.51], [60.62,49.52],[53.95,48.21],[43.1,47.35],[37.95,45.71],[49.95,45.04],[57.76,44.04],[58.71,42.77],[48.62,41.92],[39.19,41.15],[39.9,39.77], [51.1,39.2],[61.1,38.46],[61.81,37.05],[50.38,36.31],[38.95,35.44],[45.38,34.26],[39.67,32.37],[55.29,33.29],[61,32.0],[50.33,31.06], [39.67,30.11],[48.43,28.82],[59.29,27.69],[57.57,26.4],[49.95,25.46],[56.43,24.6],[48.24,23.54],[25,22.82],[37.38,22.15],[48.43,21.45], [55.67,20.21],[47.67,19.08],[37.19,18.28],[28.81,17.15],[39.48,16.23],[50.33,15.48],[60.24,14.54],[59.1,13.09],[48.81,12.47],[40.43,11.55], [33.95,8.59],[48.24,10.13],[58.33,9.16],[63.29,7.92],[52.62,7.09],[41.57,6.23],[31.1,5.58],[25.19,4.64],[37.29,4.35],[45.62,3.28] ] };
-const PATH_IMG_ASPECT={ forest: 6398/900 };
+// ✨ 새로운 맵 배경 일러스트(map_bg.png) 적용 반영
+const ZONES=[ {key:'forest', img:'assets/map_bg.png'} ]; 
+function zoneIdx(lv){ return Math.min(4, Math.floor((lv-1)/100)); }
+
+const PATH_POINTS={ 
+  forest: [ 
+    [50,95],[55,92],[60,89],[63,85],[62,80],[58,76],[52,73],[47,70],[44,65],[45,60],
+    [50,55],[55,52],[60,49],[63,45],[61,40],[55,36],[48,33],[43,29],[42,24],[45,19],
+    [50,15],[56,12],[62,9],[58,6],[52,4]
+  ] 
+};
+const PATH_IMG_ASPECT={ forest: 2.16 }; // 세로형 일러스트 비율 반영
 
 function openMap(_isRetry){
   const ms=document.getElementById('mapScreen'); if(ms)ms.classList.add('on'); 
@@ -841,12 +848,19 @@ function openMap(_isRetry){
   const scrollEl=document.getElementById('mapScroll'); const containerW=scrollEl.clientWidth||390; const curZone=zoneIdx(TOTAL);
   function xPct(lv){ return 50+Math.sin(lv*0.9)*26+((Math.sin(lv*12.9898)*43758.5453)%1 - 0.5)*10; }
   const zoneH=[]; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zoneH[z] = PATH_POINTS[key] ? containerW*PATH_IMG_ASPECT[key] : 100*108; } const H = zoneH.reduce((a,b)=>a+b,0) + 120; const zoneTop=[], zoneBot=[]; { let bot=H-60; for(let z=0; z<=curZone; z++){ zoneBot[z]=bot; zoneTop[z]=bot-zoneH[z]; bot=zoneTop[z]; } }
-  function nodePos(lv){ const z=zoneIdx(lv); const key=ZONES[z].key; const localLv=lv-z*100; if(PATH_POINTS[key]){ const raw=PATH_POINTS[key][localLv-1] || [50,50]; return { x: raw[0], y: zoneTop[z] + (raw[1]/100)*zoneH[z] }; }else{ return { x: xPct(lv), y: zoneBot[z] - (localLv-0.5)/100*zoneH[z] }; } }
-  let zonesHtml=''; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zonesHtml += `<img src="${ZONES[z].img}" style="position:absolute;left:0;top:${zoneTop[z]}px;width:100%;height:${zoneH[z]}px;z-index:0;pointer-events:none;object-fit:cover;">`; }
+  
+  function nodePos(lv){ 
+    const pts = PATH_POINTS.forest;
+    const idx = Math.floor(((lv - 1) / (TOTAL - 1)) * (pts.length - 1));
+    const raw = pts[idx] || [50, 50];
+    return { x: raw[0], y: (raw[1] / 100) * H }; 
+  }
+
+  let zonesHtml=''; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zonesHtml += `<img src="${ZONES[z].img}" style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;object-fit:cover;">`; }
   let nodesHtml='', pathPts=[]; for(let lv=1; lv<=TOTAL; lv++){ const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext, isMilestone = lv%MILESTONE_EVERY===0, isFinal = lv===MAX_STAGE, cls = done?'done':(isNext?'next':'locked'), extraCls = isFinal?' mfinal':(isMilestone?' mmilestone':''), p=nodePos(lv); pathPts.push([p.x,p.y]); const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; const icon = isFinal ? '👑' : (isMilestone ? '🎁' : lv); nodesHtml += `<div class="mnode ${cls}${extraCls}" data-lv="${lv}" style="left:${p.x}%;top:${p.y}px">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':icon}${starHtml}</div>`; }
   let pathD=''; pathPts.forEach((p,i)=>{ if(i===0) pathD+=`M${p[0]},${p[1]}`; else pathD+=` C${pathPts[i-1][0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${p[1]}`; });
   
-  scrollEl.innerHTML=`<div id="mapInner" style="height:${H}px">${allCleared?`<div style="position:absolute;left:50%;top:20px;transform:translateX(-50%);color:#f5e3ae;text-align:center;font-size:14px;padding:6px 16px;white-space:nowrap;z-index:3">🏆 100 스테이지 완주! 대단해요</div>`:''}${zonesHtml}<svg viewBox="0 0 100 ${H}" preserveAspectRatio="none" style="position:absolute;left:0;top:0;width:100%;height:${H}px;z-index:1;pointer-events:none"><path d="${pathD}" fill="none" stroke="#fff3c4" stroke-width="0.7" stroke-linecap="round" stroke-dasharray="0.5 1.2" opacity="0.45" vector-effect="non-scaling-stroke"/></svg>${nodesHtml}</div>`;
+  scrollEl.innerHTML=`<div id="mapInner" style="height:${Math.max(scrollEl.clientHeight, 1200)}px">${allCleared?`<div style="position:absolute;left:50%;top:20px;transform:translateX(-50%);color:#f5e3ae;text-align:center;font-size:14px;padding:6px 16px;white-space:nowrap;z-index:3">🏆 100 스테이지 완주! 대단해요</div>`:''}${zonesHtml}<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none"><path d="${pathD}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1 2" vector-effect="non-scaling-stroke"/></svg>${nodesHtml}</div>`;
   
   if(!_isRetry){ requestAnimationFrame(()=>{ if(Math.abs(scrollEl.clientWidth - containerW) > 2){ openMap(true); return; } }); } renderMapLives(); clearInterval(_mapLivesTimer); _mapLivesTimer=setInterval(renderMapLives,1000);
   
