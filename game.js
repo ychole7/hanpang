@@ -709,7 +709,7 @@ function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelSta
 function boot(){ 
   initCanvas();
   resize(); 
-  try{ if(new URLSearchParams(location.search).get('testmap')==='1') applyDebugZones(); }catch(e){} 
+  applyDebugZones(); // 👈 복잡한 조건문 싹 지우고 이렇게 딱 한 줄만 남기세요! 
   G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
   intro(); 
   requestAnimationFrame(tick); 
