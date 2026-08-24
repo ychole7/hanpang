@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 인트로 '모험 시작하기' 버튼 전환 및 로비 연동 복구 완료
+   낱글자 팡팡! — 스테이지 진입 오류(least 변수 선언 누락) 완벽 수정 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -105,7 +105,22 @@ const AXES=[ {fwd:(c,r)=>[c+1,r],back:(c,r)=>[c-1,r]}, {fwd:(c,r)=>[c+po(r),r+1]
 
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
 let _fillCount={}; function resetFillCount(){ _fillCount={}; }
-function fillSyllable(c,r){ const avoid=new Set(); if(c>0 && G.grid[r] && G.grid[r][c-1]) avoid.add(G.grid[r][c-1].s); if(r>0){ for(const [nc,nr] of nbrs(c,r)){ if(nr<r && G.grid[nr] && G.grid[nr][nc]) avoid.add(G.grid[nr][nc].s); } } let candidates=G.pool.filter(s=>!avoid.has(s)); if(!candidates.length) candidates=[...G.pool]; let minUse=Infinity; for(const s of candidates) minUse=Math.min(minUse,_fillCount[s]||0); const leastUsed=candidates.filter(s=>(_fillCount[s]||0)<=minUse+1); const chosen=pick(leastUsed.length?least:candidates); _fillCount[chosen]=(_fillCount[chosen]||0)+1; return chosen; }
+
+// ✨ 버그 수정: least 변수 대신 leastUsed 배열을 정상 참조하도록 수정 완료
+function fillSyllable(c,r){ 
+  const avoid=new Set(); 
+  if(c>0 && G.grid[r] && G.grid[r][c-1]) avoid.add(G.grid[r][c-1].s); 
+  if(r>0){ for(const [nc,nr] of nbrs(c,r)){ if(nr<r && G.grid[nr] && G.grid[nr][nc]) avoid.add(G.grid[nr][nc].s); } } 
+  let candidates=G.pool.filter(s=>!avoid.has(s)); 
+  if(!candidates.length) candidates=[...G.pool]; 
+  let minUse=Infinity; 
+  for(const s of candidates) minUse=Math.min(minUse,_fillCount[s]||0); 
+  const leastUsed=candidates.filter(s=>(_fillCount[s]||0)<=minUse+1); 
+  const chosen=pick(leastUsed.length?leastUsed:candidates); 
+  _fillCount[chosen]=(_fillCount[chosen]||0)+1; 
+  return chosen; 
+}
+
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function buildStage(){
@@ -346,7 +361,7 @@ function resolve(c,r){
     setTimeout(()=>{
       let goldHit=0; const bombCells=[];
       for(const [cc,rr] of word.cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
-      let chain=0; for(let [wc,wr] of word.cells) for(const [nc,nr] of nbrs(wc,wr)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; chain++; } G.score+=chain*30;
+      let chain=0; for(const [wc,wr] of word.cells) for(const [nc,nr] of nbrs(wc,wr)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; chain++; } G.score+=chain*30;
       if(goldHit){ const gb=goldHit*300; G.score+=gb; SAVE.coins=(SAVE.coins||0)+goldHit*10; addPop(px,py-R*1.6,'✨ 황금 +'+gb,'#ffe08c'); flash(0.2); }
       for(const [bc,br] of bombCells){ for(const [nc,nr] of nbrs(bc,br)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; G.score+=60; } addWave(cx(bc,br),cy(br),'#ff9a5c',R*3); addShake(8); }
       dropFloaters(); G.locked=false; checkState(); syncUI();
@@ -760,7 +775,6 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
-// ✨ 인트로 '모험 시작하기' 버튼 클릭 이벤트 완전 복구
 function intro() {
   const introSc = document.getElementById('introScreen');
   if (introSc) {
