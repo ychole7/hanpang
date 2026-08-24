@@ -1,10 +1,14 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 폰트 두께 조절 및 밝은 구슬 색상 자동 대응
+   낱글자 팡팡! — 설정창 팝업(소리/진동/나가기) 완벽 세팅
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
 function loadSave(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return null; const d=JSON.parse(raw); if(!d.free) d.free={stage:1,score:0,bestScore:0,bestStage:1}; if(!d.theme) d.theme={stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}; if(typeof d.coins!=='number') d.coins=0; if(typeof d.revives!=='number') d.revives=0; if(typeof d.totalStars!=='number') d.totalStars=0; if(!d.lives) d.lives={count:6,lastUpdate:Date.now()}; return d; }catch(e){ return null; } }
 let SAVE = loadSave() || { free:{stage:1,score:0,bestScore:0,bestStage:1}, theme:{stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}, lastMode:'theme', coins:0, revives:0, totalStars:0, lives:{count:6,lastUpdate:Date.now()} };
+
+// ✨ 진동 설정 초기값 세팅 (없으면 기본 켜짐)
+if(typeof SAVE.vibeOn === 'undefined') SAVE.vibeOn = true;
+
 const MAX_LIVES=6, LIFE_REGEN_MS=60000;
 function computeLives(){ let s=SAVE.lives; if(!s){ s=SAVE.lives={count:MAX_LIVES,lastUpdate:Date.now()}; } if(s.count<MAX_LIVES){ const regen=Math.floor((Date.now()-s.lastUpdate)/LIFE_REGEN_MS); if(regen>0){ s.count=Math.min(MAX_LIVES, s.count+regen); s.lastUpdate+=regen*LIFE_REGEN_MS; if(s.count>=MAX_LIVES) s.lastUpdate=Date.now(); } }else{ s.lastUpdate=Date.now(); } return s; }
 function secToNextLife(){ const s=computeLives(); return s.count>=MAX_LIVES ? 0 : Math.max(0, LIFE_REGEN_MS - (Date.now()-s.lastUpdate)) / 1000; }
@@ -68,7 +72,7 @@ function resize(){
   const bottomUI = document.getElementById('bottomUI');
   
   const topH = topUI ? topUI.getBoundingClientRect().bottom : 140;
-  BY = topH - 1; 
+  BY = topH - 40; 
   
   const botTop = bottomUI ? bottomUI.getBoundingClientRect().top : H - 100;
   G.shooterY = botTop - (R * 3.4); 
@@ -222,12 +226,16 @@ function stepFly(){
     for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++) if(at(c,r) && (f.x-cx(c,r))**2+(f.y-cy(r))**2<(R*1.82)**2){ settle(f);return; }
   }
 }
+
+// ✨ 진동 함수 추가! (게임 액션마다 햅틱 반응)
+function doVibe(ms){ if(SAVE && SAVE.vibeOn!==false && navigator.vibrate){ try{ navigator.vibrate(ms); }catch(e){} } }
+
 function explodeAt(c,r){
   const cells=[[c,r],...nbrs(c,r).filter(([nc,nr])=>at(nc,nr))]; G.locked=true; const t0=performance.now();
   cells.forEach(([cc,rr])=>{ if(G.grid[rr]&&G.grid[rr][cc]) G.grid[rr][cc].glow=t0; });
   setTimeout(()=>{
     let n=0; for(const [cc,rr] of cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; burst(cx(cc,rr),cy(rr),'#fff'); addWave(cx(cc,rr),cy(rr),'#fff',R*3); G.grid[rr][cc]=null; n++; }
-    addShake(10); flash(0.22); G.score+=n*80; G.combo=0; G.dryShots=0; toast('펑! +'+(n*80)); dropFloaters(); G.locked=false; checkState(); syncUI();
+    addShake(10); flash(0.22); doVibe(50); G.score+=n*80; G.combo=0; G.dryShots=0; toast('펑! +'+(n*80)); dropFloaters(); G.locked=false; checkState(); syncUI();
   },260);
 }
 function settle(f){
@@ -257,6 +265,7 @@ function clearCells(cells){ const t0=performance.now(); for(const [cc,rr] of cel
 function resolve(c,r){
   const word=findWordAt(c,r);
   if(word){
+    doVibe([20,40,20]);
     G.combo++; G.dryShots=0; G.wordsCompleted++;
     if(word.word in G.done && !G.done[word.word]) { G.done[word.word]=true; syncUI(); }
     const combo=Math.min(G.combo,5), pts=([0,0,200,600,1600,3200][Math.min(word.word.length,5)]||3200)*Math.max(1,combo); G.score+=pts;
@@ -279,6 +288,7 @@ function resolve(c,r){
   const colGroup=floodMatch(c,r,'col'), sylGroup=floodMatch(c,r,'syl'); let group=[], mtype='';
   if(colGroup.length>=3 && colGroup.length>=sylGroup.length){ group=colGroup; mtype='col'; } else if(sylGroup.length>=3){ group=sylGroup; mtype='syl'; }
   if(group.length>=3){
+    doVibe(20);
     G.combo++; G.dryShots=0; const combo=Math.min(G.combo,5), pts=Math.round(group.length*12*combo*(mtype==='syl'?1.5:1));
     G.score+=pts; SAVE.coins=(SAVE.coins||0)+Math.floor(group.length/2); SFX.pop();
     if(mtype==='syl'){ G.banner={text:'"'+at(c,r).s+'" ×'+group.length,life:1}; flash(0.15); addShake(6); } else{ addShake(3+combo); if(combo>=3)flash(0.12); }
@@ -301,8 +311,11 @@ function checkState(){
   if(count===0){win();return;} if(G.targets.length && G.targets.every(w=>G.done[w])){win();return;} if(cy(lowest)+R>BY+BH) lose();
 }
 
-function addShake(amt){ G.shake=Math.min(G.shake+amt, 14); } function addWave(x,y,col,maxR){ G.waves.push({x,y,col,r:R*0.3,maxR:maxR||R*2.4,life:1}); } function addPop(x,y,text,col){ G.pops.push({x,y,text,col:col||'#fff6d0',life:1,vy:-1.2}); } function flash(a){ G.flash=Math.max(G.flash,a); }
-function burst(x,y,col){ for(let i=0;i<14;i++){ const p=getParticle(); if(!p) continue; const a=Math.random()*Math.PI*2,sp=1+Math.random()*4.5; p.active=true; p.x=x; p.y=y; p.vx=Math.cos(a)*sp; p.vy=Math.sin(a)*sp-1; p.life=1; p.col=col; p.r=2+Math.random()*4; } SFX.pop(); }
+function addShake(amt){ G.shake=Math.min(G.shake+amt, 14); doVibe(30); } 
+function addWave(x,y,col,maxR){ G.waves.push({x,y,col,r:R*0.3,maxR:maxR||R*2.4,life:1}); } 
+function addPop(x,y,text,col){ G.pops.push({x,y,text,col:col||'#fff6d0',life:1,vy:-1.2}); } 
+function flash(a){ G.flash=Math.max(G.flash,a); }
+function burst(x,y,col){ doVibe(15); for(let i=0;i<14;i++){ const p=getParticle(); if(!p) continue; const a=Math.random()*Math.PI*2,sp=1+Math.random()*4.5; p.active=true; p.x=x; p.y=y; p.vx=Math.cos(a)*sp; p.vy=Math.sin(a)*sp-1; p.life=1; p.col=col; p.r=2+Math.random()*4; } SFX.pop(); }
 function toast(text,cells){ let x=W/2,y=H*0.34; if(cells&&cells.length){ x=cells.reduce((a,[c,r])=>a+cx(c,r),0)/cells.length; y=cells.reduce((a,[c,r])=>a+cy(r),0)/cells.length; } G.toasts.push({text,x,y,life:1}); }
 
 let actx=null; function getActx(){ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); return actx; }catch(e){ return null; } }
@@ -337,22 +350,16 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle= glow ? '#fff0c0' : 'rgba(0,0,0,0.1)'; ctx.lineWidth=Math.max(1.2,r*.055); ctx.globalAlpha=.85; ctx.stroke(); ctx.restore();
   if(glow){ ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle='#ffe9a0'; ctx.shadowColor='#ffd86f'; ctx.shadowBlur=r*.5; ctx.lineWidth=Math.max(1.2,r*.04); ctx.stroke(); ctx.restore(); }
   
-  // ✨ 글씨 굵기를 600으로 살짝 두껍게 변경!
-  ctx.save(); ctx.font=`600 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
+  ctx.save(); ctx.font=`700 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
   const ty=y+r*.06; 
   
-  // ✨ 💡 [글씨 색상 설정] 밝은 구슬(노랑, 연두, 베이지 등) 인덱스 번호를 여기에 적어주세요!
-  // 이 번호에 해당하는 구슬은 짙은 회색 글씨가 적용됩니다.
-  const brightBalls = [0, 1, 9]; // 👈 현재 임시로 0, 1, 9번 구슬을 밝은 구슬로 지정해 두었습니다.
-  
+  const brightBalls = [0, 1, 3, 5, 8, 9]; 
   const isBright = brightBalls.includes(cIdx) || special === 'gold';
 
   if(isBright) {
-    // 밝은 배경용: 짙은 회갈색 글씨 + 연한 그림자
     ctx.shadowColor='rgba(255,255,255,0.5)'; ctx.shadowBlur=r*.1; ctx.shadowOffsetY=r*.02; 
     ctx.fillStyle='#3a2a1a'; 
   } else {
-    // 어두운 배경용: 기존 하얀색 글씨 + 검은 그림자
     ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=r*.12; ctx.shadowOffsetY=r*.04; 
     ctx.fillStyle='#ffffff'; 
   }
@@ -425,20 +432,54 @@ function tick(now){
 function aimAt(px,py){ const dx=px-W/2,dy=py-G.shooterY; let a=Math.atan2(dy,dx); const lim=.22; if(a>-lim)a=-lim; if(a<-Math.PI+lim)a=-Math.PI+lim; G.aim=a; }
 function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect(); const scaleX = cv.width / rect.width / DPR; const scaleY = cv.height / rect.height / DPR; return [(e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY]; }
 
-function syncMuteBtn(){ const b=document.getElementById('btnMute'); if(b) b.textContent = soundOn() ? '🔊' : '🔇'; }
+// ✨ 톱니바퀴(설정) 버튼 모달창 연결 & 햅틱(진동) 토글
 window.addEventListener('load', () => {
-  const btnMenu=document.getElementById('btnMenu'); if(btnMenu) btnMenu.onclick=()=>{
-    if(veil.classList.contains('on'))return; G.locked=true;
-    const info = `<p>주제: <b>${G.goal}</b> · 스테이지 ${G.stage}</p> <div>${G.targets.map(w=>`<span class="tchip" style="margin:2px;${G.done[w]?'border-color:#7cffb2;color:#eafff3;text-shadow:0 0 8px #7cffb2':''}">${G.done[w]?'✓ ':''}${w}</span>`).join('')}</div>`;
-    show(`<h2>메뉴</h2>${info}<button class="btn" id="go">이어서 하기</button><p style="margin-top:12px;font-size:14px"><a href="#" id="switch" style="color:#d9a94a">🗺️ 지도로 이동</a> &nbsp;·&nbsp; <a href="#" id="restart" style="color:#ff9a5c">이 스테이지 재시작</a></p><button class="btn" id="goShop" style="margin-top:10px;border-color:#ffd86f;color:#fff6d8;text-shadow:0 0 8px #ffd86f;box-shadow:0 0 14px rgba(255,216,111,.5),inset 0 0 12px rgba(255,216,111,.22);padding:9px 22px;font-size:15px">🛒 상점 (💰${(SAVE.coins||0).toLocaleString()})</button>`);
-    document.getElementById('go').onclick=()=>{hide();G.locked=false;}; document.getElementById('switch').onclick=ev=>{ev.preventDefault();hide();openMap();}; document.getElementById('restart').onclick=ev=>{ev.preventDefault();if(!spendLife())return;hide();startGame(false, G.stage);}; document.getElementById('goShop').onclick=()=>{ SFX.click(); openShop(); };
+  const btnSettings=document.getElementById('btnSettings'); if(btnSettings) btnSettings.onclick=()=>{
+    if(veil.classList.contains('on'))return; G.locked=true; SFX.click();
+    
+    const sOn = soundOn() ? '🔊' : '🔇';
+    const vOn = (SAVE.vibeOn!==false) ? '📳' : '📴';
+    
+    show(`
+      <h2>⚙️ 설정</h2>
+      <div style="display:flex; justify-content:center; gap:20px; margin: 20px 0;">
+        <div style="text-align:center;">
+          <button class="icon-btn" id="modalSound" style="width:54px; height:54px; font-size:24px;">${sOn}</button>
+          <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">소리</div>
+        </div>
+        <div style="text-align:center;">
+          <button class="icon-btn" id="modalVibe" style="width:54px; height:54px; font-size:24px;">${vOn}</button>
+          <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">진동</div>
+        </div>
+      </div>
+      <button class="btn" id="go" style="width:100%;">이어서 하기</button>
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <button class="btn" id="restart" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">새로 시작</button>
+        <button class="btn" id="switch" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">메인 화면</button>
+      </div>
+    `);
+    
+    document.getElementById('modalSound').onclick = function() {
+      SAVE.soundOn = !soundOn(); saveGame(true);
+      this.textContent = soundOn() ? '🔊' : '🔇';
+      if(soundOn()) SFX.click();
+    };
+    document.getElementById('modalVibe').onclick = function() {
+      SAVE.vibeOn = SAVE.vibeOn === false ? true : false; saveGame(true);
+      this.textContent = SAVE.vibeOn!==false ? '📳' : '📴';
+      if(soundOn()) SFX.click();
+      if(SAVE.vibeOn!==false && navigator.vibrate) navigator.vibrate(20);
+    };
+    document.getElementById('go').onclick=()=>{hide();G.locked=false;}; 
+    document.getElementById('switch').onclick=ev=>{ev.preventDefault();hide();openMap();}; 
+    document.getElementById('restart').onclick=ev=>{ev.preventDefault();if(!spendLife())return;hide();startGame(false, G.stage);};
   };
-  const btnShop=document.getElementById('btnShop'); if(btnShop) btnShop.onclick=()=>{ if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
+
   const btnSwap=document.getElementById('btnSwap'); if(btnSwap) btnSwap.onclick=()=>{ if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
   const btnHint=document.getElementById('btnHint'); if(btnHint) btnHint.onclick=()=>{ if(G.hints<=0||G.fly||G.locked)return; SFX.click(); const hit=completionsFor(G.cur.s); if(!hit.length){toast('이 글자로는 만들 단어가 없어요');return;} hit.sort((a,b)=>(b.cat===G.goal)-(a.cat===G.goal)||b.word.length-a.word.length); G.hints--; G.hintCells=[[hit[0].c,hit[0].r]]; toast(hit[0].word,[[hit[0].c,hit[0].r]]); syncUI(); };
   const btnBomb=document.getElementById('btnBomb'); if(btnBomb) btnBomb.onclick=()=>{ if(G.bombs<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='bomb' ? null : 'bomb'; syncUI(); };
   const btnRainbow=document.getElementById('btnRainbow'); if(btnRainbow) btnRainbow.onclick=()=>{ if(G.rainbows<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='rainbow' ? null : 'rainbow'; syncUI(); };
-  const btnMute=document.getElementById('btnMute'); if(btnMute) btnMute.onclick=()=>{ SAVE.soundOn = !soundOn(); try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){} syncMuteBtn(); if(soundOn()) SFX.click(); };
+
   if(cv) { cv.addEventListener('pointerdown',e=>{G.dragging=true;aimAt(...localPt(e));}); cv.addEventListener('pointermove',e=>{if(G.dragging)aimAt(...localPt(e));}); cv.addEventListener('pointerup',()=>{ if(!G.dragging)return; G.dragging=false; if(G.aim!=null)shoot(G.aim); G.aim=null; }); cv.addEventListener('pointercancel',()=>{G.dragging=false;G.aim=null;}); }
 });
 
