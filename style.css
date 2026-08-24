@@ -53,7 +53,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 #gameArea { position: absolute; inset: 0; z-index: 5; }
 canvas { display: block; width: 100%; height: 100%; }
 
-/* 모달 (팝업창) ✨ z-index 200으로 올려서 지도 위에도 뜨게 수정 */
+/* 모달 (팝업창) */
 .veil{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,5,2,.85);backdrop-filter:blur(4px);z-index:200;}
 .veil.on{display:grid}
 .card{background:linear-gradient(180deg,#3a2717,#2a1c12);border:2px solid #c8962f;border-radius:20px;padding:24px 26px;text-align:center;max-width:84%;box-shadow:0 8px 30px rgba(0,0,0,.8),inset 0 0 20px rgba(200,150,47,.12)}
@@ -73,7 +73,11 @@ canvas { display: block; width: 100%; height: 100%; }
 /* 맵 상단 고정 UI */
 #mapTopBar { position: absolute; top: max(15px, env(safe-area-inset-top)); left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 12px; z-index: 110; pointer-events: none; }
 #mapTopBar > * { pointer-events: auto; }
-.map-icon-btn { width: 44px; height: 44px; border-radius: 50%; background: #fffdf5; border: 3px solid #dcb274; font-size: 22px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; color: #5a3a22; padding: 0; }
+.map-icon-btn { width: 50px; height: 50px; border: none; background-color: transparent; background-size: contain; background-repeat: no-repeat; background-position: center; cursor: pointer; padding: 0; transition: transform 0.1s; }
+.map-icon-btn:active { transform: scale(0.95); }
+/* ✨ 설정 이미지 경로 변경 */
+#btnMapSettings { background-image: url('assets/settings.png'); }
+
 .map-stat-pill { background: #fffdf5; border: 3px solid #dcb274; border-radius: 999px; padding: 4px 6px 4px 12px; display: flex; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); color: #5a3a22; font-weight: 900; position: relative; }
 .plus-btn { width: 24px; height: 24px; border-radius: 50%; background: #a2d246; border: 2px solid #fff; color: #fff; font-weight: 900; font-size: 16px; display: flex; align-items: center; justify-content: center; margin-left: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer; padding: 0;}
 
@@ -88,10 +92,12 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* 맵 하단 탭 */
 #mapBottomBar { position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; background: #dcb274; border-top: 4px solid #b88645; display: flex; justify-content: space-around; align-items: flex-end; z-index: 120; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 10px rgba(0,0,0,0.2); }
-.map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; color: #5a3a22; opacity: 0.6; transition: 0.2s; position: relative; width: 90px; height: 80px; padding: 0; font-family:'Pretendard',sans-serif; }
-.map-nav-btn span { font-size: 14px; font-weight: 900; margin-top: 6px; }
+.map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: #5a3a22; opacity: 0.6; transition: 0.2s; position: relative; width: 90px; height: 80px; padding: 0; font-family:'Pretendard',sans-serif; }
+.nav-icon { width: 50px; height: 50px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 2px; transition: transform 0.2s; }
+.map-nav-btn span { font-size: 14px; font-weight: 900; }
 .map-nav-btn.active { opacity: 1; transform: translateY(-15px); }
-.map-nav-btn.active::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; background: #fffdf5; border: 3px solid #b88645; border-radius: 16px; z-index: -1; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.map-nav-btn.active .nav-icon { transform: scale(1.1); }
+.map-nav-btn.active::before { content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 75px; height: 75px; background: #fffdf5; border: 3px solid #b88645; border-radius: 16px; z-index: -1; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
 /* 맵 노드 (기존 유지) */
 .mnode{position:absolute;width:42px;height:42px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);font-family:'Pretendard',sans-serif;font-weight:800;font-size:15px;background-image:url('assets/stone_default.png');background-repeat:no-repeat;background-position:center;background-size:88% auto;z-index:2;cursor:pointer;}
