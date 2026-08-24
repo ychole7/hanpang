@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 캔버스 상단 공간 제거 및 구슬 밀착 엔진
+   낱글자 팡팡! — 정상 레이아웃 복구 및 비율 완벽 엔진
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -37,7 +37,7 @@ function randCol(){ return Math.floor(Math.random()*10); }
 
 let cv, ctx;
 let W=0,H=0,R=0,ROWH=0,DPR=1, BX=0,BY=0,BW=0,BH=0;
-const COLS=9;
+const COLS=7;
 
 function initCanvas() {
   cv = document.getElementById('cv');
@@ -63,30 +63,23 @@ function resize(){
   BX = W * 0.05; 
   BW = W * 0.90; 
   R = BW / (COLS * 2);
-
+  
+  // ✨ 여백이 제거된 이미지를 기준으로 캔버스 좌표 정석 계산! (억지 상향 -40px 제거)
   const topUI = document.getElementById('topUI');
   const bottomUI = document.getElementById('bottomUI');
-
-  // 그림 속 '투명 여백'을 제외한 실제 목재 끝단 비율
-  const TOP_ART_BOTTOM = 651/703;   // ui_top.png 알파 바운드 하단
-  const BOT_ART_TOP    = 58/798;    // ui_bottom.png 알파 바운드 상단
-
-  const tb = topUI ? topUI.getBoundingClientRect() : null;
-  const bb = bottomUI ? bottomUI.getBoundingClientRect() : null;
-  const areaTop = tb ? (tb.top - box.top) + tb.height * TOP_ART_BOTTOM : 120;
-  const areaBot = bb ? (bb.top - box.top) + bb.height * BOT_ART_TOP   : H - 110;
-
-  BY = areaTop + R * 0.15;
-
-  // 대포: 입구(mouth) 중심이 shooterY에 오도록 배치
-  G.cannonW = R * 7.4;
-  const canH = G.cannonW * (1303/1207);
-  G.shooterY = areaBot - canH * 0.80;
-
-  BH = (G.shooterY - R * 1.6) - BY;   // 데드라인 = 대포 입구 바로 위
+  
+  // 나무판 바로 아래부터 구슬 시작
+  const topH = topUI ? topUI.getBoundingClientRect().bottom : 140;
+  BY = topH + (R * 0.2); 
+  
+  // 하단 나무판 바로 위에서 대포가 발사되도록
+  const botTop = bottomUI ? bottomUI.getBoundingClientRect().top : H - 100;
+  G.shooterY = botTop - (R * 1.5); 
+  
+  BH = G.shooterY - BY;
   ROWH = R * 1.72;
   G.maxRows = Math.max(6, Math.floor((BH - R*2) / ROWH) + 1);
-
+  
   SPR.clear(); G.trajA=null;
 }
 
@@ -119,7 +112,7 @@ function buildStage(){
   const main=shuffle(DICT_BY_CAT[G.goal]).slice(0,7), others=shuffle(CATS.filter(c=>c!==G.goal)).slice(0,2).flatMap(c=>shuffle(DICT_BY_CAT[c]).slice(0,3));
   G.words=[...new Set([...G.targets,...main,...others])];
   const syl=new Set(); for(const w of G.words) for(const ch of w) syl.add(ch); G.pool=[...syl];
-  const rows=Math.min(G.maxRows-1, Math.min(9, 4+Math.floor((G.stage-1)/2)));
+  const rows=Math.min(G.maxRows, Math.max(2, 2+Math.floor((G.stage-1)/2)));
   G.parity=0; G.grid=[]; resetFillCount();
   for(let r=0;r<rows;r++){ const row=[]; G.grid.push(row); for(let c=0;c<cellsIn(r);c++) row.push({s:fillSyllable(c,r),col:randCol()}); }
   const seeds=shuffle(G.targets.filter(w=>w.length<=3));
@@ -143,7 +136,7 @@ function buildFreeStage(){
   G.words.push(...shuffle(GENERIC_WORDS).slice(0,16));
   const syl=new Set(); for(const w of G.words) for(const ch of w) syl.add(ch); G.pool=[...syl];
   G.targets=[]; G.done={}; G.wordsCompleted=0; G.freeGoal=6+Math.floor((G.stage-1)*1.5);
-  const rows=Math.min(G.maxRows-1,5); G.parity=0; G.grid=[]; resetFillCount();
+  const rows=Math.min(G.maxRows,4); G.parity=0; G.grid=[]; resetFillCount();
   for(let r=0;r<rows;r++){ const row=[]; G.grid.push(row); for(let c=0;c<cellsIn(r);c++) row.push({s:fillSyllable(c,r),col:randCol()}); }
   for(let i=0;i<3;i++) plantWord(pick(G.words.filter(w=>w.length<=3)),rows);
   
@@ -329,7 +322,7 @@ const ASSETS={}; function loadAssets(){ return Promise.all(Object.entries(ASSET_
 
 function lighten(hex,amt){ const n=parseInt(hex.slice(1),16); return `rgb(${Math.min(255,((n>>16)&255)+amt*2)|0},${Math.min(255,((n>>8)&255)+amt*2)|0},${Math.min(255,(n&255)+amt*2)|0})`; }
 
-// ✨ 구슬의 하얀 배경 코드 삭제 (투명도 완벽 보존!)
+// ✨ 구슬 그리기: 억지 흰 바탕 삭제! 깔끔한 투명 렌더링 복구
 function drawBubbleRaw(x,y,r,s,col,glow,special){
   const rr = r * 0.94;
   const cIdx = (col || 0) % 10;
@@ -348,7 +341,7 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle= glow ? '#fff0c0' : 'rgba(0,0,0,0.1)'; ctx.lineWidth=Math.max(1.2,r*.055); ctx.globalAlpha=.85; ctx.stroke(); ctx.restore();
   if(glow){ ctx.save(); ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.strokeStyle='#ffe9a0'; ctx.shadowColor='#ffd86f'; ctx.shadowBlur=r*.5; ctx.lineWidth=Math.max(1.2,r*.04); ctx.stroke(); ctx.restore(); }
   
-  // ✨ 글씨 굵기를 500으로 얇게 조절
+  // ✨ 글씨 굵기를 500으로 얇게 조정!
   ctx.save(); ctx.font=`500 ${r*0.95}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; 
   const ty=y+r*.06; ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=r*.12; ctx.shadowOffsetY=r*.04; 
   ctx.fillStyle='#ffffff'; ctx.fillText(s,x,ty); ctx.restore();
@@ -364,31 +357,27 @@ function bubble(x,y,r,s,col,glow,special){ if(special){ drawBubbleRaw(x,y,r,s,co
 function drawShooter(now){
   const cx0 = W / 2;
   const img = ASSETS.cannon;
-  const MOUTH = 0.126;                       // cannon.png 입구 중심의 세로 비율
-
+  
   if(img) {
-    const w = G.cannonW || R * 7.4;
+    const w = R * 6.5; 
     const h = w * (img.height / img.width);
-    ctx.drawImage(img, cx0 - w/2, G.shooterY - h * MOUTH, w, h);
+    ctx.drawImage(img, cx0 - w/2, G.shooterY - h * 0.25, w, h); 
   }
-
-  if(!G.fly && G.cur) {
-    const bob = Math.sin(now/420) * R * 0.05;
-    bubble(cx0, G.shooterY + bob, R*1.18, G.cur.s, G.cur.col, true);
-
-    if(G.activeItem){ ctx.save(); ctx.font=`500 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'\u{1F4A3}':'\u{1F308}', cx0+R*1.25, G.shooterY+bob-R*1.25); ctx.restore(); }
+  
+  if(!G.fly && G.cur) { 
+    const bob = Math.sin(now/420) * R * 0.05; 
+    bubble(cx0, G.shooterY - R*0.6 + bob, R*0.94, G.cur.s, G.cur.col, true); 
+    
+    if(G.activeItem){ ctx.save(); ctx.font=`500 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
 }
 function drawQueue(){
-  if(!G.queue.length)return;
-  // 시안처럼 대포 '왼쪽'에 다음 구슬 + 교체 화살표
-  const x = W/2 - R*4.4, y = G.shooterY + R*2.4, r = R*1.0;
-  G.queueHit = {x, y, r: r*1.7};
-  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.12,0,7); ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fill(); ctx.restore();
-  bubble(x, y, r, G.queue[0].s, G.queue[0].col);
-  ctx.save(); ctx.font=`700 ${R*.6}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle='#ffe9b8'; ctx.shadowColor='rgba(0,0,0,.8)'; ctx.shadowBlur=5;
-  ctx.fillText('\u21C4', (x + W/2)/2, y - R*0.35); ctx.restore();
+  if(!G.queue.length)return; 
+  const x = W/2 + R*3.2, y = G.shooterY + R*0.6, r = R*0.75;
+  ctx.save(); ctx.font=`500 ${R*.48}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=4; 
+  ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.5); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
+  bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
 }
 function draw(now){
   ctx.clearRect(0,0,W,H); ctx.save(); if(G.shake>0.3){ ctx.translate((Math.random()-0.5)*G.shake, (Math.random()-0.5)*G.shake); }
@@ -437,23 +426,16 @@ window.addEventListener('load', () => {
   const btnBomb=document.getElementById('btnBomb'); if(btnBomb) btnBomb.onclick=()=>{ if(G.bombs<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='bomb' ? null : 'bomb'; syncUI(); };
   const btnRainbow=document.getElementById('btnRainbow'); if(btnRainbow) btnRainbow.onclick=()=>{ if(G.rainbows<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='rainbow' ? null : 'rainbow'; syncUI(); };
   const btnMute=document.getElementById('btnMute'); if(btnMute) btnMute.onclick=()=>{ SAVE.soundOn = !soundOn(); try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){} syncMuteBtn(); if(soundOn()) SFX.click(); };
-  if(cv) { cv.addEventListener('pointerdown',e=>{ const pt=localPt(e); const q=G.queueHit; if(q && !G.fly && !G.locked && Math.hypot(pt[0]-q.x, pt[1]-q.y) < q.r){ SFX.click(); const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; return; } G.dragging=true; aimAt(...pt); }); cv.addEventListener('pointermove',e=>{if(G.dragging)aimAt(...localPt(e));}); cv.addEventListener('pointerup',()=>{ if(!G.dragging)return; G.dragging=false; if(G.aim!=null)shoot(G.aim); G.aim=null; }); cv.addEventListener('pointercancel',()=>{G.dragging=false;G.aim=null;}); }
+  if(cv) { cv.addEventListener('pointerdown',e=>{G.dragging=true;aimAt(...localPt(e));}); cv.addEventListener('pointermove',e=>{if(G.dragging)aimAt(...localPt(e));}); cv.addEventListener('pointerup',()=>{ if(!G.dragging)return; G.dragging=false; if(G.aim!=null)shoot(G.aim); G.aim=null; }); cv.addEventListener('pointercancel',()=>{G.dragging=false;G.aim=null;}); }
 });
 
 function renderTargetBar(){
-  const bar=document.getElementById('targetBar'), dots=document.getElementById('targetDots');
-  if(!bar)return;
+  const bar=document.getElementById('targetBar'); if(!bar)return;
   if(G.mode==='theme'&&G.targets.length){
-    const cur = G.targets.find(w=>!G.done[w]) || G.targets[G.targets.length-1];
-    bar.className='tword'+(G.done[cur]?' done':'');
-    bar.style.fontSize = (cur.length>=4 ? 20 : cur.length>=3 ? 25 : 30)+'cqh';
-    bar.textContent = [...cur].join(' ');
-    if(dots) dots.innerHTML = G.targets.map(w=>`<i class="tdot${G.done[w]?' done':''}"></i>`).join('');
+    bar.innerHTML = G.targets.map(w=>`<span class="tchip${G.done[w]?' done':''}">${G.done[w]?'✓ ':''}${w}</span>`).join('');
   }else if(G.mode==='free'){
-    bar.className='tword'; bar.style.fontSize='20cqh';
-    bar.textContent = `단어 ${G.wordsCompleted} / ${G.freeGoal}`;
-    if(dots) dots.innerHTML='';
-  }else{ bar.textContent=''; if(dots) dots.innerHTML=''; }
+    bar.innerHTML = `<span class="tchip${G.wordsCompleted>=G.freeGoal?' done':''}">단어 ${G.wordsCompleted}/${G.freeGoal}개</span>`;
+  }else{ bar.innerHTML=''; }
 }
 
 function syncUI(){

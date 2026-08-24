@@ -13,6 +13,7 @@
 <body>
 
 <div id="app">
+  <!-- 인트로(스플래시) 화면 -->
   <div id="introScreen">
     <button class="intro-start-btn" id="btnStartAdventure">🚀 모험 시작하기</button>
   </div>
@@ -35,8 +36,9 @@
     
     <div class="target-box">
       <div class="target-title">목표 단어</div>
-      <div id="targetBar" class="tword"></div>
-      <div id="targetDots"></div>
+      <div class="target-scroll-wrapper">
+        <div id="targetBar"></div>
+      </div>
     </div>
     
     <div class="score-box">
@@ -51,12 +53,10 @@
 
   <!-- ✨ 하단 UI -->
   <div id="bottomUI">
-    <div class="item-row">
-      <button class="item-btn" id="btnHint"><div class="badge" id="uiHint">3</div></button>
-      <button class="item-btn" id="btnSwap"><div class="badge" id="uiSwap">3</div></button>
-      <button class="item-btn" id="btnBomb"><div class="badge" id="uiBomb">2</div></button>
-      <button class="item-btn" id="btnRainbow"><div class="badge" id="uiRainbow">2</div></button>
-    </div>
+    <button class="item-btn" id="btnHint"><div class="badge" id="uiHint">3</div></button>
+    <button class="item-btn" id="btnSwap"><div class="badge" id="uiSwap">3</div></button>
+    <button class="item-btn" id="btnBomb"><div class="badge" id="uiBomb">2</div></button>
+    <button class="item-btn" id="btnRainbow"><div class="badge" id="uiRainbow">2</div></button>
   </div>
 
   <div class="veil" id="veil"><div class="card" id="card"></div></div>
