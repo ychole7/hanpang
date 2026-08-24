@@ -36,7 +36,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .target-title { position: absolute; top: 37%; left: 50%; transform: translateX(-50%); font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 1px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 
 /* ✨ 제시어(칩): 스테이지/점수와 동일한 62% 라인에 안착 */
-.target-scroll-wrapper { position: absolute; top: 68%; left: 0; width: 100%; transform: translateY(-50%); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.target-scroll-wrapper { position: absolute; top: 70%; left: 0; width: 100%; transform: translateY(-50%); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
 .target-scroll-wrapper::-webkit-scrollbar { display: none; }
 #targetBar { display: inline-flex; flex-wrap: nowrap; justify-content: center; gap: 4px; padding: 0 8px; min-width: 100%; }
 
