@@ -382,7 +382,7 @@ function drawShooter(now){
   
   if(!G.fly && G.cur) { 
     const bob = Math.sin(now/420) * R * 0.05; 
-    bubble(cx0, G.shooterY - R*0.9 + bob, R*0.94, G.cur.s, G.cur.col, true); 
+    bubble(cx0, G.shooterY - R*1.0 + bob, R*0.94, G.cur.s, G.cur.col, true); 
     
     if(G.activeItem){ ctx.save(); ctx.font=`600 ${R*.62}px sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(G.activeItem==='bomb'?'💣':'🌈', cx0+R*0.78, G.shooterY+bob-R*0.78); ctx.restore(); } 
   }
