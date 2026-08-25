@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 인게임 구슬 및 플레이 영역 전체 사이즈 축소 버전
+   낱글자 팡팡! — 인게임 멈춤 버그 완전 해결 및 원래 플레이 영역 복구 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -63,8 +63,8 @@ function resize(){
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
 
-  BX = W * 0.08; // ✨ 좌우 여백을 살짝 넓혀서 전체 게임 영역을 조금 더 작고 콤팩트하게 축소
-  BW = W * 0.84; 
+  BX = W * 0.05; // ✨ 원래의 시원한 인게임 플레이 영역 사이즈로 완벽 복구
+  BW = W * 0.90; 
   R = BW / (COLS * 2);
   
   const topUI = document.getElementById('topUI');
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
