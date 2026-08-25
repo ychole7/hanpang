@@ -5,7 +5,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #app { position: relative; width: 100%; height: 100dvh; max-height: 100%; overflow: hidden; }
 
-/* 인트로 화면 (최우선 순위 250) */
+/* 인트로 화면 */
 #introScreen { position: absolute; inset: 0; z-index: 250; background: url('assets/intro_bg.png') center / cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12vh; }
 #introScreen.hidden { display: none !important; }
 .intro-start-btn { background: linear-gradient(180deg, #ff8a00, #e52e71); border: 3px solid #ffe08c; border-radius: 999px; padding: 18px 45px; font-family: 'Pretendard', sans-serif; font-weight: 900; font-size: 24px; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.6); box-shadow: 0 8px 25px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.4); cursor: pointer; animation: pulseStart 1.5s infinite; }
@@ -64,13 +64,37 @@ canvas { display: block; width: 100%; height: 100%; }
 .btn:active{transform:translateY(3px)}
 
 /* ══════════════════════════════════════════
-   ✨ 신규 메인 화면 (지도 로비) 레이아웃 (z-index 100로 분리)
+   ✨ 신규 메인 화면 (지도 로비) 레이아웃 및 오버스크롤 여백 색상 보정
    ══════════════════════════════════════════ */
-#mapScreen { position: absolute; inset: 0; display: none; z-index: 100; background: #567d3d; overflow: hidden; }
-#mapScreen.on { display: block; }
-#mapScroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 220px; padding-top: 80px; }
+#mapScreen { 
+  position: absolute; 
+  inset: 0; 
+  display: none; 
+  z-index: 100; 
+  /* ✨ 위아래 오버스크롤 시 튀어나오는 여백을 맵 최상단/최하단 색상과 그라데이션으로 자연스럽게 통일 */
+  background: linear-gradient(180deg, #3b4856 0%, #4a6b32 100%); 
+  overflow: hidden; 
+}
+#mapScroll { 
+  position: absolute; 
+  inset: 0; 
+  overflow-y: auto; 
+  overflow-x: hidden; 
+  padding-bottom: 220px; 
+  padding-top: 80px; 
+  /* 모바일에서 바운스(오버스크롤) 시 배경 색상 일체감을 높임 */
+  overscroll-behavior-y: contain; 
+}
 
-#mapInner { position: relative; width: 100%; min-height: 1800px; background-image: url('assets/map_bg.png'); background-repeat: no-repeat; background-position: center top; background-size: 100% 100%; }
+#mapInner { 
+  position: relative; 
+  width: 100%; 
+  min-height: 1800px; 
+  background-image: url('assets/map_bg.png'); 
+  background-repeat: no-repeat; 
+  background-position: center top; 
+  background-size: 100% 100%; 
+}
 
 /* 맵 상단 고정 UI */
 #mapTopBar { position: absolute; top: max(15px, env(safe-area-inset-top)); left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 12px; z-index: 110; pointer-events: none; }
