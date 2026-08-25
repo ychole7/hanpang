@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 인게임 멈춤(무한 루프) 버그 완전 해결 및 맵 로직 연동 버전
+   낱글자 팡팡! — 인게임 구슬 및 플레이 영역 전체 사이즈 축소 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -63,8 +63,8 @@ function resize(){
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
 
-  BX = W * 0.05; 
-  BW = W * 0.90; 
+  BX = W * 0.08; // ✨ 좌우 여백을 살짝 넓혀서 전체 게임 영역을 조금 더 작고 콤팩트하게 축소
+  BW = W * 0.84; 
   R = BW / (COLS * 2);
   
   const topUI = document.getElementById('topUI');
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -361,7 +361,6 @@ function resolve(c,r){
       let goldHit=0; const bombCells=[];
       for(const [cc,rr] of word.cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
       let chain=0; 
-      // ✨ 수정 완료: word.cells 순회 시 올바른 구조로 안전하게 체인 폭발 처리
       for(const cell of word.cells){ 
         const [wc, wr] = cell;
         for(const [nc,nr] of nbrs(wc,wr)) {
