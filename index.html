@@ -69,7 +69,6 @@
       </div>
     </div>
     
-    <!-- 메인 상단 고정 UI -->
     <div id="mapTopBar">
       <div class="map-top-left">
         <div class="custom-pill">
@@ -93,47 +92,25 @@
       <button class="map-icon-btn" id="btnMapSettings"></button>
     </div>
 
-    <!-- 메인 중앙 하단 액션 -->
     <div id="mapActionBox">
       <button id="btnMapPlay"><div class="heart-cost">-1❤️</div></button>
     </div>
-
-    <!-- 메인 하단 네비게이션 탭 -->
-    <div id="mapBottomBar">
-      <button class="map-nav-btn" id="navRank">
-        <div class="nav-icon" style="background-image: url('assets/ranking.png');"></div>
-        <span>순위</span>
-      </button>
-      <button class="map-nav-btn active" id="navHome">
-        <div class="nav-icon" style="background-image: url('assets/home.png');"></div>
-        <span>홈</span>
-      </button>
-      <button class="map-nav-btn" id="navShop">
-        <div class="nav-icon" style="background-image: url('assets/shop.png');"></div>
-        <span>상점</span>
-      </button>
-    </div>
   </div>
 
-  <!-- ✨ [순위] 전체 페이지 화면 (하단 네비게이션 바 상시 고정 포함) -->
+  <!-- [순위] 전체 페이지 화면 -->
   <div id="rankScreen">
     <div class="rank-container">
-      <!-- 상단 기와 & 현판 -->
       <div class="rank-header-roof">
         <div class="rank-sign-board">순 위</div>
       </div>
 
-      <!-- 목재 게시판 바디 -->
       <div class="rank-board-body">
-        <!-- 탭 영역 ([전체 순위] / [내 순위]) -->
         <div class="rank-tab-row">
           <button class="rank-tab-btn active" id="rankTabAll" onclick="switchRankTab('all')">전체 순위</button>
           <button class="rank-tab-btn" id="rankTabMy" onclick="switchRankTab('my')">내 순위</button>
         </div>
 
-        <!-- 탭 컨텐츠 영역 -->
         <div class="rank-content-box" id="rankContentBox">
-          <!-- 전체 순위 뷰 -->
           <div id="rankViewAll" class="rank-view">
             <div class="rank-podium-row">
               <div class="podium-item rank-2">
@@ -165,7 +142,6 @@
             </div>
           </div>
 
-          <!-- 내 순위 뷰 -->
           <div id="rankViewMy" class="rank-view" style="display:none;">
             <div class="my-rank-card">
               <div class="my-rank-badge">🏆 내 현재 순위</div>
@@ -185,22 +161,22 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ✨ 랭킹 화면 하단에도 동일하게 고정되는 네비게이션 탭 (순위 탭 활성화) -->
-    <div id="rankBottomBar" class="map-bottom-bar-shared">
-      <button class="map-nav-btn active" id="rankNavRank" onclick="SFX.click()">
-        <div class="nav-icon" style="background-image: url('assets/ranking.png');"></div>
-        <span>순위</span>
-      </button>
-      <button class="map-nav-btn" id="rankNavHome" onclick="SFX.click(); closeRankPage();">
-        <div class="nav-icon" style="background-image: url('assets/home.png');"></div>
-        <span>홈</span>
-      </button>
-      <button class="map-nav-btn" id="rankNavShop" onclick="SFX.click(); closeRankPage(); openShop();">
-        <div class="nav-icon" style="background-image: url('assets/shop.png');"></div>
-        <span>상점</span>
-      </button>
-    </div>
+  <!-- ✨ 앱 최하단에 절대 고정되는 글로벌 하단 네비게이션 바 (어떤 화면이든 상시 노출) -->
+  <div id="globalBottomBar">
+    <button class="map-nav-btn" id="navRank" onclick="SFX.click(); openRankPage();">
+      <div class="nav-icon" style="background-image: url('assets/ranking.png');"></div>
+      <span>순위</span>
+    </button>
+    <button class="map-nav-btn active" id="navHome" onclick="SFX.click(); closeRankPage();">
+      <div class="nav-icon" style="background-image: url('assets/home.png');"></div>
+      <span>홈</span>
+    </button>
+    <button class="map-nav-btn" id="navShop" onclick="SFX.click(); closeRankPage(); openShop();">
+      <div class="nav-icon" style="background-image: url('assets/shop.png');"></div>
+      <span>상점</span>
+    </button>
   </div>
 </div>
 

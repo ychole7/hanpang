@@ -164,7 +164,13 @@ canvas { display: block; width: 100%; height: 100%; }
 #btnMapPlay:active { transform: translateY(4px); }
 .heart-cost { position: absolute; top: -10px; right: -10px; background: #e52e71; border: 2px solid #fff; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.4); text-shadow:none;}
 
-#mapBottomBar { position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; background: #dcb274; border-top: 4px solid #b88645; display: flex; justify-content: space-around; align-items: flex-end; z-index: 120; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 10px rgba(0,0,0,0.2); }
+.mnode{position:absolute;width:48px;height:48px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);font-family:'Pretendard',sans-serif;font-weight:900;font-size:15px;background-image:url('assets/stone_default.png');background-repeat:no-repeat;background-position:center;background-size:contain;z-index:2;cursor:pointer;color:#5a3a22;text-shadow:0 1px 2px rgba(255,255,255,0.8);}
+.mnode.done{color:#3a2a12;background-image:url('assets/stone_clear.png');}
+.mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
+.mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
+
+/* ✨ 최상단에 절대 고정되는 글로벌 하단 네비게이션 바 */
+#globalBottomBar { position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; background: #dcb274; border-top: 4px solid #b88645; display: flex; justify-content: space-around; align-items: flex-end; z-index: 300; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 10px rgba(0,0,0,0.3); pointer-events: auto; }
 .map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: #5a3a22; opacity: 0.65; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; width: 90px; height: 80px; padding: 0; font-family:'Pretendard',sans-serif; }
 .nav-icon { width: 48px; height: 48px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 2px; transition: transform 0.25s ease; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
 .map-nav-btn span { font-size: 14px; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); }
@@ -174,19 +180,12 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn.active span { color: #3a2211; transform: translateY(-2px); }
 .map-nav-btn.active::before { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 76px; height: 76px; background: linear-gradient(180deg, #fffdf5, #f5ebd0); border: 3.5px solid #b88645; border-radius: 20px; z-index: -1; box-shadow: 0 6px 12px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.8); }
 
-.mnode{position:absolute;width:48px;height:48px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);font-family:'Pretendard',sans-serif;font-weight:900;font-size:15px;background-image:url('assets/stone_default.png');background-repeat:no-repeat;background-position:center;background-size:contain;z-index:2;cursor:pointer;color:#5a3a22;text-shadow:0 1px 2px rgba(255,255,255,0.8);}
-.mnode.done{color:#3a2a12;background-image:url('assets/stone_clear.png');}
-.mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
-.mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
-
-/* ══════════════════════════════════════════
-   ✨ [순위] 전체 페이지 화면 디자인 스타일 (기와 잘림 방지 및 하단 바 여백 확보)
-   ══════════════════════════════════════════ */
+/* [순위] 전체 페이지 화면 디자인 스타일 */
 #rankScreen { position: absolute; inset: 0; display: none; z-index: 200; background: url('assets/map_bg.png') center / cover no-repeat; }
-#rankScreen.on { display: flex !important; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 18px; }
+#rankScreen.on { display: flex !important; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 18px; padding-bottom: 110px; }
 #rankScreen::before { content: ''; position: absolute; inset: 0; background: rgba(30, 15, 5, 0.72); backdrop-filter: blur(5px); z-index: 0; }
 
-.rank-container { position: relative; width: 92%; max-width: 420px; height: 74vh; max-height: 580px; background: #5a3a22; border: 6px solid #362013; border-radius: 32px; box-shadow: 0 16px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; padding: 16px; margin-top: 55px; z-index: 1; }
+.rank-container { position: relative; width: 92%; max-width: 420px; height: 74vh; max-height: 560px; background: #5a3a22; border: 6px solid #362013; border-radius: 32px; box-shadow: 0 16px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; padding: 16px; margin-top: 55px; z-index: 1; }
 
 .rank-header-roof { position: absolute; top: -52px; left: 50%; transform: translateX(-50%); width: 240px; height: 85px; background: url('assets/ui_top.png') center/cover no-repeat; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 6px 6px rgba(0,0,0,0.5)); z-index: 5; }
 .rank-sign-board { font-size: 26px; font-weight: 900; color: #fff6da; text-shadow: 0 2px 4px rgba(0,0,0,0.9); margin-top: 10px; letter-spacing: 2px; }
