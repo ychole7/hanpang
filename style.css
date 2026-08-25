@@ -169,21 +169,19 @@ canvas { display: block; width: 100%; height: 100%; }
 .mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 
-/* ✨ 시안 100% 매칭: 기와 담장형 글로벌 하단 네비게이션 바 및 선택 시 솟아오르는 패널 스타일 */
+/* ✨ 시안 100% 반영: bottom_menu_bg.jpg 배경 바 및 bottom_menu_select.png 솟아오르는 패널 스타일 */
 #globalBottomBar { 
   position: absolute; 
   bottom: 0; 
   left: 0; 
   width: 100%; 
   height: 95px; 
-  background: url('assets/ui_top.png') center top / cover no-repeat; /* 목재 담장 및 기와 질감 활용 */
-  background-color: #5a3a22;
-  border-top: 4px solid #362013; 
+  background: url('assets/bottom_menu_bg.jpg') center top / 100% 100% no-repeat; 
   display: flex; 
   justify-content: space-around; 
   align-items: flex-end; 
   z-index: 300; 
-  padding-bottom: calc(10px + env(safe-area-inset-bottom)); 
+  padding-bottom: calc(14px + env(safe-area-inset-top)); 
   box-shadow: 0 -6px 15px rgba(0,0,0,0.5); 
   pointer-events: auto; 
 }
@@ -201,7 +199,7 @@ canvas { display: block; width: 100%; height: 100%; }
   height: 75px; 
   padding: 0; 
   font-family:'Pretendard',sans-serif; 
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .map-nav-btn span { 
@@ -209,52 +207,51 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 
 .nav-icon { 
-  width: 54px; 
-  height: 54px; 
+  width: 52px; 
+  height: 52px; 
   background-size: contain; 
   background-repeat: no-repeat; 
   background-position: center; 
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
   filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4)); 
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .map-nav-btn:active { transform: scale(0.92); }
 
-/* 선택된(Active) 상태: 아이콘이 위로 붕 떠오르고 금빛 둥근 패널과 글자 등장 */
+/* 선택된(Active) 상태: 아이콘이 위로 솟아오르고 bottom_menu_select.png 패널과 글자 등장 */
 .map-nav-btn.active { 
-  transform: translateY(-24px); 
+  transform: translateY(-28px); 
 }
 
 .map-nav-btn.active .nav-icon { 
-  transform: scale(1.15) translateY(-6px); 
+  transform: scale(1.18) translateY(-6px); 
   filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)); 
 }
 
 .map-nav-btn.active span { 
   display: block; 
   position: absolute; 
-  bottom: -18px; 
-  font-size: 15px; 
+  bottom: 2px; 
+  font-size: 16px; 
   font-weight: 900; 
   color: #5a3a22; 
-  text-shadow: none; 
+  text-shadow: 0 1px 1px rgba(255,255,255,0.6); 
   white-space: nowrap;
+  z-index: 2;
 }
 
 .map-nav-btn.active::before { 
   content: ''; 
   position: absolute; 
-  top: -12px; 
+  top: -18px; 
   left: 50%; 
   transform: translateX(-50%); 
-  width: 82px; 
-  height: 82px; 
-  background: linear-gradient(180deg, #ffea8a, #f5b041); 
-  border: 3.5px solid #fff; 
-  border-radius: 26px; 
+  width: 96px; 
+  height: 88px; 
+  background: url('assets/bottom_menu_select.png') center/contain no-repeat; 
   z-index: -1; 
-  box-shadow: 0 8px 16px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.7); 
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4)); 
 }
 
 /* [순위] 전체 페이지 화면 디자인 스타일 */
