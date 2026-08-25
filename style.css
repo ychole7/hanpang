@@ -169,7 +169,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 
-/* ✨ 시안 100% 반영: bottom_menu_bg.png 배경 바 및 bottom_menu_select.png 솟아오르는 패널 스타일 */
+/* ✨ 시안 100% 매칭: bottom_menu_bg.png 및 큼직하게 확장된 bottom_menu_select.png 패널 스타일 */
 #globalBottomBar { 
   position: absolute; 
   bottom: 0; 
@@ -219,20 +219,20 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .map-nav-btn:active { transform: scale(0.92); }
 
-/* 선택된(Active) 상태: 아이콘이 위로 솟아오르고 bottom_menu_select.png 패널과 글자 등장 */
+/* ✨ 선택된(Active) 상태: 아이콘과 아래 글자까지 넉넉하게 감싸도록 패널 크기와 위치를 대폭 확장 */
 .map-nav-btn.active { 
-  transform: translateY(-28px); 
+  transform: translateY(-38px); 
 }
 
 .map-nav-btn.active .nav-icon { 
-  transform: scale(1.18) translateY(-6px); 
+  transform: scale(1.18) translateY(-4px); 
   filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)); 
 }
 
 .map-nav-btn.active span { 
   display: block; 
   position: absolute; 
-  bottom: 2px; 
+  bottom: 8px; /* 패널 내부 하단에 글자가 예쁘게 안착하도록 조정 */
   font-size: 16px; 
   font-weight: 900; 
   color: #5a3a22; 
@@ -244,14 +244,14 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn.active::before { 
   content: ''; 
   position: absolute; 
-  top: -18px; 
+  top: -26px; /* 위쪽 기와 라인까지 시원하게 솟아오름 */
   left: 50%; 
   transform: translateX(-50%); 
-  width: 96px; 
-  height: 88px; 
+  width: 115px; /* 가로 폭을 넓혀서 아이콘과 글자를 완벽히 포옹 */
+  height: 110px; /* 세로 폭을 키워서 아래 글자까지 넉넉하게 커버 */
   background: url('assets/bottom_menu_select.png') center/contain no-repeat; 
   z-index: -1; 
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4)); 
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); 
 }
 
 /* [순위] 전체 페이지 화면 디자인 스타일 */
