@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 랭킹 및 하단 네비게이션 동적 연동 버전
+   낱글자 팡팡! — 하단 탭 동적 연동 및 인트로 연출 제어 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -679,6 +679,35 @@ function openSettings(isMap) {
   }
 }
 
+// ✨ 하단 네비게이션 탭 동적 활성화 제어 함수 (순위 / 홈 / 상점 연동)
+function showNavTab(tabName) {
+  const rankSc = document.getElementById('rankScreen');
+  const mapSc = document.getElementById('mapScreen');
+  const btnRank = document.getElementById('navRank');
+  const btnHome = document.getElementById('navHome');
+  const btnShop = document.getElementById('navShop');
+
+  // 모든 탭 active 해제
+  if(btnRank) btnRank.classList.remove('active');
+  if(btnHome) btnHome.classList.remove('active');
+  if(btnShop) btnShop.classList.remove('active');
+
+  if (tabName === 'rank') {
+    if(btnRank) btnRank.classList.add('active');
+    if(mapSc) mapSc.classList.remove('on');
+    if(rankSc) rankSc.classList.add('on');
+  } else if (tabName === 'home') {
+    if(btnHome) btnHome.classList.add('active');
+    if(rankSc) rankSc.classList.remove('on');
+    openMap();
+  } else if (tabName === 'shop') {
+    if(btnShop) btnShop.classList.add('active');
+    if(rankSc) rankSc.classList.remove('on');
+    openMap();
+    openShop(); // 기존 상점 팝업 연동
+  }
+}
+
 window.addEventListener('load', () => {
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) btnSettings.onclick = () => openSettings(false);
@@ -688,26 +717,6 @@ window.addEventListener('load', () => {
 
   const btnShop=document.getElementById('btnShop'); if(btnShop) btnShop.onclick=()=>{ if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
   
-  const navHome = document.getElementById('navHome');
-  const navShop = document.getElementById('navShop');
-  const navRank = document.getElementById('navRank');
-
-  if(navHome) navHome.onclick = () => {
-    SFX.click();
-    const scrollEl = document.getElementById('mapScroll');
-    if(scrollEl) scrollEl.scrollTo({top: 0, behavior:'smooth'});
-  };
-
-  if(navShop) navShop.onclick = () => {
-    SFX.click();
-    openShop();
-  };
-
-  if(navRank) navRank.onclick = () => {
-    SFX.click();
-    openRankPage();
-  };
-
   const btnSwap=document.getElementById('btnSwap'); if(btnSwap) btnSwap.onclick=()=>{ if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
   const btnHint=document.getElementById('btnHint'); if(btnHint) btnHint.onclick=()=>{ if(G.hints<=0||G.fly||G.locked)return; SFX.click(); const hit=completionsFor(G.cur.s); if(!hit.length){toast('이 글자로는 만들 단어가 없어요');return;} hit.sort((a,b)=>(b.cat===G.goal)-(a.cat===G.goal)||b.word.length-a.word.length); G.hints--; G.hintCells=[[hit[0].c,hit[0].r]]; toast(hit[0].word,[[hit[0].c,hit[0].r]]); syncUI(); };
   const btnBomb=document.getElementById('btnBomb'); if(btnBomb) btnBomb.onclick=()=>{ if(G.bombs<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='bomb' ? null : 'bomb'; syncUI(); };
@@ -770,20 +779,24 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
+// ✨ 인트로 화면 제어 (시작 페이지에서는 하단 바 숨김 처리)
 function intro() {
   const introSc = document.getElementById('introScreen');
   const mapSc = document.getElementById('mapScreen');
   const rankSc = document.getElementById('rankScreen');
+  const globalBar = document.getElementById('globalBottomBar');
   
   if (introSc) { introSc.style.display = 'flex'; introSc.classList.remove('hidden'); }
   if (mapSc) { mapSc.classList.remove('on'); }
   if (rankSc) { rankSc.classList.remove('on'); }
+  if (globalBar) { globalBar.style.display = 'none'; } // 👈 시작 페이지에서는 하단 바 숨김!
 
   const btnStartAdv = document.getElementById('btnStartAdventure');
   if (btnStartAdv) {
     btnStartAdv.onclick = () => {
       SFX.click(); 
       if (introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
+      if (globalBar) { globalBar.style.display = 'flex'; } // 👈 모험 시작 시 하단 바 등장!
       G.mode = 'theme'; 
       openMap(); 
     };
@@ -836,10 +849,15 @@ function openMap(_isRetry){
   const ms=document.getElementById('mapScreen'); 
   const introSc=document.getElementById('introScreen');
   const rankSc=document.getElementById('rankScreen');
+  const globalBar = document.getElementById('globalBottomBar');
   
   if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
   if(rankSc) { rankSc.classList.remove('on'); }
   if(ms) ms.classList.add('on');
+  if(globalBar) { globalBar.style.display = 'flex'; }
+
+  // 홈 탭 활성화 연동
+  showNavTab('home');
 
   const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const allCleared = maxUnlocked>=MAX_STAGE && stars[MAX_STAGE]!=null; const TOTAL = MAX_STAGE; 
   
@@ -910,6 +928,7 @@ function openRankPage() {
   const ms = document.getElementById('mapScreen');
   if (ms) ms.classList.remove('on');
   if (rankSc) rankSc.classList.add('on');
+  showNavTab('rank');
 }
 
 function closeRankPage() {
@@ -935,6 +954,24 @@ function switchRankTab(type) {
     btnAll.classList.remove('active');
     viewMy.style.display = 'flex';
     viewAll.style.display = 'none';
+  }
+}
+
+function showNavTab(tabName) {
+  const btnRank = document.getElementById('navRank');
+  const btnHome = document.getElementById('navHome');
+  const btnShop = document.getElementById('navShop');
+
+  if(btnRank) btnRank.classList.remove('active');
+  if(btnHome) btnHome.classList.remove('active');
+  if(btnShop) btnShop.classList.remove('active');
+
+  if (tabName === 'rank') {
+    if(btnRank) btnRank.classList.add('active');
+  } else if (tabName === 'home') {
+    if(btnHome) btnHome.classList.add('active');
+  } else if (tabName === 'shop') {
+    if(btnShop) btnShop.classList.add('active');
   }
 }
 

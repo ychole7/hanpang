@@ -163,17 +163,17 @@
     </div>
   </div>
 
-  <!-- ✨ 앱 최하단에 절대 고정되는 글로벌 하단 네비게이션 바 (어떤 화면이든 상시 노출) -->
-  <div id="globalBottomBar">
-    <button class="map-nav-btn" id="navRank" onclick="SFX.click(); openRankPage();">
+  <!-- ✨ 앱 최하단 고정 글로벌 하단 네비게이션 바 (초기엔 숨겨져 있다가 모험 시작 시 등장) -->
+  <div id="globalBottomBar" style="display: none;">
+    <button class="map-nav-btn" id="navRank" onclick="SFX.click(); showNavTab('rank');">
       <div class="nav-icon" style="background-image: url('assets/ranking.png');"></div>
       <span>순위</span>
     </button>
-    <button class="map-nav-btn active" id="navHome" onclick="SFX.click(); closeRankPage();">
+    <button class="map-nav-btn active" id="navHome" onclick="SFX.click(); showNavTab('home');">
       <div class="nav-icon" style="background-image: url('assets/home.png');"></div>
       <span>홈</span>
     </button>
-    <button class="map-nav-btn" id="navShop" onclick="SFX.click(); closeRankPage(); openShop();">
+    <button class="map-nav-btn" id="navShop" onclick="SFX.click(); showNavTab('shop');">
       <div class="nav-icon" style="background-image: url('assets/shop.png');"></div>
       <span>상점</span>
     </button>
