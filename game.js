@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 인게임 멈춤 버그 완전 해결 및 원래 플레이 영역 복구 버전
+   낱글자 팡팡! — 랭킹 페이지([전체 랭킹], [내 랭킹]) 연동 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -63,7 +63,7 @@ function resize(){
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
 
-  BX = W * 0.05; // ✨ 원래의 시원한 인게임 플레이 영역 사이즈로 완벽 복구
+  BX = W * 0.05; 
   BW = W * 0.90; 
   R = BW / (COLS * 2);
   
@@ -720,7 +720,7 @@ window.addEventListener('load', () => {
       </div>
       <button class="btn" id="rankCloseBtn" style="margin-top:14px; padding:8px 24px; font-size:15px;">닫기</button>
     `);
-    document.getElementById('rankCloseBtn').onclick = () => { SFX.click(); hide(); };
+    document.getElementById('rankCloseBtn', true).onclick = () => { SFX.click(); hide(); };
   };
 
   const btnSwap=document.getElementById('btnSwap'); if(btnSwap) btnSwap.onclick=()=>{ if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
