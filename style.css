@@ -169,7 +169,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 
-/* ✨ 시안 100% 매칭: bottom_menu_bg.png 및 큼직하게 확장된 bottom_menu_select.png 패널 스타일 */
+/* ✨ 시안 100% 매칭: bottom_menu_bg.png 및 아이콘과 글자 간격이 넉넉하게 조정된 패널 스타일 */
 #globalBottomBar { 
   position: absolute; 
   bottom: 0; 
@@ -219,24 +219,24 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .map-nav-btn:active { transform: scale(0.92); }
 
-/* ✨ 선택된(Active) 상태: 아이콘과 아래 글자까지 넉넉하게 감싸도록 패널 크기와 위치를 대폭 확장 */
+/* ✨ 선택된(Active) 상태: 아이콘 위치를 살짝 위로 올리고, 글자와의 간격을 넓혀서 선명하게 노출 */
 .map-nav-btn.active { 
   transform: translateY(-38px); 
 }
 
 .map-nav-btn.active .nav-icon { 
-  transform: scale(1.18) translateY(-4px); 
+  transform: scale(1.18) translateY(-12px); /* 아이콘을 위로 더 띄움 */
   filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)); 
 }
 
 .map-nav-btn.active span { 
   display: block; 
   position: absolute; 
-  bottom: 8px; /* 패널 내부 하단에 글자가 예쁘게 안착하도록 조정 */
+  bottom: 12px; /* 글자를 패널 중앙 하단으로 내려서 아이콘과 확실히 분리 */
   font-size: 16px; 
   font-weight: 900; 
   color: #5a3a22; 
-  text-shadow: 0 1px 1px rgba(255,255,255,0.6); 
+  text-shadow: 0 1px 1px rgba(255,255,255,0.7); 
   white-space: nowrap;
   z-index: 2;
 }
@@ -244,11 +244,11 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn.active::before { 
   content: ''; 
   position: absolute; 
-  top: -26px; /* 위쪽 기와 라인까지 시원하게 솟아오름 */
+  top: -26px; 
   left: 50%; 
   transform: translateX(-50%); 
-  width: 115px; /* 가로 폭을 넓혀서 아이콘과 글자를 완벽히 포옹 */
-  height: 110px; /* 세로 폭을 키워서 아래 글자까지 넉넉하게 커버 */
+  width: 115px; 
+  height: 110px; 
   background: url('assets/bottom_menu_select.png') center/contain no-repeat; 
   z-index: -1; 
   filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); 
@@ -284,7 +284,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .rank-list-scroll { display: flex; flex-direction: column; gap: 6px; }
 .rank-list-item { background: #fffdf9; border: 2px solid #e8d5b5; border-radius: 12px; display: flex; align-items: center; padding: 8px 12px; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .r-num { width: 24px; font-size: 16px; font-weight: 900; color: #8a6a4a; text-align: center; }
-.r-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.r-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2.5px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .r-name { flex: 1; font-size: 15px; font-weight: 900; color: #5a3a22; }
 
 .my-rank-card { background: linear-gradient(180deg, #fffbf0, #f5e8cc); border: 3px solid #dcb274; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-top: 10px; }
