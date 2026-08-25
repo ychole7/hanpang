@@ -169,21 +169,93 @@ canvas { display: block; width: 100%; height: 100%; }
 .mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 
-/* ✨ 새로운 아이콘 에셋 반영 및 선택 안 될 때 글자 숨김, 선택되면 솟아오르는 글로벌 하단 바 */
-#globalBottomBar { position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; background: #dcb274; border-top: 4px solid #b88645; display: flex; justify-content: space-around; align-items: flex-end; z-index: 300; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 10px rgba(0,0,0,0.3); pointer-events: auto; }
-.map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: #5a3a22; position: relative; width: 90px; height: 80px; padding: 0; font-family:'Pretendard',sans-serif; }
+/* ✨ 시안 100% 매칭: 기와 담장형 글로벌 하단 네비게이션 바 및 선택 시 솟아오르는 패널 스타일 */
+#globalBottomBar { 
+  position: absolute; 
+  bottom: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 95px; 
+  background: url('assets/ui_top.png') center top / cover no-repeat; /* 목재 담장 및 기와 질감 활용 */
+  background-color: #5a3a22;
+  border-top: 4px solid #362013; 
+  display: flex; 
+  justify-content: space-around; 
+  align-items: flex-end; 
+  z-index: 300; 
+  padding-bottom: calc(10px + env(safe-area-inset-bottom)); 
+  box-shadow: 0 -6px 15px rgba(0,0,0,0.5); 
+  pointer-events: auto; 
+}
 
-/* 평소에는 글자 숨김 (opacity 0, 공간 차지 안 함) */
-.map-nav-btn span { opacity: 0; transform: translateY(10px); font-size: 14px; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); transition: all 0.2s ease; position: absolute; bottom: 4px; }
-.nav-icon { width: 48px; height: 48px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 12px; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25)); }
+.map-nav-btn { 
+  background: transparent; 
+  border: none; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
+  cursor: pointer; 
+  position: relative; 
+  width: 90px; 
+  height: 75px; 
+  padding: 0; 
+  font-family:'Pretendard',sans-serif; 
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.map-nav-btn span { 
+  display: none; /* 평소에는 글자 숨김 */
+}
+
+.nav-icon { 
+  width: 54px; 
+  height: 54px; 
+  background-size: contain; 
+  background-repeat: no-repeat; 
+  background-position: center; 
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4)); 
+  margin-bottom: 6px;
+}
 
 .map-nav-btn:active { transform: scale(0.92); }
 
-/* 선택된(Active) 상태: 아이콘이 커지며 위로 솟고, 아래에 글자가 나타남 */
-.map-nav-btn.active { transform: translateY(-16px); }
-.map-nav-btn.active .nav-icon { transform: scale(1.25) translateY(-6px); filter: drop-shadow(0 8px 10px rgba(0,0,0,0.35)); }
-.map-nav-btn.active span { opacity: 1; transform: translateY(0); color: #3a2211; }
-.map-nav-btn.active::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 76px; height: 76px; background: linear-gradient(180deg, #fffdf5, #f5ebd0); border: 3.5px solid #b88645; border-radius: 20px; z-index: -1; box-shadow: 0 6px 12px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.8); }
+/* 선택된(Active) 상태: 아이콘이 위로 붕 떠오르고 금빛 둥근 패널과 글자 등장 */
+.map-nav-btn.active { 
+  transform: translateY(-24px); 
+}
+
+.map-nav-btn.active .nav-icon { 
+  transform: scale(1.15) translateY(-6px); 
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)); 
+}
+
+.map-nav-btn.active span { 
+  display: block; 
+  position: absolute; 
+  bottom: -18px; 
+  font-size: 15px; 
+  font-weight: 900; 
+  color: #5a3a22; 
+  text-shadow: none; 
+  white-space: nowrap;
+}
+
+.map-nav-btn.active::before { 
+  content: ''; 
+  position: absolute; 
+  top: -12px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 82px; 
+  height: 82px; 
+  background: linear-gradient(180deg, #ffea8a, #f5b041); 
+  border: 3.5px solid #fff; 
+  border-radius: 26px; 
+  z-index: -1; 
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.7); 
+}
 
 /* [순위] 전체 페이지 화면 디자인 스타일 */
 #rankScreen { position: absolute; inset: 0; display: none; z-index: 200; background: url('assets/map_bg.png') center / cover no-repeat; }
