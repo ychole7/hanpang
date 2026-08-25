@@ -169,7 +169,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 
-/* ✨ 시안 100% 반영: bottom_menu_bg.jpg 배경 바 및 bottom_menu_select.png 솟아오르는 패널 스타일 */
+/* ✨ 시안 100% 반영: bottom_menu_bg.png 배경 바 및 bottom_menu_select.png 솟아오르는 패널 스타일 */
 #globalBottomBar { 
   position: absolute; 
   bottom: 0; 
