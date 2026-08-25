@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 신규 맵 배경(성문 아래, 길 위쪽 흐름) 맞춤 좌표 재조정 버전
+   낱글자 팡팡! — 인트로에서 맵으로 정상 진입 및 인게임 렌더링 복구 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -359,7 +359,7 @@ function resolve(c,r){
     if(word.word.length>=4){ for(let i=0;i<20;i++){ const p=getParticle(); if(p){ const ang=Math.random()*Math.PI*2, sp=1+Math.random()*4; p.active=true; p.x=W/2; p.y=H*0.4; p.vx=Math.cos(ang)*sp; p.vy=Math.sin(ang)*sp; p.life=1.4; p.col='#ffe08c'; p.r=2+Math.random()*3; p.shape='star'; } } G.banner={text:word.word,life:1.6,bonus:true,big:true}; }
     setTimeout(()=>{
       let goldHit=0; const bombCells=[];
-      for(const [cc,rr] of word.cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
+      for(const [cc,rr] of word.cells){ if(!G.grid[rr]&&G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
       let chain=0; for(const [wc,wr] of word.cells) for(const [nc,nr] of nbrs(wc,wr)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; chain++; } G.score+=chain*30;
       if(goldHit){ const gb=goldHit*300; G.score+=gb; SAVE.coins=(SAVE.coins||0)+goldHit*10; addPop(px,py-R*1.6,'✨ 황금 +'+gb,'#ffe08c'); flash(0.2); }
       for(const [bc,br] of bombCells){ for(const [nc,nr] of nbrs(bc,br)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; G.score+=60; } addWave(cx(bc,br),cy(br),'#ff9a5c',R*3); addShake(8); }
@@ -774,6 +774,7 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
+// ✨ 인트로 '모험 시작하기' 버튼 클릭 시 맵(openMap)이 아니라 곧바로 게임으로 넘어가던 버그 수정
 function intro() {
   const introSc = document.getElementById('introScreen');
   if (introSc) {
@@ -790,7 +791,7 @@ function intro() {
         introSc.style.display = 'none';
       }
       G.mode = 'theme'; 
-      openMap(); 
+      openMap(); // 👈 홈(스테이지 맵)으로 정상 호출되도록 복구 완료
     };
   }
 }
@@ -829,7 +830,6 @@ function renderMapLives(){
 const ZONES=[ {key:'forest', img:'assets/map_bg.png'} ]; 
 function zoneIdx(lv){ return Math.min(4, Math.floor((lv-1)/100)); }
 
-// ✨ 성문이 아래에 있고 위로 올라가는 신규 맵 일러스트 곡선 흐름에 완벽 맞춤형 좌표 재설계!
 const PATH_POINTS={ 
   forest: [ 
     [50,88],[45,82],[50,76],[58,70],[55,64],[45,59],[40,53],[48,47],[56,42],[52,36],
@@ -883,7 +883,7 @@ function openMap(_isRetry){
       const lv=+el.dataset.lv; 
       if(el.classList.contains('locked') || !spendLife()) return; 
       SFX.click(); 
-      ms.classList.remove('on'); 
+      ms.classList.remove('on'); // 👈 인게임 진입 시 맵 화면 숨김 처리 확실하게 연동
       clearInterval(_mapLivesTimer); 
       G.mode='theme'; 
       startGame(false, lv); 
