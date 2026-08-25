@@ -25,19 +25,19 @@
     <div class="top-menu-row">
       <button class="icon-btn" id="btnSettings"></button>
       
-      <!-- ✨ 인게임 하트 & 코인 알약 패널 -->
+      <!-- 인게임 하트 & 코인 알약 패널 -->
       <div class="top-right-stats">
         <div class="custom-pill">
           <div class="pill-icon-float" style="background-image: url('assets/heart.png');"></div>
-          <div class="pill-text-group" style="padding-left: 14px;">
-            <b id="uiLives">6</b> <span>MAX</span>
+          <div class="pill-text-group">
+            <b id="uiLives">6</b> <span style="font-size:10px; color:#a08660; font-weight:800;">MAX</span>
           </div>
           <button class="pill-plus-btn" onclick="SFX.click()">+</button>
         </div>
 
-        <div class="custom-pill" style="margin-left: 6px;">
+        <div class="custom-pill" style="margin-left: 14px;">
           <div class="pill-icon-float" style="background-image: url('assets/coin.png');"></div>
-          <div class="pill-text-group" style="padding-left: 14px;">
+          <div class="pill-text-group">
             <b id="uiCoins">0</b>
           </div>
           <button class="pill-plus-btn" onclick="SFX.click(); openShop();">+</button>
@@ -70,13 +70,13 @@
       </div>
     </div>
     
-    <!-- 메인 상단 고정 UI -->
+    <!-- ✨ 메인 상단 고정 UI (첨부 시안 레퍼런스 100% 동일 핏 반영) -->
     <div id="mapTopBar">
       <div class="map-top-left">
-        <!-- 하트 알약 패널 (하트가 테두리에 걸쳐서 톡 튀어나오는 구조) -->
+        <!-- 하트 알약 패널 -->
         <div class="custom-pill">
           <div class="pill-icon-float" style="background-image: url('assets/heart.png');"></div>
-          <div class="pill-text-group" style="padding-left: 14px;">
+          <div class="pill-text-group">
             <b id="mapUI_lives">5</b>
             <span id="mapUI_timer">MAX</span>
           </div>
@@ -84,9 +84,9 @@
         </div>
 
         <!-- 코인 알약 패널 -->
-        <div class="custom-pill" style="margin-left: 6px;">
+        <div class="custom-pill" style="margin-left: 14px;">
           <div class="pill-icon-float" style="background-image: url('assets/coin.png');"></div>
-          <div class="pill-text-group" style="padding-left: 14px;">
+          <div class="pill-text-group">
             <b id="mapUI_coins">0</b>
           </div>
           <button class="pill-plus-btn" onclick="SFX.click(); openShop();">+</button>
