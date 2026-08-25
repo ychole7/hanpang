@@ -23,9 +23,15 @@
   <!-- 인게임 상단 UI -->
   <div id="topUI">
     <div class="top-menu-row">
-      <button class="icon-btn" id="btnSettings">⚙️</button>
-      <div class="stat-pill">❤️<b id="uiLives">6</b></div>
-      <div class="stat-pill">💰<b id="uiCoins">0</b></div>
+      <button class="icon-btn" id="btnSettings"></button>
+      <div class="stat-pill">
+        <div class="pill-icon" style="background-image: url('assets/heart.png');"></div>
+        <b id="uiLives">6</b> <span style="font-size:11px; opacity:0.8;">MAX</span>
+      </div>
+      <div class="stat-pill">
+        <div class="pill-icon" style="background-image: url('assets/coin.png');"></div>
+        <b id="uiCoins">0</b>
+      </div>
     </div>
     <div class="stage-box"><div class="side-title">스테이지</div><div id="uiStage" class="big-num">1</div></div>
     <div class="target-box"><div class="target-title">목표 단어</div><div class="target-scroll-wrapper"><div id="targetBar"></div></div></div>
@@ -48,27 +54,35 @@
   <div id="mapScreen">
     <div id="mapScroll">
       <div id="mapInner">
-        <!-- ✨ 맵 배경 이미지를 <img> 태그로 직접 삽입하여 여백 문제 완벽 해결 -->
         <img id="mapBgImg" src="assets/map_bg.png" alt="Map Background">
       </div>
     </div>
     
-    <!-- 메인 상단 고정 UI -->
+    <!-- ✨ 메인 상단 고정 UI (시안 레퍼런스 100% 반영 스타일) -->
     <div id="mapTopBar">
-      <button class="map-icon-btn" id="btnMapSettings"></button>
-      <div class="map-stat-pill" id="mapLivesPill">
-        <div style="font-size:20px; margin-right:4px;">❤️</div>
-        <div style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.1;">
-          <b id="mapUI_lives" style="font-size:16px;">5</b>
-          <span id="mapUI_timer" style="font-size:11px; color:#a08660;">00:00</span>
+      <div class="map-top-left">
+        <!-- 하트 알약 패널 -->
+        <div class="custom-pill">
+          <div class="pill-icon" style="background-image: url('assets/heart.png');"></div>
+          <div class="pill-text-group">
+            <b id="mapUI_lives">5</b>
+            <span id="mapUI_timer">MAX</span>
+          </div>
+          <button class="pill-plus-btn" onclick="SFX.click()">+</button>
         </div>
-        <button class="plus-btn" onclick="SFX.click()">+</button>
+
+        <!-- 코인 알약 패널 -->
+        <div class="custom-pill" style="margin-left: 8px;">
+          <div class="pill-icon" style="background-image: url('assets/coin.png');"></div>
+          <div class="pill-text-group">
+            <b id="mapUI_coins">0</b>
+          </div>
+          <button class="pill-plus-btn" onclick="SFX.click(); openShop();">+</button>
+        </div>
       </div>
-      <div class="map-stat-pill" id="mapCoinsPill">
-        <div style="width:24px; height:24px; margin-right:4px; background:url('assets/coin.png') center/contain no-repeat;"></div>
-        <b id="mapUI_coins" style="font-size:16px;">0</b>
-        <button class="plus-btn" onclick="SFX.click(); openShop();">+</button>
-      </div>
+
+      <!-- 우측 설정 동그란 버튼 -->
+      <button class="map-icon-btn" id="btnMapSettings"></button>
     </div>
 
     <!-- 메인 중앙 하단 액션 -->
