@@ -14,7 +14,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #bgLayer { position: absolute; inset: 0; z-index: 0; background: url('assets/bg_main.png') center / cover no-repeat; }
 
-/* ✨ 게임 화면(인플레이) 전용 상단 UI (홈 화면 대비 약 70% 축소 핏 적용) */
+/* 게임 화면(인플레이) 전용 상단 UI */
 #topUI { position: absolute; top: -10px; left: -2%; width: 104%; height: 155px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_top.png') center top / 100% 100% no-repeat; }
 #topUI .top-menu-row { display: flex; gap: 6px; padding: calc(14px + env(safe-area-inset-top)) 4% 0; align-items: center; justify-content: space-between; }
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
@@ -42,7 +42,6 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .tchip { background: #fffdf5; border: 2px solid #dcb274; border-radius: 999px; padding: 5px 14px; font-size: 14px; color: #5a3a22; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: 900; }
 .tchip.done { background: #7ba05b; color: #fff; border-color: #55783a; }
 
-/* ✨ 홈 화면(메인 로비) 기준 정 사이즈 알약 패널 (아이콘 겹침 완벽 방지) */
 .custom-pill { 
   position: relative; 
   background: #fffdf5; 
@@ -181,18 +180,18 @@ canvas { display: block; width: 100%; height: 100%; }
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 
 /* ══════════════════════════════════════════
-   ✨ [순위] 전체 페이지 화면 디자인 스타일 (시안 100% 반영)
+   ✨ [순위] 전체 페이지 화면 디자인 스타일 (기와 잘림 방지 및 하단 바 여백 확보)
    ══════════════════════════════════════════ */
 #rankScreen { position: absolute; inset: 0; display: none; z-index: 200; background: url('assets/map_bg.png') center / cover no-repeat; }
-#rankScreen.on { display: flex !important; flex-direction: column; align-items: center; justify-content: center; }
+#rankScreen.on { display: flex !important; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 18px; }
 #rankScreen::before { content: ''; position: absolute; inset: 0; background: rgba(30, 15, 5, 0.72); backdrop-filter: blur(5px); z-index: 0; }
 
-.rank-container { position: relative; width: 92%; max-width: 420px; height: 86vh; max-height: 720px; background: #5a3a22; border: 6px solid #362013; border-radius: 32px; box-shadow: 0 16px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; padding: 16px; z-index: 1; }
+.rank-container { position: relative; width: 92%; max-width: 420px; height: 74vh; max-height: 580px; background: #5a3a22; border: 6px solid #362013; border-radius: 32px; box-shadow: 0 16px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; padding: 16px; margin-top: 55px; z-index: 1; }
 
-.rank-header-roof { position: absolute; top: -42px; left: 50%; transform: translateX(-50%); width: 240px; height: 85px; background: url('assets/ui_top.png') center/cover no-repeat; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 6px 6px rgba(0,0,0,0.5)); z-index: 5; }
+.rank-header-roof { position: absolute; top: -52px; left: 50%; transform: translateX(-50%); width: 240px; height: 85px; background: url('assets/ui_top.png') center/cover no-repeat; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 6px 6px rgba(0,0,0,0.5)); z-index: 5; }
 .rank-sign-board { font-size: 26px; font-weight: 900; color: #fff6da; text-shadow: 0 2px 4px rgba(0,0,0,0.9); margin-top: 10px; letter-spacing: 2px; }
 
-.rank-board-body { width: 100%; flex: 1; background: #fcf6eb; border: 4px solid #dcb274; border-radius: 22px; margin-top: 42px; display: flex; flex-direction: column; overflow: hidden; box-shadow: inset 0 4px 10px rgba(0,0,0,0.1); padding: 12px; }
+.rank-board-body { width: 100%; flex: 1; background: #fcf6eb; border: 4px solid #dcb274; border-radius: 22px; margin-top: 36px; display: flex; flex-direction: column; overflow: hidden; box-shadow: inset 0 4px 10px rgba(0,0,0,0.1); padding: 12px; }
 
 .rank-tab-row { display: flex; gap: 8px; margin-bottom: 12px; }
 .rank-tab-btn { flex: 1; background: #e2c088; border: 2px solid #b88645; border-radius: 14px; padding: 10px; font-family:'Pretendard',sans-serif; font-size: 16px; font-weight: 900; color: #6a4425; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: 0.15s; }
@@ -222,7 +221,3 @@ canvas { display: block; width: 100%; height: 100%; }
 .my-info h3 { margin: 0 0 4px; font-size: 20px; color: #5a3a22; }
 .my-info p { margin: 0; font-size: 14px; color: #8a6a4a; }
 .my-stats-row { display: flex; justify-content: space-around; background: #fffdf5; border: 2px solid #e8d5b5; border-radius: 12px; padding: 12px; font-size: 15px; color: #5a3a22; }
-
-.rank-footer-row { margin-top: 12px; width: 100%; display: flex; justify-content: flex-start; }
-.rank-back-btn { width: 50px; height: 50px; background: linear-gradient(180deg, #e8c169, #c8962f); border: 3px solid #8a5f22; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.1s; }
-.rank-back-btn:active { transform: scale(0.92); }
