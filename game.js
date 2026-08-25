@@ -705,6 +705,8 @@ window.addEventListener('load', () => {
 
   if(navRank) navRank.onclick = () => {
     SFX.click();
+    openRankPage(); // 👈 팝업 대신 전체 랭킹 페이지를 멋지게 호출!
+  };
     show(`
       <h2>🏆 랭킹</h2>
       <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px;">
@@ -940,3 +942,34 @@ function boot(){
 
 function markFontsReady(){ FONTS_READY=true; SPR.clear(); }
 if(document.fonts&&document.fonts.ready){ boot(); Promise.all([document.fonts.load("800 20px 'Pretendard'"),document.fonts.load("700 20px 'Pretendard'"),document.fonts.load("600 20px 'Pretendard'"),document.fonts.load("500 20px 'Pretendard'")]).then(()=>document.fonts.ready).then(markFontsReady).catch(()=>{ setTimeout(markFontsReady,800); }); setTimeout(()=>{ if(!FONTS_READY) markFontsReady(); },2000); } else { window.addEventListener('load',()=>{ boot(); setTimeout(markFontsReady,600); }); }
+
+// ✨ 랭킹 전체 페이지 열기 및 닫기, 탭 전환 제어 로직
+function openRankPage() {
+  const rankSc = document.getElementById('rankScreen');
+  if (rankSc) rankSc.classList.add('on');
+}
+
+function closeRankPage() {
+  const rankSc = document.getElementById('rankScreen');
+  if (rankSc) rankSc.classList.remove('on');
+}
+
+function switchRankTab(type) {
+  SFX.click();
+  const btnAll = document.getElementById('rankTabAll');
+  const btnMy = document.getElementById('rankTabMy');
+  const viewAll = document.getElementById('rankViewAll');
+  const viewMy = document.getElementById('rankViewMy');
+
+  if (type === 'all') {
+    btnAll.classList.add('active');
+    btnMy.classList.remove('active');
+    viewAll.style.display = 'flex';
+    viewMy.style.display = 'none';
+  } else {
+    btnMy.classList.add('active');
+    btnAll.classList.remove('active');
+    viewMy.style.display = 'flex';
+    viewAll.style.display = 'none';
+  }
+}
