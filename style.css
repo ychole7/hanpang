@@ -5,8 +5,8 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #app { position: relative; width: 100%; height: 100dvh; max-height: 100%; overflow: hidden; }
 
-/* 인트로 */
-#introScreen { position: absolute; inset: 0; z-index: 200; background: url('assets/intro_bg.png') center / cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12vh; }
+/* 인트로 화면 (최우선 순위 250) */
+#introScreen { position: absolute; inset: 0; z-index: 250; background: url('assets/intro_bg.png') center / cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12vh; }
 #introScreen.hidden { display: none !important; }
 .intro-start-btn { background: linear-gradient(180deg, #ff8a00, #e52e71); border: 3px solid #ffe08c; border-radius: 999px; padding: 18px 45px; font-family: 'Pretendard', sans-serif; font-weight: 900; font-size: 24px; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.6); box-shadow: 0 8px 25px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.4); cursor: pointer; animation: pulseStart 1.5s infinite; }
 .intro-start-btn:active { transform: translateY(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.6); }
@@ -54,7 +54,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 canvas { display: block; width: 100%; height: 100%; }
 
 /* 모달 (팝업창) */
-.veil{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,5,2,.85);backdrop-filter:blur(4px);z-index:200;}
+.veil{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,5,2,.85);backdrop-filter:blur(4px);z-index:300;}
 .veil.on{display:grid}
 .card{background:linear-gradient(180deg,#3a2717,#2a1c12);border:2px solid #c8962f;border-radius:20px;padding:24px 26px;text-align:center;max-width:84%;box-shadow:0 8px 30px rgba(0,0,0,.8),inset 0 0 20px rgba(200,150,47,.12)}
 .card h2{margin:0 0 8px;font-size:27px;color:#f5e3ae;text-shadow:0 2px 4px rgba(0,0,0,.8)}
@@ -64,35 +64,13 @@ canvas { display: block; width: 100%; height: 100%; }
 .btn:active{transform:translateY(3px)}
 
 /* ══════════════════════════════════════════
-   ✨ 신규 메인 화면 (지도 로비) 레이아웃 개선
+   ✨ 신규 메인 화면 (지도 로비) 레이아웃 (z-index 100로 분리)
    ══════════════════════════════════════════ */
-#mapScreen { 
-  position: absolute; 
-  inset: 0; 
-  display: none; 
-  z-index: 100; 
-  background: #567d3d; /* 👈 일러스트 숲/풀밭 색상과 유사한 자연스러운 초록빛으로 변경하여 여백 이질감 제거 */
-  overflow: hidden; 
-}
-#mapScroll { 
-  position: absolute; 
-  inset: 0; 
-  overflow-y: auto; 
-  overflow-x: hidden; 
-  padding-bottom: 220px; 
-  padding-top: 80px; 
-}
+#mapScreen { position: absolute; inset: 0; display: none; z-index: 100; background: #567d3d; overflow: hidden; }
+#mapScreen.on { display: block; }
+#mapScroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 220px; padding-top: 80px; }
 
-/* ✨ 맵 내부 전체 너비/높이 및 배경 이미지 '좌우 여백 없이 전체 축소(contain)' 피팅 */
-#mapInner { 
-  position: relative; 
-  width: 100%; 
-  min-height: 1800px; /* 길이를 살짝 줄여서 주변 풍경이 더 잘 보이도록 조절 */
-  background-image: url('assets/map_bg.png');
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: 100% 100%; /* 👈 이미지가 찌그러지지 않고 화면 폭과 세로 비율에 딱 맞춰 축소되도록 조정 */
-}
+#mapInner { position: relative; width: 100%; min-height: 1800px; background-image: url('assets/map_bg.png'); background-repeat: no-repeat; background-position: center top; background-size: 100% 100%; }
 
 /* 맵 상단 고정 UI */
 #mapTopBar { position: absolute; top: max(15px, env(safe-area-inset-top)); left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 12px; z-index: 110; pointer-events: none; }
