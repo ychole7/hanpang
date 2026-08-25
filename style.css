@@ -14,7 +14,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #bgLayer { position: absolute; inset: 0; z-index: 0; background: url('assets/bg_main.png') center / cover no-repeat; }
 
-/* 인게임 상단 UI */
+/* ✨ 게임 화면(인플레이) 전용 상단 UI (홈 화면 대비 약 70% 축소 핏 적용) */
 #topUI { position: absolute; top: -10px; left: -2%; width: 104%; height: 155px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_top.png') center top / 100% 100% no-repeat; }
 #topUI .top-menu-row { display: flex; gap: 6px; padding: calc(14px + env(safe-area-inset-top)) 4% 0; align-items: center; justify-content: space-between; }
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
@@ -42,6 +42,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .tchip { background: #fffdf5; border: 2px solid #dcb274; border-radius: 999px; padding: 5px 14px; font-size: 14px; color: #5a3a22; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: 900; }
 .tchip.done { background: #7ba05b; color: #fff; border-color: #55783a; }
 
+/* ✨ 홈 화면(메인 로비) 기준 정 사이즈 알약 패널 (아이콘 겹침 완벽 방지) */
 .custom-pill { 
   position: relative; 
   background: #fffdf5; 
@@ -188,23 +189,18 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .rank-container { position: relative; width: 92%; max-width: 420px; height: 86vh; max-height: 720px; background: #5a3a22; border: 6px solid #362013; border-radius: 32px; box-shadow: 0 16px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; padding: 16px; z-index: 1; }
 
-/* 상단 기와 & 현판 */
 .rank-header-roof { position: absolute; top: -42px; left: 50%; transform: translateX(-50%); width: 240px; height: 85px; background: url('assets/ui_top.png') center/cover no-repeat; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 6px 6px rgba(0,0,0,0.5)); z-index: 5; }
 .rank-sign-board { font-size: 26px; font-weight: 900; color: #fff6da; text-shadow: 0 2px 4px rgba(0,0,0,0.9); margin-top: 10px; letter-spacing: 2px; }
 
-/* 게시판 바디 (크림색 족자 패널) */
 .rank-board-body { width: 100%; flex: 1; background: #fcf6eb; border: 4px solid #dcb274; border-radius: 22px; margin-top: 42px; display: flex; flex-direction: column; overflow: hidden; box-shadow: inset 0 4px 10px rgba(0,0,0,0.1); padding: 12px; }
 
-/* 탭 영역 */
 .rank-tab-row { display: flex; gap: 8px; margin-bottom: 12px; }
 .rank-tab-btn { flex: 1; background: #e2c088; border: 2px solid #b88645; border-radius: 14px; padding: 10px; font-family:'Pretendard',sans-serif; font-size: 16px; font-weight: 900; color: #6a4425; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: 0.15s; }
 .rank-tab-btn.active { background: linear-gradient(180deg, #f9a400, #e0540d); color: #fff; border-color: #8a2f12; text-shadow: 0 1px 2px rgba(0,0,0,0.6); box-shadow: 0 4px 10px rgba(225,84,13,0.4), inset 0 2px 3px rgba(255,255,255,0.4); transform: translateY(-2px); }
 
-/* 컨텐츠 박스 */
 .rank-content-box { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px; }
 .rank-view { display: flex; flex-direction: column; gap: 10px; height: 100%; }
 
-/* 1~3위 포디움 */
 .rank-podium-row { display: flex; justify-content: center; align-items: flex-end; gap: 8px; margin: 10px 0 14px; padding: 0 4px; }
 .podium-item { flex: 1; background: linear-gradient(180deg, #fff9e6, #f2e2be); border: 2.5px solid #dcb274; border-radius: 16px; display: flex; flex-direction: column; align-items: center; padding: 10px 4px; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 .podium-item.rank-1 { transform: translateY(-10px); background: linear-gradient(180deg, #fffae0, #f5d78a); border-color: #f9a400; box-shadow: 0 6px 14px rgba(249,164,0,0.3); }
@@ -213,14 +209,12 @@ canvas { display: block; width: 100%; height: 100%; }
 .podium-name { font-size: 13px; font-weight: 900; color: #5a3a22; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .podium-crown { font-size: 12px; margin-top: 2px; }
 
-/* 4위 이하 리스트 */
 .rank-list-scroll { display: flex; flex-direction: column; gap: 6px; }
 .rank-list-item { background: #fffdf9; border: 2px solid #e8d5b5; border-radius: 12px; display: flex; align-items: center; padding: 8px 12px; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .r-num { width: 24px; font-size: 16px; font-weight: 900; color: #8a6a4a; text-align: center; }
 .r-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .r-name { flex: 1; font-size: 15px; font-weight: 900; color: #5a3a22; }
 
-/* 내 순위 뷰 카드 스타일 */
 .my-rank-card { background: linear-gradient(180deg, #fffbf0, #f5e8cc); border: 3px solid #dcb274; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-top: 10px; }
 .my-rank-badge { font-size: 14px; font-weight: 900; color: #e55a2b; background: #ffe5d0; padding: 4px 10px; border-radius: 999px; align-self: flex-start; border: 1px solid #f5b090; }
 .my-rank-score-box { display: flex; align-items: center; gap: 14px; }
@@ -229,7 +223,6 @@ canvas { display: block; width: 100%; height: 100%; }
 .my-info p { margin: 0; font-size: 14px; color: #8a6a4a; }
 .my-stats-row { display: flex; justify-content: space-around; background: #fffdf5; border: 2px solid #e8d5b5; border-radius: 12px; padding: 12px; font-size: 15px; color: #5a3a22; }
 
-/* 하단 뒤로가기 버튼 */
 .rank-footer-row { margin-top: 12px; width: 100%; display: flex; justify-content: flex-start; }
 .rank-back-btn { width: 50px; height: 50px; background: linear-gradient(180deg, #e8c169, #c8962f); border: 3px solid #8a5f22; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.1s; }
 .rank-back-btn:active { transform: scale(0.92); }

@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 랭킹 페이지([전체 랭킹], [내 랭킹]) 연동 버전
+   낱글자 팡팡! — 문법 오타(rankCloseBtn) 수정 완료 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -705,24 +705,7 @@ window.addEventListener('load', () => {
 
   if(navRank) navRank.onclick = () => {
     SFX.click();
-    openRankPage(); // 👈 팝업 대신 전체 랭킹 페이지를 멋지게 호출!
-  };
-    show(`
-      <h2>🏆 랭킹</h2>
-      <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px;">
-        <button class="btn" style="padding:6px 14px; font-size:13px; margin:0;" onclick="SFX.click()">일간</button>
-        <button class="btn" style="padding:6px 14px; font-size:13px; margin:0; opacity:0.6;" onclick="SFX.click()">주간</button>
-        <button class="btn" style="padding:6px 14px; font-size:13px; margin:0; opacity:0.6;" onclick="SFX.click()">전체</button>
-      </div>
-      <div style="max-height:40vh; overflow-y:auto; background:rgba(0,0,0,0.3); border-radius:12px; padding:10px; text-align:left; font-size:14px; color:#eafcff;">
-        <div style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between;"><span>🥇 1위. 세종대왕</span><b style="color:#ffe08c">98,500점</b></div>
-        <div style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between;"><span>🥈 2위. 훈민정음</span><b style="color:#ffe08c">85,200점</b></div>
-        <div style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between;"><span>🥉 3위. 기획자님</span><b style="color:#ffe08c">77,700점</b></div>
-        <div style="padding:8px; display:flex; justify-content:space-between; opacity:0.7;"><span>4위. 훈민정음</span><span>65,100점</span></div>
-      </div>
-      <button class="btn" id="rankCloseBtn" style="margin-top:14px; padding:8px 24px; font-size:15px;">닫기</button>
-    `);
-    document.getElementById('rankCloseBtn', true).onclick = () => { SFX.click(); hide(); };
+    openRankPage();
   };
 
   const btnSwap=document.getElementById('btnSwap'); if(btnSwap) btnSwap.onclick=()=>{ if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
@@ -790,23 +773,17 @@ function lose(){
 function intro() {
   const introSc = document.getElementById('introScreen');
   const mapSc = document.getElementById('mapScreen');
+  const rankSc = document.getElementById('rankScreen');
   
-  if (introSc) {
-    introSc.style.display = 'flex';
-    introSc.classList.remove('hidden');
-  }
-  if (mapSc) {
-    mapSc.classList.remove('on');
-  }
+  if (introSc) { introSc.style.display = 'flex'; introSc.classList.remove('hidden'); }
+  if (mapSc) { mapSc.classList.remove('on'); }
+  if (rankSc) { rankSc.classList.remove('on'); }
 
   const btnStartAdv = document.getElementById('btnStartAdventure');
   if (btnStartAdv) {
     btnStartAdv.onclick = () => {
       SFX.click(); 
-      if (introSc) {
-        introSc.classList.add('hidden'); 
-        introSc.style.display = 'none';
-      }
+      if (introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
       G.mode = 'theme'; 
       openMap(); 
     };
@@ -858,8 +835,10 @@ const PATH_IMG_ASPECT={ forest: 2.16 };
 function openMap(_isRetry){
   const ms=document.getElementById('mapScreen'); 
   const introSc=document.getElementById('introScreen');
+  const rankSc=document.getElementById('rankScreen');
   
   if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
+  if(rankSc) { rankSc.classList.remove('on'); }
   if(ms) ms.classList.add('on');
 
   const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const allCleared = maxUnlocked>=MAX_STAGE && stars[MAX_STAGE]!=null; const TOTAL = MAX_STAGE; 
@@ -926,32 +905,17 @@ function openMap(_isRetry){
   });
 }
 
-function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelStars={}); for(let i=1;i<=Math.max(1, MAX_STAGE-1);i++){ if(ls[i]==null) ls[i]=3; } }
-
-function boot(){ 
-  initCanvas();
-  resize(); 
-  
-  applyDebugZones(); 
-  
-  G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
-  intro(); 
-  requestAnimationFrame(tick); 
-  loadAssets().catch(()=>{}); 
-}
-
-function markFontsReady(){ FONTS_READY=true; SPR.clear(); }
-if(document.fonts&&document.fonts.ready){ boot(); Promise.all([document.fonts.load("800 20px 'Pretendard'"),document.fonts.load("700 20px 'Pretendard'"),document.fonts.load("600 20px 'Pretendard'"),document.fonts.load("500 20px 'Pretendard'")]).then(()=>document.fonts.ready).then(markFontsReady).catch(()=>{ setTimeout(markFontsReady,800); }); setTimeout(()=>{ if(!FONTS_READY) markFontsReady(); },2000); } else { window.addEventListener('load',()=>{ boot(); setTimeout(markFontsReady,600); }); }
-
-// ✨ 랭킹 전체 페이지 열기 및 닫기, 탭 전환 제어 로직
 function openRankPage() {
   const rankSc = document.getElementById('rankScreen');
+  const ms = document.getElementById('mapScreen');
+  if (ms) ms.classList.remove('on');
   if (rankSc) rankSc.classList.add('on');
 }
 
 function closeRankPage() {
   const rankSc = document.getElementById('rankScreen');
   if (rankSc) rankSc.classList.remove('on');
+  openMap();
 }
 
 function switchRankTab(type) {
@@ -973,3 +937,20 @@ function switchRankTab(type) {
     viewAll.style.display = 'none';
   }
 }
+
+function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelStars={}); for(let i=1;i<=Math.max(1, MAX_STAGE-1);i++){ if(ls[i]==null) ls[i]=3; } }
+
+function boot(){ 
+  initCanvas();
+  resize(); 
+  
+  applyDebugZones(); 
+  
+  G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
+  intro(); 
+  requestAnimationFrame(tick); 
+  loadAssets().catch(()=>{}); 
+}
+
+function markFontsReady(){ FONTS_READY=true; SPR.clear(); }
+if(document.fonts&&document.fonts.ready){ boot(); Promise.all([document.fonts.load("800 20px 'Pretendard'"),document.fonts.load("700 20px 'Pretendard'"),document.fonts.load("600 20px 'Pretendard'"),document.fonts.load("500 20px 'Pretendard'")]).then(()=>document.fonts.ready).then(markFontsReady).catch(()=>{ setTimeout(markFontsReady,800); }); setTimeout(()=>{ if(!FONTS_READY) markFontsReady(); },2000); } else { window.addEventListener('load',()=>{ boot(); setTimeout(markFontsReady,600); }); }
