@@ -115,10 +115,10 @@
     </div>
   </div>
 
-  <!-- ✨ [순위] 전체 페이지 화면 (시안 100% 매칭) -->
+  <!-- ✨ [순위] 전체 페이지 화면 (하단 네비게이션 바 상시 고정 포함) -->
   <div id="rankScreen">
     <div class="rank-container">
-      <!-- 상단 기와 & '순위' 현판 -->
+      <!-- 상단 기와 & 현판 -->
       <div class="rank-header-roof">
         <div class="rank-sign-board">순 위</div>
       </div>
@@ -135,23 +135,19 @@
         <div class="rank-content-box" id="rankContentBox">
           <!-- 전체 순위 뷰 -->
           <div id="rankViewAll" class="rank-view">
-            <!-- 1~3위 상단 포디움 -->
             <div class="rank-podium-row">
-              <!-- 2위 -->
               <div class="podium-item rank-2">
                 <div class="podium-medal">🥈</div>
                 <div class="podium-avatar" style="background:#8fb9aa;">👧🏻</div>
                 <div class="podium-name">세종대왕</div>
                 <div class="podium-crown">🥈</div>
               </div>
-              <!-- 1위 -->
               <div class="podium-item rank-1">
                 <div class="podium-medal">🥇</div>
                 <div class="podium-avatar" style="background:#e8c169;">👦🏻</div>
                 <div class="podium-name">한글팡팡</div>
                 <div class="podium-crown">👑</div>
               </div>
-              <!-- 3위 -->
               <div class="podium-item rank-3">
                 <div class="podium-medal">🥉</div>
                 <div class="podium-avatar" style="background:#d49a6a;">👧🏽</div>
@@ -160,7 +156,6 @@
               </div>
             </div>
 
-            <!-- 4~8위 리스트 -->
             <div class="rank-list-scroll">
               <div class="rank-list-item"><span class="r-num">4</span><div class="r-avatar" style="background:#7ca9c0;">👦🏽</div><span class="r-name">한글좋아</span></div>
               <div class="rank-list-item"><span class="r-num">5</span><div class="r-avatar" style="background:#e29578;">👧🏼</div><span class="r-name">나랏말싸미</span></div>
@@ -189,11 +184,22 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- 하단 뒤로가기 버튼 -->
-      <div class="rank-footer-row">
-        <button class="rank-back-btn" id="rankBackBtn" onclick="closeRankPage()">⬅️</button>
-      </div>
+    <!-- ✨ 랭킹 화면 하단에도 동일하게 고정되는 네비게이션 탭 (순위 탭 활성화) -->
+    <div id="rankBottomBar" class="map-bottom-bar-shared">
+      <button class="map-nav-btn active" id="rankNavRank" onclick="SFX.click()">
+        <div class="nav-icon" style="background-image: url('assets/ranking.png');"></div>
+        <span>순위</span>
+      </button>
+      <button class="map-nav-btn" id="rankNavHome" onclick="SFX.click(); closeRankPage();">
+        <div class="nav-icon" style="background-image: url('assets/home.png');"></div>
+        <span>홈</span>
+      </button>
+      <button class="map-nav-btn" id="rankNavShop" onclick="SFX.click(); closeRankPage(); openShop();">
+        <div class="nav-icon" style="background-image: url('assets/shop.png');"></div>
+        <span>상점</span>
+      </button>
     </div>
   </div>
 </div>
