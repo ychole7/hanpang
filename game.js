@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 인트로 ➔ 맵 화면(홈) ➔ 인게임 흐름 엄격 제어 버전
+   낱글자 팡팡! — 인게임 멈춤(무한 루프) 버그 완전 해결 및 맵 로직 연동 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -360,7 +360,19 @@ function resolve(c,r){
     setTimeout(()=>{
       let goldHit=0; const bombCells=[];
       for(const [cc,rr] of word.cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
-      let chain=0; for(const [wc,wr] of word.cells) for(const [nc,nr] of nbrs(wc,wr)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; chain++; } G.score+=chain*30;
+      let chain=0; 
+      // ✨ 수정 완료: word.cells 순회 시 올바른 구조로 안전하게 체인 폭발 처리
+      for(const cell of word.cells){ 
+        const [wc, wr] = cell;
+        for(const [nc,nr] of nbrs(wc,wr)) {
+          if(G.grid[nr] && G.grid[nr][nc]){ 
+            burst(cx(nc,nr), cy(nr), colorOf(G.grid[nr][nc])[0]); 
+            G.grid[nr][nc] = null; 
+            chain++; 
+          }
+        }
+      } 
+      G.score+=chain*30;
       if(goldHit){ const gb=goldHit*300; G.score+=gb; SAVE.coins=(SAVE.coins||0)+goldHit*10; addPop(px,py-R*1.6,'✨ 황금 +'+gb,'#ffe08c'); flash(0.2); }
       for(const [bc,br] of bombCells){ for(const [nc,nr] of nbrs(bc,br)) if(G.grid[nr]&&G.grid[nr][nc]){ burst(cx(nc,nr),cy(nr),colorOf(G.grid[nr][nc])[0]); G.grid[nr][nc]=null; G.score+=60; } addWave(cx(bc,br),cy(br),'#ff9a5c',R*3); addShake(8); }
       dropFloaters(); G.locked=false; checkState(); syncUI();
@@ -774,7 +786,6 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
-// ✨ 최초 진입 시 무조건 인트로가 먼저 뜨고 '모험 시작하기'를 눌러야만 맵(openMap)이 열리도록 완벽하게 봉인
 function intro() {
   const introSc = document.getElementById('introScreen');
   const mapSc = document.getElementById('mapScreen');
@@ -784,7 +795,7 @@ function intro() {
     introSc.classList.remove('hidden');
   }
   if (mapSc) {
-    mapSc.classList.remove('on'); // 맵 화면 강제 숨김
+    mapSc.classList.remove('on');
   }
 
   const btnStartAdv = document.getElementById('btnStartAdventure');
@@ -796,7 +807,7 @@ function intro() {
         introSc.style.display = 'none';
       }
       G.mode = 'theme'; 
-      openMap(); // 👈 여기서만 최초로 맵(홈)이 열림!
+      openMap(); 
     };
   }
 }
@@ -848,7 +859,7 @@ function openMap(_isRetry){
   const introSc=document.getElementById('introScreen');
   
   if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
-  if(ms) ms.classList.add('on'); // 맵 화면을 확실하게 켬
+  if(ms) ms.classList.add('on');
 
   const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const allCleared = maxUnlocked>=MAX_STAGE && stars[MAX_STAGE]!=null; const TOTAL = MAX_STAGE; 
   
@@ -875,20 +886,33 @@ function openMap(_isRetry){
     const pts = PATH_POINTS.forest;
     const idx = Math.floor(((lv - 1) / (TOTAL - 1)) * (pts.length - 1));
     const raw = pts[idx] || [50, 50];
-    return { x: raw[0], y: (raw[1] / 100) * H }; 
+    return { x: raw[0], y: raw[1] }; 
   }
 
-  let zonesHtml=''; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zonesHtml += `<img src="${ZONES[z].img}" style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;object-fit:cover;">`; }
-  let nodesHtml='', pathPts=[]; for(let lv=1; lv<=TOTAL; lv++){ const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext, isMilestone = lv%MILESTONE_EVERY===0, isFinal = lv===MAX_STAGE, cls = done?'done':(isNext?'next':'locked'), extraCls = isFinal?' mfinal':(isMilestone?' mmilestone':''), p=nodePos(lv); pathPts.push([p.x,p.y]); const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; const icon = isFinal ? '👑' : (isMilestone ? '🎁' : lv); nodesHtml += `<div class="mnode ${cls}${extraCls}" data-lv="${lv}" style="left:${p.x}%;top:${p.y}px">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':icon}${starHtml}</div>`; }
-  let pathD=''; pathPts.forEach((p,i)=>{ if(i===0) pathD+=`M${p[0]},${p[1]}`; else pathD+=` C${pathPts[i-1][0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${(pathPts[i-1][1]+p[1])/2} ${p[0]},${p[1]}`; });
+  const nodesContainer = document.getElementById('mapNodesContainer') || (() => {
+    const div = document.createElement('div');
+    div.id = 'mapNodesContainer';
+    div.style.cssText = 'position:absolute; inset:0; pointer-events:none; z-index:5;';
+    scrollEl.querySelector('#mapInner').appendChild(div);
+    return div;
+  })();
+
+  let nodesHtml='', pathPts=[]; 
+  for(let lv=1; lv<=TOTAL; lv++){ 
+    const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext, isMilestone = lv%MILESTONE_EVERY===0, isFinal = lv===MAX_STAGE, cls = done?'done':(isNext?'next':'locked'), extraCls = isFinal?' mfinal':(isMilestone?' mmilestone':''), p=nodePos(lv); 
+    pathPts.push([p.x,p.y]); 
+    const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; 
+    const icon = isFinal ? '👑' : (isMilestone ? '🎁' : lv); 
+    nodesHtml += `<div class="mnode ${cls}${extraCls}" data-lv="${lv}" style="left:${p.x}%;top:${p.y}%; pointer-events:auto;">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':icon}${starHtml}</div>`; 
+  }
   
-  scrollEl.innerHTML=`<div id="mapInner" style="height:${Math.max(scrollEl.clientHeight, 1200)}px">${allCleared?`<div style="position:absolute;left:50%;top:20px;transform:translateX(-50%);color:#f5e3ae;text-align:center;font-size:14px;padding:6px 16px;white-space:nowrap;z-index:3">🏆 100 스테이지 완주! 대단해요</div>`:''}${zonesHtml}<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none"><path d="${pathD}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1 2" vector-effect="non-scaling-stroke"/></svg>${nodesHtml}</div>`;
-  
+  nodesContainer.innerHTML = nodesHtml;
+
   if(!_isRetry){ requestAnimationFrame(()=>{ if(Math.abs(scrollEl.clientWidth - containerW) > 2){ openMap(true); return; } }); } renderMapLives(); clearInterval(_mapLivesTimer); _mapLivesTimer=setInterval(renderMapLives,1000);
   
-  requestAnimationFrame(()=>{ const nextEl=scrollEl.querySelector('.mnode.next')||scrollEl.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
+  requestAnimationFrame(()=>{ const nextEl=nodesContainer.querySelector('.mnode.next')||nodesContainer.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
   
-  scrollEl.querySelectorAll('.mnode').forEach(el=>{ 
+  nodesContainer.querySelectorAll('.mnode').forEach(el=>{ 
     el.onclick=()=>{ 
       const lv=+el.dataset.lv; 
       if(el.classList.contains('locked') || !spendLife()) return; 

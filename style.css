@@ -64,13 +64,14 @@ canvas { display: block; width: 100%; height: 100%; }
 .btn:active{transform:translateY(3px)}
 
 /* ══════════════════════════════════════════
-   ✨ 신규 메인 화면 (지도 로비) 레이아웃 (반드시 켜질 때만 보이도록 명시)
+   ✨ 신규 메인 화면 (지도 로비) 레이아웃 및 <img> 기반 맵 피팅
    ══════════════════════════════════════════ */
-#mapScreen { position: absolute; inset: 0; display: none; z-index: 100; background: linear-gradient(180deg, #3b4856 0%, #4a6b32 100%); overflow: hidden; }
+#mapScreen { position: absolute; inset: 0; display: none; z-index: 100; background: #3b4856; overflow: hidden; }
 #mapScreen.on { display: block !important; }
 #mapScroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 220px; padding-top: 80px; overscroll-behavior-y: contain; }
 
-#mapInner { position: relative; width: 100%; min-height: 1800px; background-image: url('assets/map_bg.png'); background-repeat: no-repeat; background-position: center top; background-size: 100% 100%; }
+#mapInner { position: relative; width: 100%; }
+#mapBgImg { display: block; width: 100%; height: auto; pointer-events: none; }
 
 /* 맵 상단 고정 UI */
 #mapTopBar { position: absolute; top: max(15px, env(safe-area-inset-top)); left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 12px; z-index: 110; pointer-events: none; }

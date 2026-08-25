@@ -46,7 +46,12 @@
   
   <!-- 메인 화면 (지도 로비) -->
   <div id="mapScreen">
-    <div id="mapScroll"><div id="mapInner"></div></div>
+    <div id="mapScroll">
+      <div id="mapInner">
+        <!-- ✨ 맵 배경 이미지를 <img> 태그로 직접 삽입하여 여백 문제 완벽 해결 -->
+        <img id="mapBgImg" src="assets/map_bg.png" alt="Map Background">
+      </div>
+    </div>
     
     <!-- 메인 상단 고정 UI -->
     <div id="mapTopBar">
@@ -66,7 +71,7 @@
       </div>
     </div>
 
-    <!-- 메인 중앙 하단 액션 (현 위치 주석 처리 유지) -->
+    <!-- 메인 중앙 하단 액션 -->
     <div id="mapActionBox">
       <button id="btnMapPlay"><div class="heart-cost">-1❤️</div></button>
       <!-- <button id="btnMapCurrent">📍<br><small>현 위치</small></button> -->
