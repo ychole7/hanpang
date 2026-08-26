@@ -96,11 +96,39 @@
     </div>
   </div>
 
-  <!-- 글로벌 하단 바 (원본 순위 버튼 복원) -->
+  <!-- [업적] 레퍼런스 디자인 완벽 반영 팝업 화면 -->
+  <div id="achieveScreen">
+    <div class="achieve-wrapper">
+      <!-- 상단 기와 지붕 헤더 -->
+      <div class="achieve-roof">
+        <div class="achieve-title-text">업 적</div>
+      </div>
+      <!-- 닫기 버튼 -->
+      <button class="achieve-close-btn" onclick="SFX.click(); closeAchievePage();">✕</button>
+
+      <!-- 본체 패널 -->
+      <div class="achieve-body">
+        <!-- 탭 메뉴 (업적 / 일일 미션) -->
+        <div class="achieve-tab-row">
+          <button class="achieve-tab active" id="tabAchieveBtn" onclick="SFX.click(); switchAchieveTab('achieve');">업적</button>
+          <button class="achieve-tab" id="tabMissionBtn" onclick="SFX.click(); switchAchieveTab('mission');">일일 미션</button>
+        </div>
+
+        <!-- 업적 리스트 스크롤 영역 -->
+        <div class="achieve-list-scroll" id="achieveContentBox">
+          <!-- JS에서 동적 렌더링 -->
+        </div>
+        
+        <div class="achieve-footer-note">🌸 업적 보상은 즉시 지급됩니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 글로벌 하단 바 (업적 아이콘 연동) -->
   <div id="globalBottomBar" style="display: none;">
-    <button class="map-nav-btn" id="navRank" onclick="SFX.click(); openRankPage();">
-      <div class="nav-icon" style="background-image: url('assets/ranking.png');"></div>
-      <span>순위</span>
+    <button class="map-nav-btn" id="navAchieve" onclick="SFX.click(); openAchievePage();">
+      <div class="nav-icon" style="background-image: url('assets/achievement.png');"></div>
+      <span>업적</span>
     </button>
     <button class="map-nav-btn active" id="navHome" onclick="SFX.click(); openMap();">
       <div class="nav-icon" style="background-image: url('assets/home.png');"></div>
