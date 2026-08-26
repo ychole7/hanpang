@@ -1,10 +1,10 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 80스테이지 커스텀 좌표 및 문법 에러 수정 버전
+   낱글자 팡팡! — 80스테이지 및 업적 시스템 연동 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
-function loadSave(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return null; const d=JSON.parse(raw); if(!d.free) d.free={stage:1,score:0,bestScore:0,bestStage:1}; if(!d.theme) d.theme={stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}; if(typeof d.coins!=='number') d.coins=0; if(typeof d.revives!=='number') d.revives=0; if(typeof d.totalStars!=='number') d.totalStars=0; if(!d.lives) d.lives={count:6,lastUpdate:Date.now()}; return d; }catch(e){ return null; } }
-let SAVE = loadSave() || { free:{stage:1,score:0,bestScore:0,bestStage:1}, theme:{stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}, lastMode:'theme', coins:0, revives:0, totalStars:0, lives:{count:6,lastUpdate:Date.now()} };
+function loadSave(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return null; const d=JSON.parse(raw); if(!d.free) d.free={stage:1,score:0,bestScore:0,bestStage:1}; if(!d.theme) d.theme={stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}; if(!d.achievements) d.achievements={}; if(typeof d.coins!=='number') d.coins=0; if(typeof d.revives!=='number') d.revives=0; if(typeof d.totalStars!=='number') d.totalStars=0; if(!d.lives) d.lives={count:6,lastUpdate:Date.now()}; return d; }catch(e){ return null; } }
+let SAVE = loadSave() || { free:{stage:1,score:0,bestScore:0,bestStage:1}, theme:{stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}, achievements:{}, lastMode:'theme', coins:0, revives:0, totalStars:0, lives:{count:6,lastUpdate:Date.now()} };
 
 if(typeof SAVE.vibeOn === 'undefined') SAVE.vibeOn = true;
 
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -341,11 +341,21 @@ function resolve(c,r){
     doVibe([20,40,20]);
     G.combo++; G.dryShots=0; G.wordsCompleted++;
     if(word.word in G.done && !G.done[word.word]) { G.done[word.word]=true; syncUI(); }
+    
+    // 업적 체크 트리거 (단어 완성)
+    checkAchievements('word', word.word.length);
+
     const combo=Math.min(G.combo,5), pts=([0,0,200,600,1600,3200][Math.min(word.word.length,5)]||3200)*Math.max(1,combo); G.score+=pts;
     SAVE.coins=(SAVE.coins||0)+Math.max(3,word.word.length*2); G.banner={text:word.word,life:1,bonus:true}; SFX.wordComplete(G.combo,true);
     flash(0.3+Math.min(word.word.length,4)*0.05); addShake(8+word.word.length*2);
     let px=word.cells.reduce((a,[c,r])=>a+cx(c,r),0)/word.cells.length, py=word.cells.reduce((a,[c,r])=>a+cy(r),0)/word.cells.length;
-    addPop(px,py,'✨ +'+pts,'#ffe08c'); if(combo>=2) addPop(px,py-R*0.9,'콤보 x'+combo,'#ff9fd6');
+    addPop(px,py,'✨ +'+pts,'#ffe08c'); 
+    
+    if(combo>=2) {
+      addPop(px,py-R*0.9,'콤보 x'+combo,'#ff9fd6');
+      checkAchievements('combo', combo); // 업적 체크 트리거 (콤보 달성)
+    }
+
     G.locked=true; const t0=performance.now(); for(const [cc,rr] of word.cells) if(G.grid[rr]&&G.grid[rr][cc]) G.grid[rr][cc].glow=t0;
     
     word.cells.forEach(([cc,rr],i)=>{ 
@@ -594,6 +604,120 @@ function tick(now){
 function aimAt(px,py){ const dx=px-W/2,dy=py-G.shooterY; let a=Math.atan2(dy,dx); const lim=.22; if(a>-lim)a=-lim; if(a<-Math.PI+lim)a=-Math.PI+lim; G.aim=a; }
 function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect(); const scaleX = cv.width / rect.width / DPR; const scaleY = cv.height / rect.height / DPR; return [(e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY]; }
 
+// ✨ 업적 시스템 정의 및 체크 로직
+const ACHIEVEMENTS = [
+  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, type: 'word_count' },
+  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, type: 'word_count' },
+  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, type: 'combo_max' },
+  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, type: 'stage_reach' },
+  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, type: 'stage_reach' }
+];
+
+function checkAchievements(type, val){
+  if(!SAVE.achievements) SAVE.achievements = {};
+  let updated = false;
+  
+  ACHIEVEMENTS.forEach(ach => {
+    if(SAVE.achievements[ach.id]?.claimed) return;
+    
+    if(ach.type === 'word_count') {
+      SAVE.achievements[ach.id] = SAVE.achievements[ach.id] || { progress: 0 };
+      SAVE.achievements[ach.id].progress += 1;
+    } else if(ach.type === 'combo_max') {
+      SAVE.achievements[ach.id] = SAVE.achievements[ach.id] || { progress: 0 };
+      if(val > SAVE.achievements[ach.id].progress) SAVE.achievements[ach.id].progress = val;
+    } else if(ach.type === 'stage_reach') {
+      SAVE.achievements[ach.id] = SAVE.achievements[ach.id] || { progress: 0 };
+      if(G.stage > SAVE.achievements[ach.id].progress) SAVE.achievements[ach.id].progress = G.stage;
+    }
+  });
+  saveGame(true);
+}
+
+function openAchievePage() {
+  const achSc = document.getElementById('achieveScreen');
+  const ms = document.getElementById('mapScreen');
+  const rankSc = document.getElementById('rankScreen');
+  const globalBar = document.getElementById('globalBottomBar');
+  
+  if (ms) ms.classList.remove('on');
+  if (rankSc) rankSc.classList.remove('on');
+  if (achSc) achSc.style.display = 'flex';
+  if (globalBar) globalBar.style.display = 'flex';
+  
+  showNavTab('achieve');
+  renderAchieveList();
+}
+
+function renderAchieveList() {
+  const box = document.getElementById('achieveContentBox');
+  if(!box) return;
+  
+  if(!SAVE.achievements) SAVE.achievements = {};
+  
+  box.innerHTML = ACHIEVEMENTS.map(ach => {
+    const data = SAVE.achievements[ach.id] || { progress: 0, claimed: false };
+    const done = data.progress >= ach.target;
+    const claimed = data.claimed;
+    
+    let btnHtml = '';
+    if (claimed) {
+      btnHtml = `<button class="btn" style="padding:6px 12px; font-size:12px; background:#a0a0a0; border-color:#666; color:#fff; cursor:default;" disabled>완료됨</button>`;
+    } else if (done) {
+      btnHtml = `<button class="btn" style="padding:6px 12px; font-size:12px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;" onclick="claimAchieve('${ach.id}', ${ach.reward})">보상받기</button>`;
+    } else {
+      btnHtml = `<div style="font-size:12px; color:#8a6a4a; font-weight:900;">진행중 (${data.progress}/${ach.target})</div>`;
+    }
+    
+    return `
+      <div style="background:#fffdf9; border:2px solid #e8d5b5; border-radius:14px; display:flex; align-items:center; padding:10px 14px; gap:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size:26px;">🏆</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:900; color:#5a3a22;">${ach.title}</div>
+          <div style="font-size:12px; color:#8a6a4a; margin-top:2px;">${ach.desc} <b style="color:#e55a2b;">(💰+${ach.reward})</b></div>
+        </div>
+        <div>${btnHtml}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function claimAchieve(id, reward) {
+  SFX.buy();
+  SAVE.achievements[id].claimed = true;
+  SAVE.coins = (SAVE.coins || 0) + reward;
+  saveGame(true);
+  renderAchieveList();
+  
+  const elCoins = document.getElementById('mapUI_coins');
+  if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
+  toast('🎁 업적 보상 💰+' + reward + ' 획득!');
+}
+
+function closeAchievePage() {
+  const achSc = document.getElementById('achieveScreen');
+  if (achSc) achSc.style.display = 'none';
+  openMap();
+}
+
+function showNavTab(tabName) {
+  const btnAchieve = document.getElementById('navAchieve');
+  const btnHome = document.getElementById('navHome');
+  const btnShop = document.getElementById('navShop');
+
+  if(btnAchieve) btnAchieve.classList.remove('active');
+  if(btnHome) btnHome.classList.remove('active');
+  if(btnShop) btnShop.classList.remove('active');
+
+  if (tabName === 'achieve') {
+    if(btnAchieve) btnAchieve.classList.add('active');
+  } else if (tabName === 'home') {
+    if(btnHome) btnHome.classList.add('active');
+  } else if (tabName === 'shop') {
+    if(btnShop) btnShop.classList.add('active');
+  }
+}
+
 // ✨ 모달 설정창 (맵 화면과 인게임 통합 관리)
 function openSettings(isMap) {
   if (veil.classList.contains('on')) return;
@@ -740,7 +864,12 @@ function calcStars(){ const goal = G.mode==='theme' ? G.targets.length : G.freeG
 function starRow(n){ let out=''; for(let i=0;i<3;i++) out+= i<n ? '<span style="color:#ffe08c;text-shadow:0 0 12px #ffb15c">★</span>' : '<span style="color:rgba(255,255,255,.25)">★</span>'; return `<div style="font-size:34px;letter-spacing:6px;margin:8px 0">${out}</div>`; }
 function win(){
   G.locked=true;G.score+=1000; const stars=calcStars(), isMilestone=G.mode==='theme'&&G.stage%MILESTONE_EVERY===0, isFinal=G.mode==='theme'&&G.stage===MAX_STAGE, milestoneBonus=isFinal?1000:(isMilestone?200:0), coinGain=30+G.stage*4+stars*15+milestoneBonus; SAVE.coins=(SAVE.coins||0)+coinGain;
-  if(G.mode==='theme'){ if(!SAVE.theme.levelStars) SAVE.theme.levelStars={}; const prev=SAVE.theme.levelStars[G.stage]||0; if(stars>prev){ SAVE.totalStars=(SAVE.totalStars||0)+(stars-prev); SAVE.theme.levelStars[G.stage]=stars; } }else{ SAVE.totalStars=(SAVE.totalStars||0)+stars; } saveGame(true); SFX.stageClear(); addShake(8+stars*2); flash(0.3);
+  if(G.mode==='theme'){ if(!SAVE.theme.levelStars) SAVE.theme.levelStars={}; const prev=SAVE.theme.levelStars[G.stage]||0; if(stars>prev){ SAVE.totalStars=(SAVE.totalStars||0)+(stars-prev); SAVE.theme.levelStars[G.stage]=stars; } }else{ SAVE.totalStars=(SAVE.totalStars||0)+stars; } 
+  
+  // 업적 체크 트리거 (스테이지 클리어)
+  checkAchievements('stage_reach', G.stage);
+
+  saveGame(true); SFX.stageClear(); addShake(8+stars*2); flash(0.3);
   let extra=''; if(G.mode==='theme'){ if(isFinal){ extra=`<p>🏆 80 스테이지를 모두 완주했어요!</p><p style="font-size:14px;opacity:.85">정말 대단해요. 계속해서 도전할 수 있어요.</p>`; }else if(isMilestone){ extra=`<p>🎁 마일스톤 달성! 보너스 코인 +${milestoneBonus}</p>`; }else{ extra=`<p>목표 단어를 모두 만들었어요 🎉</p><p style="margin-top:8px;font-size:14px;opacity:.85">다음 주제: <b>${CATS[(G.stage)%CATS.length]}</b></p>`; } }else{ extra=`<p>목표 단어 개수를 달성했어요 🎉</p>`; }
   const mapBtn=G.mode==='theme'?`<a href="#" id="toMap" style="display:block;margin-top:10px;color:#d9a94a;font-size:14px">🗺️ 지도로 보기</a>`:'';
   show(`<h2>스테이지 ${G.stage} 완료!</h2>${starRow(stars)}${extra}<p>점수 <b>${G.score.toLocaleString()}</b> · 💰+${coinGain}</p><button class="btn" id="go">${isFinal?'한번 더 플레이':'다음 스테이지'}</button>${mapBtn}`);
@@ -756,12 +885,12 @@ function lose(){
 function intro() {
   const introSc = document.getElementById('introScreen');
   const mapSc = document.getElementById('mapScreen');
-  const rankSc = document.getElementById('rankScreen');
+  const achieveSc = document.getElementById('achieveScreen');
   const globalBar = document.getElementById('globalBottomBar');
   
   if (introSc) { introSc.style.display = 'flex'; introSc.classList.remove('hidden'); }
   if (mapSc) { mapSc.classList.remove('on'); }
-  if (rankSc) { rankSc.classList.remove('on'); }
+  if (achieveSc) { achieveSc.style.display = 'none'; }
   if (globalBar) { globalBar.style.display = 'none'; }
 
   const btnStartAdv = document.getElementById('btnStartAdventure');
@@ -840,11 +969,11 @@ const STAGE_COORDS = [
 function openMap(_isRetry){
   const ms=document.getElementById('mapScreen'); 
   const introSc=document.getElementById('introScreen');
-  const rankSc=document.getElementById('rankScreen');
+  const achieveSc=document.getElementById('achieveScreen');
   const globalBar = document.getElementById('globalBottomBar');
   
   if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
-  if(rankSc) { rankSc.classList.remove('on'); }
+  if(achieveSc) { achieveSc.style.display = 'none'; }
   if(ms) ms.classList.add('on');
   if(globalBar) { globalBar.style.display = 'flex'; }
 
@@ -893,60 +1022,6 @@ function openMap(_isRetry){
       startGame(false, lv); 
     }; 
   });
-}
-
-function openRankPage() {
-  const rankSc = document.getElementById('rankScreen');
-  const ms = document.getElementById('mapScreen');
-  const globalBar = document.getElementById('globalBottomBar');
-  if (ms) ms.classList.remove('on');
-  if (rankSc) rankSc.classList.add('on');
-  if (globalBar) globalBar.style.display = 'flex';
-  showNavTab('rank');
-}
-
-function closeRankPage() {
-  const rankSc = document.getElementById('rankScreen');
-  if (rankSc) rankSc.classList.remove('on');
-  openMap();
-}
-
-function switchRankTab(type) {
-  SFX.click();
-  const btnAll = document.getElementById('rankTabAll');
-  const btnMy = document.getElementById('rankTabMy');
-  const viewAll = document.getElementById('rankViewAll');
-  const viewMy = document.getElementById('rankViewMy');
-
-  if (type === 'all') {
-    btnAll.classList.add('active');
-    btnMy.classList.remove('active');
-    viewAll.style.display = 'flex';
-    viewMy.style.display = 'none';
-  } else {
-    btnMy.classList.add('active');
-    btnAll.classList.remove('active');
-    viewMy.style.display = 'flex';
-    viewAll.style.display = 'none';
-  }
-}
-
-function showNavTab(tabName) {
-  const btnRank = document.getElementById('navRank');
-  const btnHome = document.getElementById('navHome');
-  const btnShop = document.getElementById('navShop');
-
-  if(btnRank) btnRank.classList.remove('active');
-  if(btnHome) btnHome.classList.remove('active');
-  if(btnShop) btnShop.classList.remove('active');
-
-  if (tabName === 'rank') {
-    if(btnRank) btnRank.classList.add('active');
-  } else if (tabName === 'home') {
-    if(btnHome) btnHome.classList.add('active');
-  } else if (tabName === 'shop') {
-    if(btnShop) btnShop.classList.add('active');
-  }
 }
 
 function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelStars={}); for(let i=1;i<=Math.max(1, MAX_STAGE-1);i++){ if(ls[i]==null) ls[i]=3; } }
