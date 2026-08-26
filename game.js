@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 스테이지 직접 좌표 지정 및 충돌 버그 완전 해결 버전
+   낱글자 팡팡! — 스테이지 스톤 드래그 좌표 추출 에디터 모드
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -436,7 +436,7 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   if(img && !special) {
     const ratio = img.height / img.width;
     let dw = rr * 2.1, dh = rr * 2.1;
-    if(img.width > img.height) { dh = dw * ratio; } else { dw = dw / ratio; }
+    if(img.width > img.height) { dh = dw * ratio; } else { dw = dh / ratio; }
     ctx.drawImage(img, x - dw/2, y - dh/2, dw, dh);
   } else {
     let [c1,c2]=colByIdx(cIdx); if(special==='gold'){ c1='#ffe9a8'; c2='#c8962f'; } else if(special==='bomb'){ c1='#e8a878'; c2='#a85f2f'; }
@@ -709,7 +709,7 @@ function syncUI(){
   const us=document.getElementById('uiStage'); if(us) us.textContent=G.stage;
   const ul=document.getElementById('uiLives'); 
   const livesCount = computeLives().count;
-  if(ul) ul.textContent = livesCount; // ✨ 인플레이 화면에서는 숫자만 깔끔하게 노출
+  if(ul) ul.textContent = livesCount; // ✨ 인플레이 상단 하트 숫자만 깔끔하게 노출
   
   const uc=document.getElementById('uiCoins'); if(uc) uc.textContent=(SAVE.coins||0).toLocaleString();
   const usb=document.getElementById('uiScoreBig'); if(usb) usb.textContent=G.score.toLocaleString();
@@ -768,7 +768,7 @@ function intro() {
   if (btnStartAdv) {
     btnStartAdv.onclick = () => {
       SFX.click(); 
-      if (introSc) { introStrClean = true; introSc.classList.add('hidden'); introSc.style.display = 'none'; }
+      if (introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
       if (globalBar) { globalBar.style.display = 'flex'; }
       G.mode = 'theme'; 
       openMap(); 
@@ -810,10 +810,9 @@ function renderMapLives(){
   }
 }
 
-// ✨ 기획자님이 직접 스톤(돌판) 좌표를 세밀하게 커스텀하실 수 있도록 마련한 1~100 스테이지 좌표 배열 테이블입니다!
-// 각 항목은 { x: 가로퍼센트(%), y: 세로퍼센트(%) } 입니다. (0%~100%)
+// ✨ 스테이지별 커스텀 좌표 (드래그 에디터로 위치를 미세 조정할 수 있는 1~100 스테이지 테이블)
 const STAGE_COORDS = [
-  // [구간 1: 봄 (1 ~ 25)] - 맨 아래 영역
+  // [구간 1: 봄 (1 ~ 25)] — 화면 최하단
   {x:50, y:96}, {x:40, y:94}, {x:60, y:92}, {x:52, y:90}, {x:38, y:88},
   {x:45, y:86}, {x:58, y:84}, {x:50, y:82}, {x:35, y:80}, {x:48, y:78},
   {x:62, y:76}, {x:52, y:74}, {x:38, y:72}, {x:44, y:70}, {x:56, y:68},
@@ -825,6 +824,7 @@ const STAGE_COORDS = [
   {x:58, y:36}, {x:52, y:34}, {x:40, y:32}, {x:48, y:30}, {x:60, y:28},
   {x:52, y:26}, {x:42, y:24}, {x:46, y:22}, {x:56, y:20}, {x:50, y:18},
   {x:38, y:16}, {x:45, y:14}, {x:58, y:12}, {x:52, y:10}, {x:44, y:8},
+  {x:48, y:6},  {x:52, y:5},  {x:45, y:4},  {x:55, y:3},  {x:50, y:2},
 
   // [구간 3: 가을 (51 ~ 75)]
   {x:50, y:96}, {x:40, y:94}, {x:60, y:92}, {x:52, y:90}, {x:38, y:88},
@@ -833,7 +833,7 @@ const STAGE_COORDS = [
   {x:50, y:66}, {x:42, y:64}, {x:55, y:62}, {x:60, y:60}, {x:48, y:58},
   {x:36, y:56}, {x:44, y:54}, {x:54, y:52}, {x:50, y:50}, {x:42, y:48},
 
-  // [구간 4: 겨울 (76 ~ 100)] - 맨 위 영역 (성 앞)
+  // [구간 4: 겨울 (76 ~ 100)] — 화면 최상단
   {x:55, y:46}, {x:62, y:44}, {x:50, y:42}, {x:38, y:40}, {x:45, y:38},
   {x:58, y:36}, {x:52, y:34}, {x:40, y:32}, {x:48, y:30}, {x:60, y:28},
   {x:52, y:26}, {x:42, y:24}, {x:46, y:22}, {x:56, y:20}, {x:50, y:18},
@@ -869,20 +869,15 @@ function openMap(_isRetry){
     return div;
   })();
 
-  // ✨ STAGE_COORDS 배열을 기반으로 1~100 스테이지 스톤 노드 정밀 렌더링
   let nodesHtml=''; 
   for(let lv=1; lv<=TOTAL; lv++){ 
     const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext;
     const cls = done?'done':(isNext?'next':'locked');
     
-    // 직접 지정한 좌표 테이블에서 가져오기 (없을 경우 기본 공식 백업)
     const coord = STAGE_COORDS[lv - 1] || { x: 50, y: 100 - lv };
-    const xPct = coord.x;
-    const yPct = coord.y;
-    
     const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; 
     
-    nodesHtml += `<div class="mnode ${cls}" data-lv="${lv}" style="left:${xPct}%;top:${yPct}%; pointer-events:auto;">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':lv}${starHtml}</div>`; 
+    nodesHtml += `<div class="mnode ${cls}" data-lv="${lv}" style="left:${coord.x}%;top:${coord.y}%; pointer-events:auto;" draggable="true">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':lv}${starHtml}</div>`; 
   }
   
   nodesContainer.innerHTML = nodesHtml;
@@ -891,9 +886,27 @@ function openMap(_isRetry){
   
   requestAnimationFrame(()=>{ const nextEl=nodesContainer.querySelector('.mnode.next')||nodesContainer.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
   
+  // ✨ [개발자 에디터] 스톤을 드래그하여 놓으면 정확한 (x%, y%) 좌표를 콘솔창에 뱉어주는 기능 장착!
   nodesContainer.querySelectorAll('.mnode').forEach(el=>{ 
+    const lv = +el.dataset.lv;
+    
+    el.ondragend = (e) => {
+      const rect = scrollEl.getBoundingClientRect();
+      const inner = scrollEl.querySelector('#mapInner');
+      const innerRect = inner.getBoundingClientRect();
+      
+      const xPx = e.clientX - innerRect.left;
+      const yPx = e.clientY - innerRect.top;
+      
+      const xPct = Math.round((xPx / innerRect.width) * 100);
+      const yPct = Math.round((yPx / innerRect.height) * 100);
+      
+      console.log(`📌 [스테이지 ${lv}번 좌표] {x:${xPct}, y:${yPct}},`);
+      el.style.left = xPct + '%';
+      el.style.top = yPct + '%';
+    };
+
     el.onclick=()=>{ 
-      const lv=+el.dataset.lv; 
       if(el.classList.contains('locked') || !spendLife()) return; 
       SFX.click(); 
       ms.classList.remove('on'); 
