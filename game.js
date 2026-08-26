@@ -235,7 +235,7 @@ function openCells(){
   const out=[],seen=new Set();
   for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++){
     if(!at(c,r))continue;
-    for(const [nc,nr] of nbrs(c,r)){ if(nr<0||nr>=G.maxRows||nc<0||nc>=cellsIn(nr)||(nr<G.grid.length&&G.grid[nr][nc]))continue;
+    for(const [nc,nr] of nbrs(c,r)){ if(nr<0||nr>=G.maxRows||nc<0||nc>=cellsIn(r)||(nr<G.grid.length&&G.grid[nr][nc]))continue;
       const k=nc+','+nr; if(!seen.has(k)){ seen.add(k); out.push([nc,nr]); } }
   } return out;
 }
@@ -569,7 +569,7 @@ function draw(now){
   ctx.globalAlpha=1;
   
   drawShooter(now); drawQueue();
-  if(G.banner){ const b=G.banner, t=1-b.life/(b.big?1.6:1), pop=t<.18?(t/.18):1, fs=Math.min(R*(b.big?3:2),BW/(b.text.length+0.45)*(b.big?1.5:1))*(0.72+0.28*pop)*(1+(1-b.life)*0.06), col=b.bonus?'#ffd86f':'#ff8fdc'; ctx.save(); ctx.globalAlpha=Math.min(1,b.life*2.2); ctx.translate(W/2,BY+R*1.25-(1-b.life)*R*.8); if(b.big) ctx.rotate(Math.sin(performance.now()/90)*0.04); ctx.font=`800 ${fs}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.shadowColor=col;ctx.shadowBlur=fs*(b.big?0.8:0.55); ctx.fillStyle=col;ctx.fillText(b.text,0,0);ctx.fillText(b.text,0,0); if(b.big) ctx.fillText(b.text,0,0); ctx.shadowBlur=0; ctx.fillStyle='#ffffff';ctx.fillText(b.text,0,0); ctx.restore(); }
+  if(G.banner){ const b=G.banner, t=1-b.life/(b.big?1.6:1), fs=Math.min(R*(b.big?3:2),BW/(b.text.length+0.45)*(b.big?1.5:1))*(0.72+0.28*pop)*(1+(1-b.life)*0.06), col=b.bonus?'#ffd86f':'#ff8fdc'; ctx.save(); ctx.globalAlpha=Math.min(1,b.life*2.2); ctx.translate(W/2,BY+R*1.25-(1-b.life)*R*.8); if(b.big) ctx.rotate(Math.sin(performance.now()/90)*0.04); ctx.font=`800 ${fs}px 'Pretendard', sans-serif`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.shadowColor=col;ctx.shadowBlur=fs*(b.big?0.8:0.55); ctx.fillStyle=col;ctx.fillText(b.text,0,0);ctx.fillText(b.text,0,0); if(b.big) ctx.fillText(b.text,0,0); ctx.shadowBlur=0; ctx.fillStyle='#ffffff';ctx.fillText(b.text,0,0); ctx.restore(); }
   for(const w of G.waves){ ctx.save(); ctx.globalAlpha=Math.max(0,w.life)*0.6; ctx.strokeStyle=w.col; ctx.shadowColor=w.col; ctx.shadowBlur=14; ctx.lineWidth=Math.max(1.5,3*w.life); ctx.beginPath(); ctx.arc(w.x,w.y,w.r,0,7); ctx.stroke(); ctx.restore(); }
   for(const p of G.pops){ ctx.save(); ctx.globalAlpha=Math.min(1,p.life*1.5); ctx.translate(p.x, p.y+(1-p.life)*-30); const fs=R*0.7*(0.85+(1-p.life)*0.35); ctx.font=`800 ${fs}px 'Pretendard', sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle=p.col; ctx.shadowColor=p.col; ctx.shadowBlur=fs*0.6; ctx.fillText(p.text,0,0); ctx.restore(); }
   for(const t of G.toasts){ ctx.save(); ctx.globalAlpha=Math.min(1,t.life*1.6); ctx.translate(t.x,t.y-(1-t.life)*62); const fs=R*.74*(1+(1-t.life)*.25); ctx.font=`800 ${fs}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#fff6d0';ctx.shadowColor='#ffd86f';ctx.shadowBlur=fs*.7; ctx.fillText(t.text,0,0);ctx.fillText(t.text,0,0); ctx.restore(); }
@@ -603,13 +603,13 @@ function tick(now){
 function aimAt(px,py){ const dx=px-W/2,dy=py-G.shooterY; let a=Math.atan2(dy,dx); const lim=.22; if(a>-lim)a=-lim; if(a<-Math.PI+lim)a=-Math.PI+lim; G.aim=a; }
 function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect(); const scaleX = cv.width / rect.width / DPR; const scaleY = cv.height / rect.height / DPR; return [(e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY]; }
 
-// ✨ 업적 시스템 정의 및 데이터 관리
+// ✨ 업적 시스템 정의 및 데이터 관리 (시안 반영)
 const ACHIEVEMENTS = [
-  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, icon: '📖', type: 'word_count' },
-  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, icon: '🧠', type: 'word_count' },
-  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, icon: '⚡', type: 'combo_max' },
-  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, icon: '🌸', type: 'stage_reach' },
-  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, icon: '❄️', type: 'stage_reach' }
+  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, icon: '📖', type: 'word_count', skin: 'book' },
+  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, icon: '🧠', type: 'word_count', skin: 'brain' },
+  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, icon: '⚡', type: 'combo_max', skin: 'combo' },
+  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, icon: '🌸', type: 'stage_reach', skin: 'spring' },
+  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, icon: '❄️', type: 'stage_reach', skin: 'snow' }
 ];
 
 let currentAchieveTab = 'achieve';
@@ -651,11 +651,9 @@ function checkAchievements(type, val){
 function openAchievePage() {
   const achSc = document.getElementById('achieveScreen');
   const ms = document.getElementById('mapScreen');
-  const globalBar = document.getElementById('globalBottomBar');
   
   if (ms) ms.classList.remove('on');
   if (achSc) achSc.classList.add('on');
-  if (globalBar) globalBar.style.display = 'flex';
   
   showNavTab('achieve');
   renderAchieveList();
@@ -668,7 +666,7 @@ function renderAchieveList() {
   if(!SAVE.achievements) SAVE.achievements = {};
 
   if(currentAchieveTab === 'mission') {
-    box.innerHTML = `<div style="text-align:center; padding:40px 20px; color:#8a6a4a; font-weight:800;">🚧 일일 미션 준비 중입니다!<br>내일 다시 찾아주세요 ✨</div>`;
+    box.innerHTML = `<div style="text-align:center; padding:50px 20px; color:#8a6a4a; font-weight:800; font-size:15px;">🚧 일일 미션 준비 중입니다!<br><span style="font-size:13px; opacity:0.8;">내일 다시 찾아주세요 ✨</span></div>`;
     return;
   }
   
@@ -683,14 +681,14 @@ function renderAchieveList() {
     if (claimed) {
       btnHtml = `<button class="ach-btn claimed" disabled>완료됨</button>`;
     } else if (done) {
-      btnHtml = `<button class="ach-btn" onclick="claimAchieve('${ach.id}', ${ach.reward})">획득하기</button>`;
+      btnHtml = `<button class="ach-btn" onclick="claimAchieve('${ach.id}', ${ach.reward})">보상 받기</button>`;
     } else {
-      btnHtml = `<button class="ach-btn locked" disabled>🔒 잠김</button>`;
+      btnHtml = `<button class="ach-btn locked" disabled>🔒 진행 중</button>`;
     }
     
     return `
       <div class="ach-card">
-        <div class="ach-icon-hex">${ach.icon}</div>
+        <div class="ach-icon-box ${ach.skin}">${ach.icon}</div>
         <div class="ach-info">
           <div class="ach-title">${ach.title}</div>
           <div class="ach-desc">${ach.desc}</div>
