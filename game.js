@@ -310,13 +310,13 @@ function findWordAt(c0,r0){
   const dfs=(c,r,str,path,visited)=>{
     if(str.length>=2){ const rev=[...str].reverse().join(''); let hit=DICT.has(str)?str:(DICT.has(rev)?rev:null); if(hit && (!best||hit.length>best.word.length)) best={word:hit,cells:path.slice()}; }
     if(str.length>=MAXW)return;
-    for(const [nc,nr] of nbrs(c,r)){ const k=nc+','+nr; if(visited.has(k))continue; const b=at(nc,nr); if(!b)continue; visited.add(k); path.push([nc,nr]); dfs(nc,nr,str+b.s,path,visited); path.pop(); visited.delete(k); }
+    for(const [nc,nr] of nbrs(c,r)){ const k=nc+nr; if(visited.has(k))continue; const b=at(nc,nr); if(!b)continue; visited.add(k); path.push([nc,nr]); dfs(nc,nr,str+b.s,path,visited); path.pop(); visited.delete(k); }
   };
-  dfs(c0,r0,b0.s,[[c0,r0]],new Set([c0+','+r0])); return best;
+  dfs(c0,r0,b0.s,[[c0,r0]],new Set([c0+r0])); return best;
 }
 function floodMatch(c0,r0,key){
   const b0=at(c0,r0); if(!b0)return []; const target=key==='col'?b0.col:b0.s; const seen=new Set(),stack=[[c0,r0]],out=[];
-  while(stack.length){ const [c,r]=stack.pop(); const k=c+','+r; if(seen.has(k))continue; seen.add(k); const b=at(c,r); if(!b)continue; const v=key==='col'?b.col:b.s; if(v!==target)continue; out.push([c,r]); for(const [nc,nr] of nbrs(c,r)) stack.push([nc,nr]); } return out;
+  while(stack.length){ const [c,r]=stack.pop(); const k=c+r; if(seen.has(k))continue; seen.add(k); const b=at(c,r); if(!b)continue; const v=key==='col'?b.col:b.s; if(v!==target)continue; out.push([c,r]); for(const [nc,nr] of nbrs(c,r)) stack.push([nc,nr]); } return out;
 }
 function clearCells(cells){ const t0=performance.now(); for(const [cc,rr] of cells) if(G.grid[rr]&&G.grid[rr][cc]) G.grid[rr][cc].glow=t0; }
 
@@ -411,8 +411,8 @@ function resolve(c,r){
 }
 function dropFloaters(){
   const keep=new Set(),stack=[]; if(G.grid[0])for(let c=0;c<cellsIn(0);c++) if(G.grid[0][c]){keep.add('0,'+c);stack.push([c,0]);}
-  while(stack.length){ const [c,r]=stack.pop(); for(const [nc,nr] of nbrs(c,r)){ if(!at(nc,nr))continue; const k=nr+','+nc; if(keep.has(k))continue; keep.add(k); stack.push([nc,nr]); } }
-  for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++){ if(!at(c,r))continue; if(!keep.has(r+','+c)){ burst(cx(c,r),cy(r),colorOf(G.grid[r][c])[0]); G.score+=50; G.grid[r][c]=null; } }
+  while(stack.length){ const [c,r]=stack.pop(); for(const [nc,nr] of nbrs(c,r)){ if(!at(nc,nr))continue; const k=nr+nc; if(keep.has(k))continue; keep.add(k); stack.push([nc,nr]); } }
+  for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++){ if(!at(c,r))continue; if(!keep.has(r+c)){ burst(cx(c,r),cy(r),colorOf(G.grid[r][c])[0]); G.score+=50; G.grid[r][c]=null; } }
 }
 function checkState(){
   let count=0,lowest=-1; for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++) if(at(c,r)){count++;lowest=Math.max(lowest,r);}
@@ -605,11 +605,11 @@ function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect();
 
 // ✨ 업적 시스템 정의 및 데이터 관리
 const ACHIEVEMENTS = [
-  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, icon: '📖', type: 'word_count' },
-  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, icon: '🧠', type: 'word_count' },
-  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, icon: '⚡', type: 'combo_max' },
-  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, icon: '🌸', type: 'stage_reach' },
-  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, icon: '❄️', type: 'stage_reach' }
+  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, icon: '📖', type: 'word_count', skin: 'book' },
+  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, icon: '🧠', type: 'word_count', skin: 'brain' },
+  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, icon: '⚡', type: 'combo_max', skin: 'combo' },
+  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, icon: '🌸', type: 'stage_reach', skin: 'spring' },
+  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, icon: '❄️', type: 'stage_reach', skin: 'snow' }
 ];
 
 let currentAchieveTab = 'achieve';
@@ -651,11 +651,18 @@ function checkAchievements(type, val){
 function openAchievePage() {
   const achSc = document.getElementById('achieveScreen');
   const ms = document.getElementById('mapScreen');
-  const globalBar = document.getElementById('globalBottomBar');
+  const gameArea = document.getElementById('gameArea');
+  const topUI = document.getElementById('topUI');
+  const bottomUI = document.getElementById('bottomUI');
   
+  // 맵 화면과 게임 관련 UI를 모두 숨김
   if (ms) ms.classList.remove('on');
+  if (gameArea) gameArea.style.display = 'none';
+  if (topUI) topUI.style.display = 'none';
+  if (bottomUI) bottomUI.style.display = 'none';
+  
+  // 업적 화면(전체 탭) 표시
   if (achSc) achSc.classList.add('on');
-  if (globalBar) globalBar.style.display = 'flex';
   
   showNavTab('achieve');
   renderAchieveList();
@@ -668,7 +675,7 @@ function renderAchieveList() {
   if(!SAVE.achievements) SAVE.achievements = {};
 
   if(currentAchieveTab === 'mission') {
-    box.innerHTML = `<div style="text-align:center; padding:40px 20px; color:#8a6a4a; font-weight:800;">🚧 일일 미션 준비 중입니다!<br>내일 다시 찾아주세요 ✨</div>`;
+    box.innerHTML = `<div style="text-align:center; padding:50px 20px; color:#8a6a4a; font-weight:800; font-size:15px;">🚧 일일 미션 준비 중입니다!<br><span style="font-size:13px; opacity:0.8;">내일 다시 찾아주세요 ✨</span></div>`;
     return;
   }
   
@@ -683,14 +690,14 @@ function renderAchieveList() {
     if (claimed) {
       btnHtml = `<button class="ach-btn claimed" disabled>완료됨</button>`;
     } else if (done) {
-      btnHtml = `<button class="ach-btn" onclick="claimAchieve('${ach.id}', ${ach.reward})">획득하기</button>`;
+      btnHtml = `<button class="ach-btn" onclick="claimAchieve('${ach.id}', ${ach.reward})">보상 받기</button>`;
     } else {
-      btnHtml = `<button class="ach-btn locked" disabled>🔒 잠김</button>`;
+      btnHtml = `<button class="ach-btn locked" disabled>🔒 진행 중</button>`;
     }
     
     return `
       <div class="ach-card">
-        <div class="ach-icon-hex">${ach.icon}</div>
+        <div class="ach-icon-box ${ach.skin}">${ach.icon}</div>
         <div class="ach-info">
           <div class="ach-title">${ach.title}</div>
           <div class="ach-desc">${ach.desc}</div>
@@ -725,8 +732,6 @@ function claimAchieve(id, reward) {
 }
 
 function closeAchievePage() {
-  const achSc = document.getElementById('achieveScreen');
-  if (achSc) achSc.classList.remove('on');
   openMap();
 }
 
@@ -1000,9 +1005,16 @@ function openMap(_isRetry){
   const introSc=document.getElementById('introScreen');
   const achieveSc=document.getElementById('achieveScreen');
   const globalBar = document.getElementById('globalBottomBar');
+  const gameArea = document.getElementById('gameArea');
+  const topUI = document.getElementById('topUI');
+  const bottomUI = document.getElementById('bottomUI');
   
   if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
   if(achieveSc) { achieveSc.classList.remove('on'); }
+  if(gameArea) { gameArea.style.display = 'block'; }
+  if(topUI) { topUI.style.display = 'block'; }
+  if(bottomUI) { bottomUI.style.display = 'flex'; }
+  
   if(ms) ms.classList.add('on');
   if(globalBar) { globalBar.style.display = 'flex'; }
 

@@ -245,3 +245,109 @@ canvas { display: block; width: 100%; height: 100%; }
 .my-info h3 { margin: 0 0 4px; font-size: 20px; color: #5a3a22; }
 .my-info p { margin: 0; font-size: 14px; color: #8a6a4a; }
 .my-stats-row { display: flex; justify-content: space-around; background: #fffdf5; border: 2px solid #e8d5b5; border-radius: 12px; padding: 12px; font-size: 15px; color: #5a3a22; }
+
+/* [업적] 전체 탭 화면 스타일 (팝업 아님) */
+#achieveScreen { 
+  position: absolute; 
+  inset: 0; 
+  display: none; /* JS에서 on 클래스로 제어 */
+  z-index: 100; /* 맵 스크린(100)과 동일한 레벨 */
+  background: url('assets/map_bg.png') center / cover no-repeat; /* 배경 통일 */
+  flex-direction: column; 
+  align-items: center; 
+  padding-top: max(30px, env(safe-area-inset-top)); 
+  padding-bottom: 115px; /* 하단 네비게이션 바 공간 완벽 확보 */
+}
+#achieveScreen.on { display: flex !important; }
+#achieveScreen::before { content: ''; position: absolute; inset: 0; background: rgba(30, 15, 5, 0.72); backdrop-filter: blur(5px); z-index: 0; }
+
+.achieve-wrapper { 
+  position: relative; 
+  width: 92%; 
+  max-width: 420px; 
+  flex: 1; /* 남는 세로 공간을 꽉 채움 */
+  max-height: 74vh; 
+  background: #cf9b5e; /* 나무판자 톤 */
+  border: 6px solid #5a3a22; 
+  border-radius: 12px; 
+  box-shadow: 0 16px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.3); 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  padding: 14px; 
+  margin-top: 55px; 
+  z-index: 1; 
+}
+
+.achieve-roof { 
+  position: absolute; 
+  top: -55px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 240px; 
+  height: 85px; 
+  background: url('assets/ui_top.png') center/cover no-repeat; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  filter: drop-shadow(0 6px 6px rgba(0,0,0,0.5)); 
+  z-index: 5; 
+}
+
+.achieve-title-text { font-size: 26px; font-weight: 900; color: #fff6da; text-shadow: 0 2px 4px rgba(0,0,0,0.9); margin-top: 10px; letter-spacing: 2px; }
+
+.achieve-body { 
+  width: 100%; 
+  flex: 1; 
+  background: #fdf5e6; 
+  border: 4px solid #b37e46; 
+  border-radius: 8px; 
+  margin-top: 25px; 
+  display: flex; 
+  flex-direction: column; 
+  overflow: hidden; 
+  box-shadow: inset 0 4px 10px rgba(0,0,0,0.1); 
+  padding: 14px; 
+}
+
+.achieve-tab-row { display: flex; gap: 4px; margin-bottom: 12px; }
+.achieve-tab { flex: 1; background: #e2c088; border: 2px solid #b88645; border-radius: 8px; padding: 10px; font-family: 'Pretendard', sans-serif; font-size: 16px; font-weight: 900; color: #6a4425; cursor: pointer; border-bottom-width: 4px; transition: 0.1s; }
+.achieve-tab.active { background: #fdf5e6; color: #8a2f12; border-color: #b37e46; border-bottom: none; border-bottom-left-radius: 0; border-bottom-right-radius: 0; padding-top: 12px; margin-bottom: -4px; z-index: 2; }
+
+.achieve-desc-text { text-align: center; font-size: 13px; font-weight: 700; color: #5a3a22; margin-bottom: 14px; margin-top: 4px;}
+
+.achieve-list-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; scrollbar-width: none; }
+.achieve-list-scroll::-webkit-scrollbar { display: none; }
+
+.ach-card { background: #faedda; border: 2px solid #dcb274; border-radius: 12px; display: flex; align-items: center; padding: 12px; gap: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.08); position: relative; }
+
+.ach-icon-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.5); }
+.ach-icon-box.book { background: linear-gradient(135deg, #a8e063, #56ab2f); border: 3px solid #3d801d; }
+.ach-icon-box.brain { background: linear-gradient(135deg, #89f7fe, #66a6ff); border: 3px solid #366ac7; }
+.ach-icon-box.combo { background: linear-gradient(135deg, #e0c3fc, #8ec5fc); border: 3px solid #6b52a3; }
+.ach-icon-box.spring { background: linear-gradient(135deg, #ff9a9e, #fecfef); border: 3px solid #c9516c; }
+.ach-icon-box.snow { background: linear-gradient(135deg, #00c6ff, #0072ff); border: 3px solid #004c99; }
+
+.ach-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ach-title { font-size: 17px; font-weight: 900; color: #1e5a32; } /* 기본 글씨색: 초록빛 */
+.brain + .ach-info .ach-title { color: #1f558a; } /* 두뇌: 파란빛 */
+.combo + .ach-info .ach-title { color: #503182; } /* 콤보: 보라빛 */
+.spring + .ach-info .ach-title { color: #a32d4b; } /* 봄: 붉은빛 */
+.snow + .ach-info .ach-title { color: #104e8b; } /* 눈: 짙은파랑 */
+
+.ach-desc { font-size: 13px; font-weight: 700; color: #5a3a22; }
+
+.ach-bar-bg { position: relative; width: 100%; height: 18px; background: #6da235; border-radius: 999px; overflow: hidden; margin-top: 4px; border: 2px solid #4a7522; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+.ach-bar-fill { height: 100%; background: linear-gradient(90deg, #99e650, #73c72a); border-radius: 999px; transition: width 0.3s ease; }
+.ach-bar-text { position: absolute; inset: 0; font-size: 11px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; }
+
+.ach-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; justify-content: center; }
+.ach-reward-badge { display: flex; align-items: center; gap: 4px; font-size: 18px; font-weight: 900; color: #5a3a22; }
+.ach-reward-badge img { width: 22px; height: 22px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
+
+.ach-btn { background: linear-gradient(180deg, #82d43a, #52a818); border: 2.5px solid #fff; border-radius: 8px; padding: 8px 14px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 900; color: #fff; box-shadow: 0 3px 6px rgba(0,0,0,0.3); cursor: pointer; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.ach-btn:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.ach-btn.claimed { background: #b0a090; border-color: #908070; color:#e0d0c0; text-shadow:none; opacity: 0.8; pointer-events: none; box-shadow:none; }
+.ach-btn.locked { background: #a09080; border-color: #706050; color:#d0c0b0; text-shadow:none; opacity: 0.7; pointer-events: none; box-shadow:none; display:flex; align-items:center; gap:4px;}
+
+.achieve-footer-note { text-align: center; font-size: 12px; font-weight: 800; color: #8a6a4a; margin-top: 10px; }
