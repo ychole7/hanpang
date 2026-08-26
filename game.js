@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 흙길 S자 커브 맞춤형 100스테이지 스톤 매핑 버전
+   낱글자 팡팡! — 스테이지 직접 좌표 지정 및 충돌 버그 완전 해결 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -17,7 +17,7 @@ let _saveTimer=null; function saveGame(immediate){ const write=()=>{ try{ const 
 const DICT_BY_CAT = {
   '과일': ['사과','포도','딸기','수박','참외','자두','바나나','오렌지','레몬','복숭아','체리','망고','멜론','키위','앵두','살구','자몽','석류','토마토','대추','모과','매실','앵도','귤','감','배','밤','파인애플','블루베리','무화과','한라봉','청포도','머루','다래'],
   '동물': ['사자','호랑이','코끼리','토끼','다람쥐','거북이','고양이','강아지','원숭이','기린','하마','얼룩말','여우','늑대','사슴','너구리','개구리','병아리','오리','돼지','판다','펭귄','악어','고래','두더지','고슴도치','치타','표범','물개','바다표범','부엉이','까치','참새','비둘기','수달','청설모','두루미'],
-  '먹거리': ['김밥','라면','김치','만두','피자','치킨','우유','국수','초밥','카레','계란','감자','고구마','두부','도넛','사탕','과자','주ส','떡볶이','케이크','빙수','호빵','비빔밥','불고기','갈비','냉면','짜장면','짬뽕','순대','어묵','호떡','붕어빵','식혜','미역국','된장국','유부초밥','주먹밥'],
+  '먹거리': ['김밥','라면','김치','만두','피자','치킨','우유','국수','초밥','카레','계란','감자','고구마','두부','도넛','사탕','과자','주스','떡볶이','케이크','빙수','호빵','비빔밥','불고기','갈비','냉면','짜장면','짬뽕','순대','어묵','호떡','붕어빵','식혜','미역국','된장국','유부초밥','주먹밥'],
   '탈것': ['자동차','기차','비행기','자전거','버스','택시','트럭','로켓','소방차','구급차','경찰차','지하철','헬기','요트','유모차','오토바이','포클레인','트랙터','케이블카','잠수함','여객선','우주선','열기구','썰매','기관차','전동차','화물차'],
   '자연': ['나무','바다','하늘','구름','바람','무지개','태양','호수','파도','번개','안개','이슬','모래','폭포','언덕','계곡','노을','새벽','폭우','서리','우박','고드름','들판','절벽','동굴','갯벌','습지','오아시스','메아리','아지랑이','물결','샛별']
 };
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -436,7 +436,7 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   if(img && !special) {
     const ratio = img.height / img.width;
     let dw = rr * 2.1, dh = rr * 2.1;
-    if(img.width > img.height) { dh = dw * ratio; } else { dw = dh / ratio; }
+    if(img.width > img.height) { dh = dw * ratio; } else { dw = dw / ratio; }
     ctx.drawImage(img, x - dw/2, y - dh/2, dw, dh);
   } else {
     let [c1,c2]=colByIdx(cIdx); if(special==='gold'){ c1='#ffe9a8'; c2='#c8962f'; } else if(special==='bomb'){ c1='#e8a878'; c2='#a85f2f'; }
@@ -707,7 +707,10 @@ function renderTargetBar(){
 
 function syncUI(){
   const us=document.getElementById('uiStage'); if(us) us.textContent=G.stage;
-  const ul=document.getElementById('uiLives'); if(ul) ul.textContent=computeLives().count;
+  const ul=document.getElementById('uiLives'); 
+  const livesCount = computeLives().count;
+  if(ul) ul.textContent = livesCount; // ✨ 인플레이 화면에서는 숫자만 깔끔하게 노출
+  
   const uc=document.getElementById('uiCoins'); if(uc) uc.textContent=(SAVE.coins||0).toLocaleString();
   const usb=document.getElementById('uiScoreBig'); if(usb) usb.textContent=G.score.toLocaleString();
   const uswp=document.getElementById('uiSwap'); if(uswp) uswp.textContent=G.swaps; 
@@ -765,7 +768,7 @@ function intro() {
   if (btnStartAdv) {
     btnStartAdv.onclick = () => {
       SFX.click(); 
-      if (introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
+      if (introSc) { introStrClean = true; introSc.classList.add('hidden'); introSc.style.display = 'none'; }
       if (globalBar) { globalBar.style.display = 'flex'; }
       G.mode = 'theme'; 
       openMap(); 
@@ -807,6 +810,37 @@ function renderMapLives(){
   }
 }
 
+// ✨ 기획자님이 직접 스톤(돌판) 좌표를 세밀하게 커스텀하실 수 있도록 마련한 1~100 스테이지 좌표 배열 테이블입니다!
+// 각 항목은 { x: 가로퍼센트(%), y: 세로퍼센트(%) } 입니다. (0%~100%)
+const STAGE_COORDS = [
+  // [구간 1: 봄 (1 ~ 25)] - 맨 아래 영역
+  {x:50, y:96}, {x:40, y:94}, {x:60, y:92}, {x:52, y:90}, {x:38, y:88},
+  {x:45, y:86}, {x:58, y:84}, {x:50, y:82}, {x:35, y:80}, {x:48, y:78},
+  {x:62, y:76}, {x:52, y:74}, {x:38, y:72}, {x:44, y:70}, {x:56, y:68},
+  {x:50, y:66}, {x:42, y:64}, {x:55, y:62}, {x:60, y:60}, {x:48, y:58},
+  {x:36, y:56}, {x:44, y:54}, {x:54, y:52}, {x:50, y:50}, {x:42, y:48},
+
+  // [구간 2: 여름 (26 ~ 50)]
+  {x:55, y:46}, {x:62, y:44}, {x:50, y:42}, {x:38, y:40}, {x:45, y:38},
+  {x:58, y:36}, {x:52, y:34}, {x:40, y:32}, {x:48, y:30}, {x:60, y:28},
+  {x:52, y:26}, {x:42, y:24}, {x:46, y:22}, {x:56, y:20}, {x:50, y:18},
+  {x:38, y:16}, {x:45, y:14}, {x:58, y:12}, {x:52, y:10}, {x:44, y:8},
+
+  // [구간 3: 가을 (51 ~ 75)]
+  {x:50, y:96}, {x:40, y:94}, {x:60, y:92}, {x:52, y:90}, {x:38, y:88},
+  {x:45, y:86}, {x:58, y:84}, {x:50, y:82}, {x:35, y:80}, {x:48, y:78},
+  {x:62, y:76}, {x:52, y:74}, {x:38, y:72}, {x:44, y:70}, {x:56, y:68},
+  {x:50, y:66}, {x:42, y:64}, {x:55, y:62}, {x:60, y:60}, {x:48, y:58},
+  {x:36, y:56}, {x:44, y:54}, {x:54, y:52}, {x:50, y:50}, {x:42, y:48},
+
+  // [구간 4: 겨울 (76 ~ 100)] - 맨 위 영역 (성 앞)
+  {x:55, y:46}, {x:62, y:44}, {x:50, y:42}, {x:38, y:40}, {x:45, y:38},
+  {x:58, y:36}, {x:52, y:34}, {x:40, y:32}, {x:48, y:30}, {x:60, y:28},
+  {x:52, y:26}, {x:42, y:24}, {x:46, y:22}, {x:56, y:20}, {x:50, y:18},
+  {x:38, y:16}, {x:45, y:14}, {x:58, y:12}, {x:52, y:10}, {x:44, y:8},
+  {x:48, y:6},  {x:52, y:5},  {x:45, y:4},  {x:55, y:3},  {x:50, y:2}
+];
+
 function openMap(_isRetry){
   const ms=document.getElementById('mapScreen'); 
   const introSc=document.getElementById('introScreen');
@@ -835,16 +869,16 @@ function openMap(_isRetry){
     return div;
   })();
 
-  // ✨ 100스테이지 스톤 노드 자동 매핑 (봄->여름->가을->겨울 순서로 아래에서 위로 배치)
+  // ✨ STAGE_COORDS 배열을 기반으로 1~100 스테이지 스톤 노드 정밀 렌더링
   let nodesHtml=''; 
   for(let lv=1; lv<=TOTAL; lv++){ 
     const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext;
     const cls = done?'done':(isNext?'next':'locked');
     
-    // 전체 100스테이지 기준 Y 좌표 (맨 아래 96%에서 시작해 위로 4%까지 균등 분배)
-    const yPct = 96 - ((lv - 1) / (TOTAL - 1)) * 92;
-    // 구불구불한 흙길 라인에 맞춘 X 좌표 웨이브 연출
-    const xPct = 50 + Math.sin(lv * 0.6) * 28 + Math.cos(lv * 0.3) * 10;
+    // 직접 지정한 좌표 테이블에서 가져오기 (없을 경우 기본 공식 백업)
+    const coord = STAGE_COORDS[lv - 1] || { x: 50, y: 100 - lv };
+    const xPct = coord.x;
+    const yPct = coord.y;
     
     const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; 
     
