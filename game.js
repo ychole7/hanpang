@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 스테이지 스톤 드래그 좌표 추출 에디터 모드
+   낱글자 팡팡! — 80스테이지 커스텀 좌표 적용 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -24,7 +24,7 @@ const DICT_BY_CAT = {
 const BONUS_WORDS = ['사과나무','바나나우유','포도나무','감나무','밤나무','대추나무','솔방울','도토리','다람쥐집','고양이집','비빔국수','볶음밥','김치찌개','된장찌개','고구마빵','바나나맛','딸기우유','초코우유','자동차길','소방관차'];
 const GENERIC_WORDS = ['감기','안녕','사람','친구','생일','가족','학교','교실','책상','의자','창문','거울','지갑','열쇠','우산','신발','양말','모자','장갑','안경','시계','달력','편지','소포','병원','약국','은행','경찰','소방','공원','풍선','비누','수건','칫솔','치약','침대','이불','베개','냄비','접시','컵','그릇','전화','사진','영화','음악','노래','그림','숫자','하나','둘','셋','넷','다섯'];
 const CATS = Object.keys(DICT_BY_CAT);
-const MAX_STAGE = 100, MILESTONE_EVERY = 30, MAXW = 5;
+const MAX_STAGE = 80, MILESTONE_EVERY = 25, MAXW = 5; // ✨ 최대 스테이지 80으로 고정
 const DICT = new Map();
 for (const c of CATS) for (const w of DICT_BY_CAT[c]) if (w.length>=2) DICT.set(w,c);
 for (const w of BONUS_WORDS) DICT.set(w,'보너스');
@@ -126,7 +126,7 @@ function buildStage(){
   G.waves=[]; G.pops=[]; G.shake=0; G.flash=0; PARTICLE_POOL.forEach(p=>p.active=false);
   if(G.mode==='free'){ buildFreeStage(); return; }
   
-  const diffLevel = Math.min(100, G.stage);
+  const diffLevel = Math.min(80, G.stage);
   G.goal=CATS[(G.stage-1)%CATS.length];
   const nTarget = Math.min(6, 2 + Math.floor(diffLevel / 15));
   
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -359,7 +359,7 @@ function resolve(c,r){
     if(word.word.length>=4){ for(let i=0;i<20;i++){ const p=getParticle(); if(p){ const ang=Math.random()*Math.PI*2, sp=1+Math.random()*4; p.active=true; p.x=W/2; p.y=H*0.4; p.vx=Math.cos(ang)*sp; p.vy=Math.sin(ang)*sp; p.life=1.4; p.col='#ffe08c'; p.r=2+Math.random()*3; p.shape='star'; } } G.banner={text:word.word,life:1.6,bonus:true,big:true}; }
     setTimeout(()=>{
       let goldHit=0; const bombCells=[];
-      for(const [cc,rr] of word.cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
+      for(const [cc,rr] of word.cells){ if(!G.grid[rr]&&G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
       let chain=0; 
       for(const cell of word.cells){ 
         const [wc, wr] = cell;
@@ -566,7 +566,7 @@ function draw(now){
   for(const t of G.toasts){ ctx.save(); ctx.globalAlpha=Math.min(1,t.life*1.6); ctx.translate(t.x,t.y-(1-t.life)*62); const fs=R*.74*(1+(1-t.life)*.25); ctx.font=`800 ${fs}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#fff6d0';ctx.shadowColor='#ffd86f';ctx.shadowBlur=fs*.7; ctx.fillText(t.text,0,0);ctx.fillText(t.text,0,0); ctx.restore(); }
   ctx.restore();
   if(G.flash>0.01){ ctx.save(); ctx.globalAlpha=G.flash; ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H); ctx.restore(); }
-  if (G.combo >= 3) { ctx.save(); const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 150); ctx.lineWidth = 14; ctx.strokeStyle = `rgba(255, 177, 92, ${pulse * 0.7})`; ctx.strokeRect(0, 0, W, H); ctx.restore(); }
+  if (G.combo >= 3) { ctx.save(); const pulse = 0.5 + 0.5 * Math.sin(performance.now / 150); ctx.lineWidth = 14; ctx.strokeStyle = `rgba(255, 177, 92, ${pulse * 0.7})`; ctx.strokeRect(0, 0, W, H); ctx.restore(); }
 }
 
 function tick(now){
@@ -709,7 +709,7 @@ function syncUI(){
   const us=document.getElementById('uiStage'); if(us) us.textContent=G.stage;
   const ul=document.getElementById('uiLives'); 
   const livesCount = computeLives().count;
-  if(ul) ul.textContent = livesCount; // ✨ 인플레이 상단 하트 숫자만 깔끔하게 노출
+  if(ul) ul.textContent = livesCount; // ✨ 인플레이 상단 하트 숫자만 깔끔하게 노출 (MAX 및 타이머 완전 제거)
   
   const uc=document.getElementById('uiCoins'); if(uc) uc.textContent=(SAVE.coins||0).toLocaleString();
   const usb=document.getElementById('uiScoreBig'); if(usb) usb.textContent=G.score.toLocaleString();
@@ -741,7 +741,7 @@ function starRow(n){ let out=''; for(let i=0;i<3;i++) out+= i<n ? '<span style="
 function win(){
   G.locked=true;G.score+=1000; const stars=calcStars(), isMilestone=G.mode==='theme'&&G.stage%MILESTONE_EVERY===0, isFinal=G.mode==='theme'&&G.stage===MAX_STAGE, milestoneBonus=isFinal?1000:(isMilestone?200:0), coinGain=30+G.stage*4+stars*15+milestoneBonus; SAVE.coins=(SAVE.coins||0)+coinGain;
   if(G.mode==='theme'){ if(!SAVE.theme.levelStars) SAVE.theme.levelStars={}; const prev=SAVE.theme.levelStars[G.stage]||0; if(stars>prev){ SAVE.totalStars=(SAVE.totalStars||0)+(stars-prev); SAVE.theme.levelStars[G.stage]=stars; } }else{ SAVE.totalStars=(SAVE.totalStars||0)+stars; } saveGame(true); SFX.stageClear(); addShake(8+stars*2); flash(0.3);
-  let extra=''; if(G.mode==='theme'){ if(isFinal){ extra=`<p>🏆 100 스테이지를 모두 완주했어요!</p><p style="font-size:14px;opacity:.85">정말 대단해요. 계속해서 도전할 수 있어요.</p>`; }else if(isMilestone){ extra=`<p>🎁 마일스톤 달성! 보너스 코인 +${milestoneBonus}</p>`; }else{ extra=`<p>목표 단어를 모두 만들었어요 🎉</p><p style="margin-top:8px;font-size:14px;opacity:.85">다음 주제: <b>${CATS[(G.stage)%CATS.length]}</b></p>`; } }else{ extra=`<p>목표 단어 개수를 달성했어요 🎉</p>`; }
+  let extra=''; if(G.mode==='theme'){ if(isFinal){ extra=`<p>🏆 80 스테이지를 모두 완주했어요!</p><p style="font-size:14px;opacity:.85">정말 대단해요. 계속해서 도전할 수 있어요.</p>`; }else if(isMilestone){ extra=`<p>🎁 마일스톤 달성! 보너스 코인 +${milestoneBonus}</p>`; }else{ extra=`<p>목표 단어를 모두 만들었어요 🎉</p><p style="margin-top:8px;font-size:14px;opacity:.85">다음 주제: <b>${CATS[(G.stage)%CATS.length]}</b></p>`; } }else{ extra=`<p>목표 단어 개수를 달성했어요 🎉</p>`; }
   const mapBtn=G.mode==='theme'?`<a href="#" id="toMap" style="display:block;margin-top:10px;color:#d9a94a;font-size:14px">🗺️ 지도로 보기</a>`:'';
   show(`<h2>스테이지 ${G.stage} 완료!</h2>${starRow(stars)}${extra}<p>점수 <b>${G.score.toLocaleString()}</b> · 💰+${coinGain}</p><button class="btn" id="go">${isFinal?'한번 더 플레이':'다음 스테이지'}</button>${mapBtn}`);
   const btnGo=document.getElementById('go'); if(btnGo) btnGo.onclick=()=>{ SFX.click(); if(G.mode==='theme'){ G.stage=Math.min(G.stage+1, MAX_STAGE); } else{ G.stage++; } hide();G.locked=false;buildStage();saveGame(true); };
@@ -810,35 +810,31 @@ function renderMapLives(){
   }
 }
 
-// ✨ 스테이지별 커스텀 좌표 (드래그 에디터로 위치를 미세 조정할 수 있는 1~100 스테이지 테이블)
+// ✨ 80스테이지 정밀 좌표 테이블 (추후 원하시는 위치로 세부 조정 가능)
 const STAGE_COORDS = [
-  // [구간 1: 봄 (1 ~ 25)] — 화면 최하단
-  {x:50, y:96}, {x:40, y:94}, {x:60, y:92}, {x:52, y:90}, {x:38, y:88},
-  {x:45, y:86}, {x:58, y:84}, {x:50, y:82}, {x:35, y:80}, {x:48, y:78},
-  {x:62, y:76}, {x:52, y:74}, {x:38, y:72}, {x:44, y:70}, {x:56, y:68},
-  {x:50, y:66}, {x:42, y:64}, {x:55, y:62}, {x:60, y:60}, {x:48, y:58},
-  {x:36, y:56}, {x:44, y:54}, {x:54, y:52}, {x:50, y:50}, {x:42, y:48},
+  // [봄 구간: 1 ~ 20]
+  {x:59.6, y:99.4}, {x:70.5, y:98.5}, {x:72.4, y:97}, {x:60.6, y:96.4}, {x:49.9, y:95.3},
+  {x:51.2, y:93.8}, {x:33.8, y:91.7}, {x:62.3, y:92.8}, {x:69.9, y:91.6}, {x:62.1, y:89.9},
+  {x:50.7, y:88.9}, {x:47.2, y:85.9}, {x:57.1, y:87.5}, {x:64.6, y:86.2}, {x:60.6, y:84.4},
+  {x:49.9, y:82.7}, {x:59.8, y:81.9}, {x:64.6, y:80.4}, {x:50.9, y:79.3}, {x:49.9, y:77.3},
 
-  // [구간 2: 여름 (26 ~ 50)]
-  {x:55, y:46}, {x:62, y:44}, {x:50, y:42}, {x:38, y:40}, {x:45, y:38},
-  {x:58, y:36}, {x:52, y:34}, {x:40, y:32}, {x:48, y:30}, {x:60, y:28},
-  {x:52, y:26}, {x:42, y:24}, {x:46, y:22}, {x:56, y:20}, {x:50, y:18},
-  {x:38, y:16}, {x:45, y:14}, {x:58, y:12}, {x:52, y:10}, {x:44, y:8},
-  {x:48, y:6},  {x:52, y:5},  {x:45, y:4},  {x:55, y:3},  {x:50, y:2},
+  // [여름 구간: 21 ~ 40]
+  {x:65.2, y:74.1}, {x:63.5, y:72.7}, {x:48.7, y:72}, {x:31.6, y:69.3}, {x:48.3, y:70.3},
+  {x:57.5, y:69.2}, {x:67.2, y:68.1}, {x:63.3, y:66.4}, {x:51.6, y:65.3}, {x:43.3, y:62.1},
+  {x:54.9, y:63.7}, {x:62.9, y:62.6}, {x:69.1, y:61.6}, {x:61.1, y:60.1}, {x:47.9, y:59.4},
+  {x:44.3, y:58}, {x:54.7, y:57.3}, {x:65, y:56.2}, {x:59, y:54.8}, {x:48.7, y:53.5},
 
-  // [구간 3: 가을 (51 ~ 75)]
-  {x:50, y:96}, {x:40, y:94}, {x:60, y:92}, {x:52, y:90}, {x:38, y:88},
-  {x:45, y:86}, {x:58, y:84}, {x:50, y:82}, {x:35, y:80}, {x:48, y:78},
-  {x:62, y:76}, {x:52, y:74}, {x:38, y:72}, {x:44, y:70}, {x:56, y:68},
-  {x:50, y:66}, {x:42, y:64}, {x:55, y:62}, {x:60, y:60}, {x:48, y:58},
-  {x:36, y:56}, {x:44, y:54}, {x:54, y:52}, {x:50, y:50}, {x:42, y:48},
+  // [가을 구간: 41 ~ 60]
+  {x:60.6, y:49.4}, {x:68.7, y:48.2}, {x:55.7, y:47.4}, {x:45.6, y:46.4}, {x:31.8, y:43.2},
+  {x:48.1, y:44.8}, {x:60.2, y:44}, {x:67.2, y:42.7}, {x:63.1, y:41.2}, {x:50.7, y:40.3},
+  {x:51.8, y:38.8}, {x:43.9, y:37.2}, {x:62.7, y:37.6}, {x:66.6, y:36.1}, {x:54.5, y:34.9},
+  {x:45.4, y:34}, {x:53.2, y:32.5}, {x:63.3, y:31.5}, {x:61.5, y:30.1}, {x:49.9, y:28.5},
 
-  // [구간 4: 겨울 (76 ~ 100)] — 화면 최상단
-  {x:55, y:46}, {x:62, y:44}, {x:50, y:42}, {x:38, y:40}, {x:45, y:38},
-  {x:58, y:36}, {x:52, y:34}, {x:40, y:32}, {x:48, y:30}, {x:60, y:28},
-  {x:52, y:26}, {x:42, y:24}, {x:46, y:22}, {x:56, y:20}, {x:50, y:18},
-  {x:38, y:16}, {x:45, y:14}, {x:58, y:12}, {x:52, y:10}, {x:44, y:8},
-  {x:48, y:6},  {x:52, y:5},  {x:45, y:4},  {x:55, y:3},  {x:50, y:2}
+  // [겨울 구간: 61 ~ 80]
+  {x:63.5, y:24.6}, {x:67.5, y:23.2}, {x:53.2, y:22.5}, {x:43.9, y:21.4}, {x:31.4, y:18.3},
+  {x:48.3, y:19.9}, {x:59.2, y:19.1}, {x:67.5, y:18}, {x:60.6, y:16.6}, {x:50.3, y:15.6},
+  {x:52.8, y:14.1}, {x:45.8, y:12}, {x:63.1, y:13}, {x:68.9, y:11.7}, {x:58.4, y:10.4},
+  {x:47, y:9}, {x:56.5, y:7.7}, {x:66.4, y:6.2}, {x:55.7, y:4.8}, {x:51.2, y:3.5}
 ];
 
 function openMap(_isRetry){
@@ -877,7 +873,7 @@ function openMap(_isRetry){
     const coord = STAGE_COORDS[lv - 1] || { x: 50, y: 100 - lv };
     const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; 
     
-    nodesHtml += `<div class="mnode ${cls}" data-lv="${lv}" style="left:${coord.x}%;top:${coord.y}%; pointer-events:auto;" draggable="true">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':lv}${starHtml}</div>`; 
+    nodesHtml += `<div class="mnode ${cls}" data-lv="${lv}" style="left:${coord.x}%;top:${coord.y}%; pointer-events:auto;">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':lv}${starHtml}</div>`; 
   }
   
   nodesContainer.innerHTML = nodesHtml;
@@ -886,27 +882,9 @@ function openMap(_isRetry){
   
   requestAnimationFrame(()=>{ const nextEl=nodesContainer.querySelector('.mnode.next')||nodesContainer.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
   
-  // ✨ [개발자 에디터] 스톤을 드래그하여 놓으면 정확한 (x%, y%) 좌표를 콘솔창에 뱉어주는 기능 장착!
   nodesContainer.querySelectorAll('.mnode').forEach(el=>{ 
-    const lv = +el.dataset.lv;
-    
-    el.ondragend = (e) => {
-      const rect = scrollEl.getBoundingClientRect();
-      const inner = scrollEl.querySelector('#mapInner');
-      const innerRect = inner.getBoundingClientRect();
-      
-      const xPx = e.clientX - innerRect.left;
-      const yPx = e.clientY - innerRect.top;
-      
-      const xPct = Math.round((xPx / innerRect.width) * 100);
-      const yPct = Math.round((yPx / innerRect.height) * 100);
-      
-      console.log(`📌 [스테이지 ${lv}번 좌표] {x:${xPct}, y:${yPct}},`);
-      el.style.left = xPct + '%';
-      el.style.top = yPct + '%';
-    };
-
     el.onclick=()=>{ 
+      const lv=+el.dataset.lv; 
       if(el.classList.contains('locked') || !spendLife()) return; 
       SFX.click(); 
       ms.classList.remove('on'); 
@@ -967,6 +945,7 @@ function showNavTab(tabName) {
   } else if (tabName === 'home') {
     if(btnHome) btnHome.classList.add('active');
   } else if (tabName === 'shop') {
+    if(btnShop) btnShop.classList.0 = ''; // safeguard
     if(btnShop) btnShop.classList.add('active');
   }
 }
