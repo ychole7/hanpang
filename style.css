@@ -136,13 +136,13 @@ canvas { display: block; width: 100%; height: 100%; }
 .btn{margin-top:16px;background:linear-gradient(180deg,#e8c169,#c8962f);border:2px solid #8a5f22;border-radius:999px;padding:12px 30px;font-family:'Pretendard',sans-serif;font-weight:800;font-size:19px;color:#2a1c0a;text-shadow:0 1px 1px rgba(255,255,255,.3);box-shadow:0 3px 10px rgba(0,0,0,.4),inset 0 1px 2px rgba(255,255,255,.4); cursor:pointer;}
 .btn:active{transform:translateY(3px)}
 
-/* ✨ 사계절 연속 스크롤 맵 화면 레이아웃 및 꽉 찬 핏 적용 */
+/* ✨ 사계절 연속 스크롤 맵 화면 레이아웃 (확대 및 빈 공간 노출 완벽 차단) */
 #mapScreen { position: absolute; inset: 0; display: none; z-index: 100; background: #22150b; overflow: hidden; }
 #mapScreen.on { display: block !important; }
-#mapScroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 140px; padding-top: 0; overscroll-behavior-y: contain; }
+#mapScroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 140px; padding-top: 0; overscroll-behavior-y: contain; background: #22150b; }
 
-#mapInner { position: relative; width: 100%; display: flex; flex-direction: column; background: #22150b; }
-.map-bg-piece { display: block; width: 100%; height: auto; pointer-events: none; margin: 0; padding: 0; border: none; }
+#mapInner { position: relative; width: 100%; display: flex; flex-direction: column; background: #22150b; line-height: 0; font-size: 0; }
+.map-bg-piece { display: block; width: 100%; height: auto; object-fit: cover; pointer-events: none; margin: 0; padding: 0; border: none; vertical-align: top; }
 
 #mapTopBar { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 12px; z-index: 110; pointer-events: none; }
 #mapTopBar > * { pointer-events: auto; }
@@ -152,7 +152,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-icon-btn:active { transform: scale(0.95); }
 #btnMapSettings { background-image: url('assets/settings.png'); }
 
-/* 스테이지 돌판 노드 스타일 (기존 에셋 활용) */
+/* 스테이지 돌판 노드 스타일 */
 .mnode{position:absolute;width:48px;height:48px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);font-family:'Pretendard',sans-serif;font-weight:900;font-size:15px;background-image:url('assets/stone_default.png');background-repeat:no-repeat;background-position:center;background-size:contain;z-index:2;cursor:pointer;color:#5a3a22;text-shadow:0 1px 2px rgba(255,255,255,0.8);}
 .mnode.done{color:#3a2a12;background-image:url('assets/stone_clear.png');}
 .mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
