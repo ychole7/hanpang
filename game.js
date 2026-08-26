@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 80스테이지 및 업적 시스템 연동 버전
+   낱글자 팡팡! — 80스테이지 및 업적 시스템 완벽 연동 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -342,7 +342,6 @@ function resolve(c,r){
     G.combo++; G.dryShots=0; G.wordsCompleted++;
     if(word.word in G.done && !G.done[word.word]) { G.done[word.word]=true; syncUI(); }
     
-    // 업적 체크 트리거 (단어 완성)
     checkAchievements('word', word.word.length);
 
     const combo=Math.min(G.combo,5), pts=([0,0,200,600,1600,3200][Math.min(word.word.length,5)]||3200)*Math.max(1,combo); G.score+=pts;
@@ -353,7 +352,7 @@ function resolve(c,r){
     
     if(combo>=2) {
       addPop(px,py-R*0.9,'콤보 x'+combo,'#ff9fd6');
-      checkAchievements('combo', combo); // 업적 체크 트리거 (콤보 달성)
+      checkAchievements('combo', combo);
     }
 
     G.locked=true; const t0=performance.now(); for(const [cc,rr] of word.cells) if(G.grid[rr]&&G.grid[rr][cc]) G.grid[rr][cc].glow=t0;
@@ -604,32 +603,47 @@ function tick(now){
 function aimAt(px,py){ const dx=px-W/2,dy=py-G.shooterY; let a=Math.atan2(dy,dx); const lim=.22; if(a>-lim)a=-lim; if(a<-Math.PI+lim)a=-Math.PI+lim; G.aim=a; }
 function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect(); const scaleX = cv.width / rect.width / DPR; const scaleY = cv.height / rect.height / DPR; return [(e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY]; }
 
-// ✨ 업적 시스템 정의 및 체크 로직
+// ✨ 업적 시스템 정의 및 데이터 관리
 const ACHIEVEMENTS = [
-  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, type: 'word_count' },
-  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, type: 'word_count' },
-  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, type: 'combo_max' },
-  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, type: 'stage_reach' },
-  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, type: 'stage_reach' }
+  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, icon: '📖', type: 'word_count' },
+  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, icon: '🧠', type: 'word_count' },
+  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, icon: '⚡', type: 'combo_max' },
+  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, icon: '🌸', type: 'stage_reach' },
+  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, icon: '❄️', type: 'stage_reach' }
 ];
+
+let currentAchieveTab = 'achieve';
+
+function switchAchieveTab(tab) {
+  SFX.click();
+  currentAchieveTab = tab;
+  const btnAch = document.getElementById('tabAchieveBtn');
+  const btnMis = document.getElementById('tabMissionBtn');
+  if(tab === 'achieve') {
+    if(btnAch) btnAch.classList.add('active');
+    if(btnMis) btnMis.classList.remove('active');
+  } else {
+    if(btnMis) btnMis.classList.add('active');
+    if(btnAch) btnAch.classList.remove('active');
+  }
+  renderAchieveList();
+}
 
 function checkAchievements(type, val){
   if(!SAVE.achievements) SAVE.achievements = {};
-  let updated = false;
   
   ACHIEVEMENTS.forEach(ach => {
-    if(SAVE.achievements[ach.id]?.claimed) return;
+    if(!SAVE.achievements[ach.id]) SAVE.achievements[ach.id] = { progress: 0, claimed: false };
+    if(SAVE.achievements[ach.id].claimed) return;
     
     if(ach.type === 'word_count') {
-      SAVE.achievements[ach.id] = SAVE.achievements[ach.id] || { progress: 0 };
       SAVE.achievements[ach.id].progress += 1;
     } else if(ach.type === 'combo_max') {
-      SAVE.achievements[ach.id] = SAVE.achievements[ach.id] || { progress: 0 };
       if(val > SAVE.achievements[ach.id].progress) SAVE.achievements[ach.id].progress = val;
     } else if(ach.type === 'stage_reach') {
-      SAVE.achievements[ach.id] = SAVE.achievements[ach.id] || { progress: 0 };
       if(G.stage > SAVE.achievements[ach.id].progress) SAVE.achievements[ach.id].progress = G.stage;
     }
+    if(SAVE.achievements[ach.id].progress > ach.target) SAVE.achievements[ach.id].progress = ach.target;
   });
   saveGame(true);
 }
@@ -637,12 +651,10 @@ function checkAchievements(type, val){
 function openAchievePage() {
   const achSc = document.getElementById('achieveScreen');
   const ms = document.getElementById('mapScreen');
-  const rankSc = document.getElementById('rankScreen');
   const globalBar = document.getElementById('globalBottomBar');
   
   if (ms) ms.classList.remove('on');
-  if (rankSc) rankSc.classList.remove('on');
-  if (achSc) achSc.style.display = 'flex';
+  if (achSc) achSc.classList.add('on');
   if (globalBar) globalBar.style.display = 'flex';
   
   showNavTab('achieve');
@@ -654,29 +666,43 @@ function renderAchieveList() {
   if(!box) return;
   
   if(!SAVE.achievements) SAVE.achievements = {};
+
+  if(currentAchieveTab === 'mission') {
+    box.innerHTML = `<div style="text-align:center; padding:40px 20px; color:#8a6a4a; font-weight:800;">🚧 일일 미션 준비 중입니다!<br>내일 다시 찾아주세요 ✨</div>`;
+    return;
+  }
   
   box.innerHTML = ACHIEVEMENTS.map(ach => {
     const data = SAVE.achievements[ach.id] || { progress: 0, claimed: false };
-    const done = data.progress >= ach.target;
+    const progress = Math.min(data.progress, ach.target);
+    const done = progress >= ach.target;
     const claimed = data.claimed;
+    const pct = Math.min(100, Math.round((progress / ach.target) * 100));
     
     let btnHtml = '';
     if (claimed) {
-      btnHtml = `<button class="btn" style="padding:6px 12px; font-size:12px; background:#a0a0a0; border-color:#666; color:#fff; cursor:default;" disabled>완료됨</button>`;
+      btnHtml = `<button class="ach-btn claimed" disabled>완료됨</button>`;
     } else if (done) {
-      btnHtml = `<button class="btn" style="padding:6px 12px; font-size:12px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;" onclick="claimAchieve('${ach.id}', ${ach.reward})">보상받기</button>`;
+      btnHtml = `<button class="ach-btn" onclick="claimAchieve('${ach.id}', ${ach.reward})">획득하기</button>`;
     } else {
-      btnHtml = `<div style="font-size:12px; color:#8a6a4a; font-weight:900;">진행중 (${data.progress}/${ach.target})</div>`;
+      btnHtml = `<button class="ach-btn locked" disabled>🔒 잠김</button>`;
     }
     
     return `
-      <div style="background:#fffdf9; border:2px solid #e8d5b5; border-radius:14px; display:flex; align-items:center; padding:10px 14px; gap:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-        <div style="font-size:26px;">🏆</div>
-        <div style="flex:1;">
-          <div style="font-size:15px; font-weight:900; color:#5a3a22;">${ach.title}</div>
-          <div style="font-size:12px; color:#8a6a4a; margin-top:2px;">${ach.desc} <b style="color:#e55a2b;">(💰+${ach.reward})</b></div>
+      <div class="ach-card">
+        <div class="ach-icon-hex">${ach.icon}</div>
+        <div class="ach-info">
+          <div class="ach-title">${ach.title}</div>
+          <div class="ach-desc">${ach.desc}</div>
+          <div class="ach-bar-bg">
+            <div class="ach-bar-fill" style="width: ${pct}%"></div>
+            <div class="ach-bar-text">${progress} / ${ach.target}</div>
+          </div>
         </div>
-        <div>${btnHtml}</div>
+        <div class="ach-right">
+          <div class="ach-reward-badge"><img src="assets/coin.png" alt="coin">+${ach.reward}</div>
+          ${btnHtml}
+        </div>
       </div>
     `;
   }).join('');
@@ -684,6 +710,7 @@ function renderAchieveList() {
 
 function claimAchieve(id, reward) {
   SFX.buy();
+  if(!SAVE.achievements[id]) SAVE.achievements[id] = { progress: 0, claimed: false };
   SAVE.achievements[id].claimed = true;
   SAVE.coins = (SAVE.coins || 0) + reward;
   saveGame(true);
@@ -691,12 +718,15 @@ function claimAchieve(id, reward) {
   
   const elCoins = document.getElementById('mapUI_coins');
   if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
+  const uiCoins = document.getElementById('uiCoins');
+  if(uiCoins) uiCoins.textContent = (SAVE.coins||0).toLocaleString();
+
   toast('🎁 업적 보상 💰+' + reward + ' 획득!');
 }
 
 function closeAchievePage() {
   const achSc = document.getElementById('achieveScreen');
-  if (achSc) achSc.style.display = 'none';
+  if (achSc) achSc.classList.remove('on');
   openMap();
 }
 
@@ -866,7 +896,6 @@ function win(){
   G.locked=true;G.score+=1000; const stars=calcStars(), isMilestone=G.mode==='theme'&&G.stage%MILESTONE_EVERY===0, isFinal=G.mode==='theme'&&G.stage===MAX_STAGE, milestoneBonus=isFinal?1000:(isMilestone?200:0), coinGain=30+G.stage*4+stars*15+milestoneBonus; SAVE.coins=(SAVE.coins||0)+coinGain;
   if(G.mode==='theme'){ if(!SAVE.theme.levelStars) SAVE.theme.levelStars={}; const prev=SAVE.theme.levelStars[G.stage]||0; if(stars>prev){ SAVE.totalStars=(SAVE.totalStars||0)+(stars-prev); SAVE.theme.levelStars[G.stage]=stars; } }else{ SAVE.totalStars=(SAVE.totalStars||0)+stars; } 
   
-  // 업적 체크 트리거 (스테이지 클리어)
   checkAchievements('stage_reach', G.stage);
 
   saveGame(true); SFX.stageClear(); addShake(8+stars*2); flash(0.3);
@@ -890,7 +919,7 @@ function intro() {
   
   if (introSc) { introSc.style.display = 'flex'; introSc.classList.remove('hidden'); }
   if (mapSc) { mapSc.classList.remove('on'); }
-  if (achieveSc) { achieveSc.style.display = 'none'; }
+  if (achieveSc) { achieveSc.classList.remove('on'); }
   if (globalBar) { globalBar.style.display = 'none'; }
 
   const btnStartAdv = document.getElementById('btnStartAdventure');
@@ -973,7 +1002,7 @@ function openMap(_isRetry){
   const globalBar = document.getElementById('globalBottomBar');
   
   if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
-  if(achieveSc) { achieveSc.style.display = 'none'; }
+  if(achieveSc) { achieveSc.classList.remove('on'); }
   if(ms) ms.classList.add('on');
   if(globalBar) { globalBar.style.display = 'flex'; }
 
