@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 사계절 맵 4종(100스테이지) 연속 매핑 버전
+   낱글자 팡팡! — 사계절 100스테이지 연속 매핑 및 인게임 안정화 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -492,7 +492,7 @@ function drawQueue(){
   const x = W/2 + R*3.4, y = G.shooterY + R*0.8, r = R*0.9;
   ctx.save(); ctx.font=`700 ${R*.42}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=4; 
   ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.4); ctx.restore();
-  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4); ctx.fill(); ctx.restore();
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
 }
 
@@ -738,7 +738,7 @@ function starRow(n){ let out=''; for(let i=0;i<3;i++) out+= i<n ? '<span style="
 function win(){
   G.locked=true;G.score+=1000; const stars=calcStars(), isMilestone=G.mode==='theme'&&G.stage%MILESTONE_EVERY===0, isFinal=G.mode==='theme'&&G.stage===MAX_STAGE, milestoneBonus=isFinal?1000:(isMilestone?200:0), coinGain=30+G.stage*4+stars*15+milestoneBonus; SAVE.coins=(SAVE.coins||0)+coinGain;
   if(G.mode==='theme'){ if(!SAVE.theme.levelStars) SAVE.theme.levelStars={}; const prev=SAVE.theme.levelStars[G.stage]||0; if(stars>prev){ SAVE.totalStars=(SAVE.totalStars||0)+(stars-prev); SAVE.theme.levelStars[G.stage]=stars; } }else{ SAVE.totalStars=(SAVE.totalStars||0)+stars; } saveGame(true); SFX.stageClear(); addShake(8+stars*2); flash(0.3);
-  let extra=''; if(G.mode==='theme'){ if(isFinal){ extra=`<p>🏆 100 스테이지를 모두 완주했어요!</p><p style="font-size:14px;opacity:.85">정말 대단해요. 계속해서 도전할 수 있어요.</p>`; }else if(isMilestone){ extra=`<p>🎁 마일ส톤 달성! 보너스 코인 +${milestoneBonus}</p>`; }else{ extra=`<p>목표 단어를 모두 만들었어요 🎉</p><p style="margin-top:8px;font-size:14px;opacity:.85">다음 주제: <b>${CATS[(G.stage)%CATS.length]}</b></p>`; } }else{ extra=`<p>목표 단어 개수를 달성했어요 🎉</p>`; }
+  let extra=''; if(G.mode==='theme'){ if(isFinal){ extra=`<p>🏆 100 스테이지를 모두 완주했어요!</p><p style="font-size:14px;opacity:.85">정말 대단해요. 계속해서 도전할 수 있어요.</p>`; }else if(isMilestone){ extra=`<p>🎁 마일스톤 달성! 보너스 코인 +${milestoneBonus}</p>`; }else{ extra=`<p>목표 단어를 모두 만들었어요 🎉</p><p style="margin-top:8px;font-size:14px;opacity:.85">다음 주제: <b>${CATS[(G.stage)%CATS.length]}</b></p>`; } }else{ extra=`<p>목표 단어 개수를 달성했어요 🎉</p>`; }
   const mapBtn=G.mode==='theme'?`<a href="#" id="toMap" style="display:block;margin-top:10px;color:#d9a94a;font-size:14px">🗺️ 지도로 보기</a>`:'';
   show(`<h2>스테이지 ${G.stage} 완료!</h2>${starRow(stars)}${extra}<p>점수 <b>${G.score.toLocaleString()}</b> · 💰+${coinGain}</p><button class="btn" id="go">${isFinal?'한번 더 플레이':'다음 스테이지'}</button>${mapBtn}`);
   const btnGo=document.getElementById('go'); if(btnGo) btnGo.onclick=()=>{ SFX.click(); if(G.mode==='theme'){ G.stage=Math.min(G.stage+1, MAX_STAGE); } else{ G.stage++; } hide();G.locked=false;buildStage();saveGame(true); };
@@ -807,17 +807,6 @@ function renderMapLives(){
   }
 }
 
-const ZONES=[ {key:'forest', img:'assets/map_bg.png'} ]; 
-function zoneIdx(lv){ return Math.min(4, Math.floor((lv-1)/100)); }
-
-const PATH_POINTS={ 
-  forest: [ 
-    [50,88],[45,82],[50,76],[58,70],[55,64],[45,59],[40,53],[48,47],[56,42],[52,36],
-    [44,31],[45,25],[52,20],[58,15],[52,10]
-  ] 
-};
-const PATH_IMG_ASPECT={ forest: 2.16 };
-
 function openMap(_isRetry){
   const ms=document.getElementById('mapScreen'); 
   const introSc=document.getElementById('introScreen');
@@ -831,21 +820,12 @@ function openMap(_isRetry){
 
   showNavTab('home');
 
-  const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const allCleared = maxUnlocked>=MAX_STAGE && stars[MAX_STAGE]!=null; const TOTAL = MAX_STAGE; 
+  const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const TOTAL = MAX_STAGE; 
   
   const elCoins = document.getElementById('mapUI_coins');
   if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
 
-  const scrollEl=document.getElementById('mapScroll'); const containerW=scrollEl.clientWidth||390; const curZone=zoneIdx(TOTAL);
-  function xPct(lv){ return 50+Math.sin(lv*0.9)*26+((Math.sin(lv*12.9898)*43758.5453)%1 - 0.5)*10; }
-  const zoneH=[]; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zoneH[z] = PATH_POINTS[key] ? containerW*PATH_IMG_ASPECT[key] : 100*108; } const H = zoneH.reduce((a,b)=>a+b,0) + 120; const zoneTop=[], zoneBot=[]; { let bot=H-60; for(let z=0; z<=curZone; z++){ zoneBot[z]=bot; zoneTop[z]=bot-zoneH[z]; bot=zoneTop[z]; } }
-  
-  function nodePos(lv){ 
-    const pts = PATH_POINTS.forest;
-    const idx = Math.floor(((lv - 1) / (TOTAL - 1)) * (pts.length - 1));
-    const raw = pts[idx] || [50, 50];
-    return { x: raw[0], y: raw[1] }; 
-  }
+  const scrollEl=document.getElementById('mapScroll'); const containerW=scrollEl.clientWidth||390;
 
   const nodesContainer = document.getElementById('mapNodesContainer') || (() => {
     const div = document.createElement('div');
@@ -855,13 +835,20 @@ function openMap(_isRetry){
     return div;
   })();
 
-  let nodesHtml='', pathPts=[]; 
+  // ✨ 100스테이지 스톤 노드 자동 매핑 (봄->여름->가을->겨울 순서로 아래에서 위로 배치)
+  let nodesHtml=''; 
   for(let lv=1; lv<=TOTAL; lv++){ 
-    const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext, isMilestone = lv%MILESTONE_EVERY===0, isFinal = lv===MAX_STAGE, cls = done?'done':(isNext?'next':'locked'), extraCls = isFinal?' mfinal':(isMilestone?' mmilestone':''), p=nodePos(lv); 
-    pathPts.push([p.x,p.y]); 
+    const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext;
+    const cls = done?'done':(isNext?'next':'locked');
+    
+    // 전체 100스테이지 기준 Y 좌표 (맨 아래 96%에서 시작해 위로 4%까지 균등 분배)
+    const yPct = 96 - ((lv - 1) / (TOTAL - 1)) * 92;
+    // 구불구불한 흙길 라인에 맞춘 X 좌표 웨이브 연출
+    const xPct = 50 + Math.sin(lv * 0.6) * 28 + Math.cos(lv * 0.3) * 10;
+    
     const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; 
-    const icon = isFinal ? '👑' : (isMilestone ? '🎁' : lv); 
-    nodesHtml += `<div class="mnode ${cls}${extraCls}" data-lv="${lv}" style="left:${p.x}%;top:${p.y}%; pointer-events:auto;">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':icon}${starHtml}</div>`; 
+    
+    nodesHtml += `<div class="mnode ${cls}" data-lv="${lv}" style="left:${xPct}%;top:${yPct}%; pointer-events:auto;">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':lv}${starHtml}</div>`; 
   }
   
   nodesContainer.innerHTML = nodesHtml;
