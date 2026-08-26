@@ -16,8 +16,8 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #111;
 /* 배경 레이어 */
 #bgLayer { position: absolute; inset: 0; background: url('assets/bg.png') center/cover no-repeat; z-index: 0; opacity: 0.25; pointer-events: none; }
 
-/* 인게임 상단 UI */
-#topUI { position: relative; z-index: 10; width: 100%; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 8px; background: rgba(34, 18, 8, 0.85); border-bottom: 3px solid #dcb274; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+/* 인게임 상단 UI (원본 절대 좌표 고정) */
+#topUI { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 6px; background: rgba(34, 18, 8, 0.85); border-bottom: 3px solid #dcb274; box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: auto; }
 .top-menu-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
 .top-right-stats { display: flex; align-items: center; }
 
@@ -41,12 +41,12 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #111;
 .tchip { background: #52341b; border: 1.5px solid #8a6a4a; border-radius: 8px; padding: 2px 8px; font-size: 13px; font-weight: 900; color: #eedab5; white-space: nowrap; }
 .tchip.done { background: #4a822b; border-color: #8ebf63; color: #fff; text-decoration: line-through; opacity: 0.8; }
 
-/* 게임 영역 */
-#gameArea { position: relative; flex: 1; width: 100%; overflow: hidden; background: #1a0d06; display: flex; justify-content: center; align-items: center; }
+/* 게임 영역 (원본 좌표 고정) */
+#gameArea { position: absolute; top: 180px; bottom: 80px; left: 0; right: 0; width: 100%; overflow: hidden; background: #1a0d06; display: flex; justify-content: center; align-items: center; }
 #cv { display: block; width: 100%; height: 100%; cursor: crosshair; }
 
 /* 인게임 하단 아이템 바 */
-#bottomUI { position: relative; z-index: 10; width: 100%; height: 80px; background: rgba(34, 18, 8, 0.9); border-top: 3px solid #dcb274; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; }
+#bottomUI { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; height: 80px; background: rgba(34, 18, 8, 0.9); border-top: 3px solid #dcb274; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; }
 .item-btn { position: relative; width: 56px; height: 56px; background: linear-gradient(180deg, #52341b, #3a2212); border: 3px solid #dcb274; border-radius: 18px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
 .item-btn:active { transform: scale(0.92); }
 .item-btn.active { border-color: #ff9a5c; box-shadow: 0 0 12px #ff9a5c; }
@@ -55,7 +55,7 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #111;
 /* 맵 화면 (월드맵) */
 #mapScreen { position: absolute; inset: 0; z-index: 50; display: none; flex-direction: column; background: #111; overflow: hidden; }
 #mapScreen.on { display: flex !important; }
-#mapScroll { flex: 1; overflow-y: scroll; position: relative; -webkit-overflow-scrolling: touch; }
+#mapScroll { flex: 1; overflow-y: scroll; position: relative; -webkit-overflow-scrolling: touch; padding-bottom: 72px; }
 #mapInner { position: relative; width: 100%; display: flex; flex-direction: column; }
 .map-bg-piece { display: block; width: 100%; height: auto; margin: 0; padding: 0; pointer-events: none; }
 
@@ -63,7 +63,7 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #111;
 .map-top-left { display: flex; align-items: center; pointer-events: auto; }
 .map-icon-btn { width: 44px; height: 44px; background: url('assets/settings.png') center/cover no-repeat; background-color: #3a2212; border: 2.5px solid #dcb274; border-radius: 14px; cursor: pointer; pointer-events: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
 
-/* 스테이지 노드 (징검다리 버튼) */
+/* 스테이지 노드 (스톤) 원본 복구 */
 .mnode { position: absolute; width: 42px; height: 42px; background: linear-gradient(180deg, #ffb15c, #e55a2b); border: 3px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.6); cursor: pointer; z-index: 6; }
 .mnode.done { background: linear-gradient(180deg, #8ebf63, #4a822b); border-color: #fff; }
 .mnode.next { background: linear-gradient(180deg, #ffda44, #f9a400); border-color: #fff; transform: translate(-50%, -50%) scale(1.15); animation: pulseNext 1.2s infinite alternate; }
@@ -78,64 +78,7 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #111;
 .nav-icon { width: 32px; height: 32px; background-size: contain; background-repeat: no-repeat; background-position: center; }
 .map-nav-btn span { font-size: 12px; font-weight: 800; color: #ffe08c; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 
-/* ══════════════════════════════════════════
-   업적 모달 창 전용 스타일 (기존 화면 구조 영향 없음)
-   ══════════════════════════════════════════ */
-#achieveScreen { position: absolute; inset: 0; display: none; z-index: 500; background: rgba(20, 10, 5, 0.78); backdrop-filter: blur(6px); justify-content: center; align-items: center; }
-#achieveScreen.on { display: flex !important; }
-
-.achieve-wrapper { position: relative; width: 92%; max-width: 420px; height: 78vh; max-height: 600px; background: #e8d0a9; border: 6px solid #4a2c16; border-radius: 28px; box-shadow: 0 20px 50px rgba(0,0,0,0.85); display: flex; flex-direction: column; overflow: visible; }
-
-/* 상단 기와 지붕 헤더 */
-.achieve-roof { position: absolute; top: -46px; left: 50%; transform: translateX(-50%); width: 280px; height: 90px; background: url('assets/header_achievement.png') center/contain no-repeat; z-index: 10; pointer-events: none; }
-
-/* 닫기 (X) 버튼 */
-.achieve-close-btn { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; background: #e53935; border: 3px solid #fff; border-radius: 50%; color: #fff; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.4); cursor: pointer; z-index: 15; }
-.achieve-close-btn:active { transform: scale(0.92); }
-
-/* 본체 패널 */
-.achieve-body { width: 100%; flex: 1; background: #fdf6ec; border: 4px solid #dcb274; border-radius: 22px; margin-top: 44px; display: flex; flex-direction: column; padding: 12px; overflow: hidden; box-shadow: inset 0 4px 12px rgba(0,0,0,0.08); }
-
-/* 탭 버튼 영역 */
-.achieve-tab-row { display: flex; gap: 8px; margin-bottom: 10px; background: #e2c088; padding: 4px; border-radius: 16px; border: 2.5px solid #b88645; }
-.achieve-tab { flex: 1; background: transparent; border: none; border-radius: 12px; padding: 9px; font-family:'Pretendard',sans-serif; font-size: 15px; font-weight: 900; color: #6a4425; cursor: pointer; text-align: center; }
-.achieve-tab.active { background: linear-gradient(180deg, #f9a400, #e0540d); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); box-shadow: 0 4px 10px rgba(225,84,13,0.4); }
-
-/* 업적 리스트 스크롤 영역 */
-.achieve-list-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 10px; padding-right: 2px; }
-.achieve-list-scroll::-webkit-scrollbar { width: 6px; }
-.achieve-list-scroll::-webkit-scrollbar-thumb { background: #dcb274; border-radius: 10px; }
-
-/* 개별 업적 카드 */
-.ach-card { background: #fffdf9; border: 2.5px solid #e8d5b5; border-radius: 18px; display: flex; align-items: center; padding: 10px 12px; gap: 10px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
-
-/* 커스텀 업적 아이콘 박스 */
-.ach-icon-badge { width: 52px; height: 52px; background-size: cover; background-position: center; border-radius: 14px; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-
-/* 텍스트 영역 */
-.ach-info { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.ach-title { font-size: 14px; font-weight: 900; color: #4a2c16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ach-desc { font-size: 11px; color: #8a6a4a; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* 프로필 게이지바 */
-.ach-bar-bg { width: 100%; height: 10px; background: #e0d0b8; border-radius: 999px; overflow: hidden; margin-top: 4px; border: 1px solid #c8b090; position: relative; }
-.ach-bar-fill { height: 100%; background: linear-gradient(90deg, #82d43a, #52a818); border-radius: 999px; transition: width 0.3s ease; }
-.ach-bar-text { position: absolute; inset: 0; font-size: 8px; font-weight: 900; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; }
-
-/* 오른쪽 보상 및 버튼 영역 */
-.ach-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.ach-reward-badge { display: flex; align-items: center; gap: 3px; font-size: 13px; font-weight: 900; color: #e58a00; }
-.ach-reward-badge img { width: 16px; height: 16px; }
-
-/* 액션 버튼 */
-.ach-btn { padding: 5px 12px; font-family:'Pretendard',sans-serif; font-size: 12px; font-weight: 900; border-radius: 999px; border: 2px solid #2c5215; background: linear-gradient(180deg, #82d43a, #52a818); color: #fff; box-shadow: 0 3px 6px rgba(82,168,24,0.3); cursor: pointer; white-space: nowrap; }
-.ach-btn:active { transform: scale(0.95); }
-.ach-btn.claimed { background: #b0a89f; border-color: #8c8278; box-shadow: none; cursor: default; }
-.ach-btn.locked { background: #9e9e9e; border-color: #616161; box-shadow: none; cursor: default; }
-
-.achieve-footer-note { text-align: center; font-size: 11px; font-weight: 800; color: #8a6a4a; margin-top: 8px; opacity: 0.85; }
-
-/* 모달창 공통 */
+/* 모달 및 팝업 공통 */
 .veil { position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 300; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .veil.on { opacity: 1; pointer-events: auto; }
 .card { background: #fdf6ec; border: 4px solid #dcb274; border-radius: 24px; padding: 24px; width: 86%; max-width: 360px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); color: #4a2c16; }
