@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 사계절 100스테이지 연속 매핑 및 인게임 안정화 버전
+   낱글자 팡팡! — 문법 에러 수정 및 사계절 100스테이지 매핑 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -492,7 +492,7 @@ function drawQueue(){
   const x = W/2 + R*3.4, y = G.shooterY + R*0.8, r = R*0.9;
   ctx.save(); ctx.font=`700 ${R*.42}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#ffffff';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=4; 
   ctx.fillText('다음: '+G.queue[0].s, x, y-r*1.4); ctx.restore();
-  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r*1.0,0,7); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill(); ctx.restore();
   bubble(x,y,r*0.92,G.queue[0].s,G.queue[0].col);
 }
 
