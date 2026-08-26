@@ -603,13 +603,13 @@ function tick(now){
 function aimAt(px,py){ const dx=px-W/2,dy=py-G.shooterY; let a=Math.atan2(dy,dx); const lim=.22; if(a>-lim)a=-lim; if(a<-Math.PI+lim)a=-Math.PI+lim; G.aim=a; }
 function localPt(e){ if(!cv)return [0,0]; const rect=cv.getBoundingClientRect(); const scaleX = cv.width / rect.width / DPR; const scaleY = cv.height / rect.height / DPR; return [(e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY]; }
 
-// ✨ 업적 시스템 정의 및 데이터 관리
+// ✨ 업적 시스템 정의 및 데이터 관리 (직접 만드신 커스텀 배지 이미지 매핑)
 const ACHIEVEMENTS = [
-  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, icon: '📖', type: 'word_count' },
-  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, icon: '🧠', type: 'word_count' },
-  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, icon: '⚡', type: 'combo_max' },
-  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, icon: '🌸', type: 'stage_reach' },
-  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, icon: '❄️', type: 'stage_reach' }
+  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, icon: 'assets/badge_1.png', type: 'word_count' },
+  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, icon: 'assets/badge_2.png', type: 'word_count' },
+  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, icon: 'assets/badge_3.png', type: 'combo_max' },
+  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, icon: 'assets/badge_4.png', type: 'stage_reach' },
+  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, icon: 'assets/badge_5.png', type: 'stage_reach' }
 ];
 
 let currentAchieveTab = 'achieve';
@@ -690,7 +690,7 @@ function renderAchieveList() {
     
     return `
       <div class="ach-card">
-        <div class="ach-icon-hex">${ach.icon}</div>
+        <div class="ach-icon-badge" style="background-image: url('${ach.icon}');"></div>
         <div class="ach-info">
           <div class="ach-title">${ach.title}</div>
           <div class="ach-desc">${ach.desc}</div>
@@ -707,7 +707,6 @@ function renderAchieveList() {
     `;
   }).join('');
 }
-
 function claimAchieve(id, reward) {
   SFX.buy();
   if(!SAVE.achievements[id]) SAVE.achievements[id] = { progress: 0, claimed: false };
