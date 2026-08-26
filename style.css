@@ -152,37 +152,25 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-icon-btn:active { transform: scale(0.95); }
 #btnMapSettings { background-image: url('assets/settings.png'); }
 
-#mapActionBox { position: absolute; bottom: 120px; left: 0; width: 100%; display: flex; justify-content: center; align-items: flex-end; gap: 15px; z-index: 110; pointer-events: none; }
-#mapActionBox > * { pointer-events: auto; }
-
-#btnMapPlay { 
-  width: 240px; height: 90px; background: url('assets/start.png') center/contain no-repeat; 
-  border: none; background-color: transparent; cursor: pointer; position: relative; 
-  transition: transform 0.1s; padding: 0; box-shadow: none;
-  filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4));
-}
-#btnMapPlay:active { transform: translateY(4px); }
-.heart-cost { position: absolute; top: -10px; right: -10px; background: #e52e71; border: 2px solid #fff; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.4); text-shadow:none;}
-
 .mnode{position:absolute;width:48px;height:48px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);font-family:'Pretendard',sans-serif;font-weight:900;font-size:15px;background-image:url('assets/stone_default.png');background-repeat:no-repeat;background-position:center;background-size:contain;z-index:2;cursor:pointer;color:#5a3a22;text-shadow:0 1px 2px rgba(255,255,255,0.8);}
 .mnode.done{color:#3a2a12;background-image:url('assets/stone_clear.png');}
 .mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 
-/* ✨ 시안 100% 매칭: bottom_menu_bg.png 및 아이콘과 글자 간격이 넉넉하게 조정된 패널 스타일 */
+/* ✨ 하단 바 높이 확장 및 아이콘 대형화 스타일링 (bottom_menu_bg.png 및 bottom_menu_select.png 적용) */
 #globalBottomBar { 
   position: absolute; 
   bottom: 0; 
   left: 0; 
   width: 100%; 
-  height: 95px; 
+  height: 115px; /* 높이를 더 길고 넉넉하게 확장 */
   background: url('assets/bottom_menu_bg.png') center top / 100% 100% no-repeat; 
   display: flex; 
   justify-content: space-around; 
   align-items: flex-end; 
   z-index: 300; 
-  padding-bottom: calc(14px + env(safe-area-inset-top)); 
-  box-shadow: 0 -6px 15px rgba(0,0,0,0.5); 
+  padding-bottom: calc(18px + env(safe-area-inset-top)); 
+  box-shadow: 0 -8px 20px rgba(0,0,0,0.6); 
   pointer-events: auto; 
 }
 
@@ -195,45 +183,46 @@ canvas { display: block; width: 100%; height: 100%; }
   justify-content: center; 
   cursor: pointer; 
   position: relative; 
-  width: 90px; 
-  height: 75px; 
+  width: 95px; 
+  height: 85px; 
   padding: 0; 
   font-family:'Pretendard',sans-serif; 
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .map-nav-btn span { 
-  display: none; /* 평소에는 글자 숨김 */
+  display: none; 
 }
 
+/* ✨ 기본 아이콘 크기 큼직하게 확대 */
 .nav-icon { 
-  width: 52px; 
-  height: 52px; 
+  width: 64px; 
+  height: 64px; 
   background-size: contain; 
   background-repeat: no-repeat; 
   background-position: center; 
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4)); 
-  margin-bottom: 2px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.45)); 
+  margin-bottom: 4px;
 }
 
 .map-nav-btn:active { transform: scale(0.92); }
 
-/* ✨ 선택된(Active) 상태: 아이콘 위치를 살짝 위로 올리고, 글자와의 간격을 넓혀서 선명하게 노출 */
+/* ✨ 선택된(Active) 상태: 아이콘이 더 위로 솟고, 큼직한 황금 패널과 글자 노출 */
 .map-nav-btn.active { 
-  transform: translateY(-38px); 
+  transform: translateY(-46px); 
 }
 
 .map-nav-btn.active .nav-icon { 
-  transform: scale(1.18) translateY(-12px); /* 아이콘을 위로 더 띄움 */
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)); 
+  transform: scale(1.25) translateY(-14px); 
+  filter: drop-shadow(0 10px 14px rgba(0,0,0,0.55)); 
 }
 
 .map-nav-btn.active span { 
   display: block; 
   position: absolute; 
-  bottom: 12px; /* 글자를 패널 중앙 하단으로 내려서 아이콘과 확실히 분리 */
-  font-size: 16px; 
+  bottom: 12px; 
+  font-size: 17px; 
   font-weight: 900; 
   color: #5a3a22; 
   text-shadow: 0 1px 1px rgba(255,255,255,0.7); 
@@ -244,14 +233,14 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn.active::before { 
   content: ''; 
   position: absolute; 
-  top: -26px; 
+  top: -32px; 
   left: 50%; 
   transform: translateX(-50%); 
-  width: 115px; 
-  height: 110px; 
+  width: 130px; /* 패널 가로 폭 확장 */
+  height: 120px; /* 패널 세로 폭 확장하여 글자까지 완벽 포옹 */
   background: url('assets/bottom_menu_select.png') center/contain no-repeat; 
   z-index: -1; 
-  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); 
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.5)); 
 }
 
 /* [순위] 전체 페이지 화면 디자인 스타일 */
@@ -284,7 +273,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .rank-list-scroll { display: flex; flex-direction: column; gap: 6px; }
 .rank-list-item { background: #fffdf9; border: 2px solid #e8d5b5; border-radius: 12px; display: flex; align-items: center; padding: 8px 12px; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .r-num { width: 24px; font-size: 16px; font-weight: 900; color: #8a6a4a; text-align: center; }
-.r-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2.5px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.r-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .r-name { flex: 1; font-size: 15px; font-weight: 900; color: #5a3a22; }
 
 .my-rank-card { background: linear-gradient(180deg, #fffbf0, #f5e8cc); border: 3px solid #dcb274; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-top: 10px; }
