@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 인게임 하단 바 충돌 방지 및 자동 숨김 버전
+   낱글자 팡팡! — 대포 발사 버블 멈춤 버그 해결 및 하단 바 연동 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -783,7 +783,6 @@ function startGame(resume, atStage){
   } 
   G.started=true; buildStage(); G.locked=false; saveGame(true); 
   
-  // ✨ 게임 플레이 화면 진입 시 글로벌 하단 바 숨김
   const globalBar = document.getElementById('globalBottomBar');
   if (globalBar) globalBar.style.display = 'none';
 }
@@ -837,18 +836,6 @@ function openMap(_isRetry){
   const elCoins = document.getElementById('mapUI_coins');
   if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
 
-  const playBtn = document.getElementById('btnMapPlay');
-  if(playBtn) {
-    playBtn.onclick = () => {
-      if(!spendLife()) return;
-      SFX.click();
-      ms.classList.remove('on');
-      clearInterval(_mapLivesTimer);
-      G.mode = 'theme';
-      startGame(false, maxUnlocked);
-    };
-  }
-
   const scrollEl=document.getElementById('mapScroll'); const containerW=scrollEl.clientWidth||390; const curZone=zoneIdx(TOTAL);
   function xPct(lv){ return 50+Math.sin(lv*0.9)*26+((Math.sin(lv*12.9898)*43758.5453)%1 - 0.5)*10; }
   const zoneH=[]; for(let z=0; z<=curZone; z++){ const key=ZONES[z].key; zoneH[z] = PATH_POINTS[key] ? containerW*PATH_IMG_ASPECT[key] : 100*108; } const H = zoneH.reduce((a,b)=>a+b,0) + 120; const zoneTop=[], zoneBot=[]; { let bot=H-60; for(let z=0; z<=curZone; z++){ zoneBot[z]=bot; zoneTop[z]=bot-zoneH[z]; bot=zoneTop[z]; } }
@@ -883,6 +870,7 @@ function openMap(_isRetry){
   
   requestAnimationFrame(()=>{ const nextEl=nodesContainer.querySelector('.mnode.next')||nodesContainer.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
   
+  // ✨ 스테이지 돌판 직접 터치 시 곧바로 인플레이 화면(게임 시작) 진입 연동
   nodesContainer.querySelectorAll('.mnode').forEach(el=>{ 
     el.onclick=()=>{ 
       const lv=+el.dataset.lv; 

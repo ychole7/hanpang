@@ -157,7 +157,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .mnode.next{color:#fff;filter:drop-shadow(0 0 8px rgba(255,170,80,0.95));}
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 
-/* ✨ 새로운 하단 배경(bottom_menu_bg.png) 및 글씨가 큼직하고 쾌적하게 띄워진 스타일 */
+/* ✨ 새로운 하단 배경(bottom_menu_bg.png) 반영 스타일 */
 #globalBottomBar { 
   position: absolute; 
   bottom: 0; 
@@ -195,7 +195,7 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 
 .nav-icon { 
-  width: 56px; /* 아이콘 크기를 기존보다 더 큼직하게 확대 */
+  width: 56px; 
   height: 56px; 
   background-size: contain; 
   background-repeat: no-repeat; 
@@ -207,7 +207,6 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .map-nav-btn:active { transform: scale(0.92); }
 
-/* ✨ 선택된(Active) 상태: 아이콘을 더 위로 띄우고, 글자를 큼직하게(19px) 띄워서 아이콘과 간격 확보 */
 .map-nav-btn.active { 
   transform: translateY(-42px); 
 }
@@ -220,8 +219,8 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn.active span { 
   display: block; 
   position: absolute; 
-  bottom: 8px; /* 글자 위치를 아래로 넉넉하게 내려서 아이콘과 분리 */
-  font-size: 19px; /* 글자 크기를 시원하게 키움 */
+  bottom: 8px; 
+  font-size: 19px; 
   font-weight: 900; 
   color: #5a3a22; 
   text-shadow: 0 1px 2px rgba(255,255,255,0.8); 
@@ -235,7 +234,7 @@ canvas { display: block; width: 100%; height: 100%; }
   top: -30px; 
   left: 50%; 
   transform: translateX(-50%); 
-  width: 125px; /* 패널 폭을 넓혀서 큰 글자와 아이콘을 여유롭게 수용 */
+  width: 125px; 
   height: 115px; 
   background: url('assets/bottom_menu_select.png') center/contain no-repeat; 
   z-index: -1; 
