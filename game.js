@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 80스테이지 커스텀 좌표 적용 버전
+   낱글자 팡팡! — 80스테이지 커스텀 좌표 및 문법 에러 수정 버전
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -24,7 +24,7 @@ const DICT_BY_CAT = {
 const BONUS_WORDS = ['사과나무','바나나우유','포도나무','감나무','밤나무','대추나무','솔방울','도토리','다람쥐집','고양이집','비빔국수','볶음밥','김치찌개','된장찌개','고구마빵','바나나맛','딸기우유','초코우유','자동차길','소방관차'];
 const GENERIC_WORDS = ['감기','안녕','사람','친구','생일','가족','학교','교실','책상','의자','창문','거울','지갑','열쇠','우산','신발','양말','모자','장갑','안경','시계','달력','편지','소포','병원','약국','은행','경찰','소방','공원','풍선','비누','수건','칫솔','치약','침대','이불','베개','냄비','접시','컵','그릇','전화','사진','영화','음악','노래','그림','숫자','하나','둘','셋','넷','다섯'];
 const CATS = Object.keys(DICT_BY_CAT);
-const MAX_STAGE = 80, MILESTONE_EVERY = 25, MAXW = 5; // ✨ 최대 스테이지 80으로 고정
+const MAX_STAGE = 80, MILESTONE_EVERY = 25, MAXW = 5;
 const DICT = new Map();
 for (const c of CATS) for (const w of DICT_BY_CAT[c]) if (w.length>=2) DICT.set(w,c);
 for (const w of BONUS_WORDS) DICT.set(w,'보너스');
@@ -267,7 +267,7 @@ function stepFly(){
   const f=G.fly; if(!f)return;
   for(let i=0;i<6;i++){
     f.x+=f.vx/6; f.y+=f.vy/6;
-    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;vx*=-1;} }
+    if(f.y<BY+BH){ if(f.x<BX+R){f.x=BX+R;f.vx*=-1;} if(f.x>BX+BW-R){f.x=BX+BW-R;f.vx*=-1;} }
     
     if(Math.random()<0.5) {
       const p = getParticle();
@@ -359,7 +359,7 @@ function resolve(c,r){
     if(word.word.length>=4){ for(let i=0;i<20;i++){ const p=getParticle(); if(p){ const ang=Math.random()*Math.PI*2, sp=1+Math.random()*4; p.active=true; p.x=W/2; p.y=H*0.4; p.vx=Math.cos(ang)*sp; p.vy=Math.sin(ang)*sp; p.life=1.4; p.col='#ffe08c'; p.r=2+Math.random()*3; p.shape='star'; } } G.banner={text:word.word,life:1.6,bonus:true,big:true}; }
     setTimeout(()=>{
       let goldHit=0; const bombCells=[];
-      for(const [cc,rr] of word.cells){ if(!G.grid[rr]&&G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
+      for(const [cc,rr] of word.cells){ if(!G.grid[rr]||!G.grid[rr][cc])continue; const sp=G.grid[rr][cc].special; if(sp==='gold')goldHit++; if(sp==='bomb')bombCells.push([cc,rr]); burst(cx(cc,rr),cy(rr),colorOf(G.grid[rr][cc])[0]); G.grid[rr][cc]=null; }
       let chain=0; 
       for(const cell of word.cells){ 
         const [wc, wr] = cell;
@@ -436,7 +436,7 @@ function drawBubbleRaw(x,y,r,s,col,glow,special){
   if(img && !special) {
     const ratio = img.height / img.width;
     let dw = rr * 2.1, dh = rr * 2.1;
-    if(img.width > img.height) { dh = dw * ratio; } else { dw = dh / ratio; }
+    if(img.width > img.height) { dh = dw * ratio; } else { dw = dw / ratio; }
     ctx.drawImage(img, x - dw/2, y - dh/2, dw, dh);
   } else {
     let [c1,c2]=colByIdx(cIdx); if(special==='gold'){ c1='#ffe9a8'; c2='#c8962f'; } else if(special==='bomb'){ c1='#e8a878'; c2='#a85f2f'; }
@@ -566,7 +566,7 @@ function draw(now){
   for(const t of G.toasts){ ctx.save(); ctx.globalAlpha=Math.min(1,t.life*1.6); ctx.translate(t.x,t.y-(1-t.life)*62); const fs=R*.74*(1+(1-t.life)*.25); ctx.font=`800 ${fs}px 'Pretendard', sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle='#fff6d0';ctx.shadowColor='#ffd86f';ctx.shadowBlur=fs*.7; ctx.fillText(t.text,0,0);ctx.fillText(t.text,0,0); ctx.restore(); }
   ctx.restore();
   if(G.flash>0.01){ ctx.save(); ctx.globalAlpha=G.flash; ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H); ctx.restore(); }
-  if (G.combo >= 3) { ctx.save(); const pulse = 0.5 + 0.5 * Math.sin(performance.now / 150); ctx.lineWidth = 14; ctx.strokeStyle = `rgba(255, 177, 92, ${pulse * 0.7})`; ctx.strokeRect(0, 0, W, H); ctx.restore(); }
+  if (G.combo >= 3) { ctx.save(); const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 150); ctx.lineWidth = 14; ctx.strokeStyle = `rgba(255, 177, 92, ${pulse * 0.7})`; ctx.strokeRect(0, 0, W, H); ctx.restore(); }
 }
 
 function tick(now){
@@ -709,7 +709,7 @@ function syncUI(){
   const us=document.getElementById('uiStage'); if(us) us.textContent=G.stage;
   const ul=document.getElementById('uiLives'); 
   const livesCount = computeLives().count;
-  if(ul) ul.textContent = livesCount; // ✨ 인플레이 상단 하트 숫자만 깔끔하게 노출 (MAX 및 타이머 완전 제거)
+  if(ul) ul.textContent = livesCount;
   
   const uc=document.getElementById('uiCoins'); if(uc) uc.textContent=(SAVE.coins||0).toLocaleString();
   const usb=document.getElementById('uiScoreBig'); if(usb) usb.textContent=G.score.toLocaleString();
@@ -810,7 +810,7 @@ function renderMapLives(){
   }
 }
 
-// ✨ 80스테이지 정밀 좌표 테이블 (추후 원하시는 위치로 세부 조정 가능)
+// ✨ 80스테이지 정밀 좌표 테이블
 const STAGE_COORDS = [
   // [봄 구간: 1 ~ 20]
   {x:59.6, y:99.4}, {x:70.5, y:98.5}, {x:72.4, y:97}, {x:60.6, y:96.4}, {x:49.9, y:95.3},
@@ -945,7 +945,6 @@ function showNavTab(tabName) {
   } else if (tabName === 'home') {
     if(btnHome) btnHome.classList.add('active');
   } else if (tabName === 'shop') {
-    if(btnShop) btnShop.classList.0 = ''; // safeguard
     if(btnShop) btnShop.classList.add('active');
   }
 }
