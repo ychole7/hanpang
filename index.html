@@ -27,12 +27,12 @@
       
       <div class="top-right-stats">
         <div class="custom-pill">
-  <div class="pill-icon-float" style="background-image: url('assets/heart.png');"></div>
-  <div class="pill-text-group">
-    <b id="uiLives">6</b>
-  </div>
-  <button class="pill-plus-btn" onclick="SFX.click()">+</button>
-</div>
+          <div class="pill-icon-float" style="background-image: url('assets/heart.png');"></div>
+          <div class="pill-text-group">
+            <b id="uiLives">6</b>
+          </div>
+          <button class="pill-plus-btn" onclick="SFX.click()">+</button>
+        </div>
 
         <div class="custom-pill" style="margin-left: 10px;">
           <div class="pill-icon-float" style="background-image: url('assets/coin.png');"></div>
@@ -65,10 +65,10 @@
   <div id="mapScreen">
     <div id="mapScroll">
       <div id="mapInner">
-        <img class="map-bg-piece" src="assets/map_bg_4.png" alt="Spring Map">
-        <img class="map-bg-piece" src="assets/map_bg_3.png" alt="Summer Map">
-        <img class="map-bg-piece" src="assets/map_bg_2.png" alt="Autumn Map">
-        <img class="map-bg-piece" src="assets/map_bg_1.png" alt="Winter Map">
+        <img class="map-bg-piece" src="assets/map_bg_4.png" alt="Winter">
+        <img class="map-bg-piece" src="assets/map_bg_3.png" alt="Autumn">
+        <img class="map-bg-piece" src="assets/map_bg_2.png" alt="Summer">
+        <img class="map-bg-piece" src="assets/map_bg_1.png" alt="Spring">
       </div>
     </div>
     
@@ -96,83 +96,35 @@
     </div>
   </div>
 
-  <!-- [순위] 전체 페이지 화면 -->
-  <div id="rankScreen">
-    <div class="rank-container">
+  <!-- [업적] 전체 페이지 화면 -->
+  <div id="achieveScreen" style="display:none;">
+    <div class="rank-container" style="height: 78vh; max-height: 600px;">
       <div class="rank-header-roof">
-        <div class="rank-sign-board">순 위</div>
+        <div class="rank-sign-board">업 적</div>
       </div>
 
-      <div class="rank-board-body">
-        <div class="rank-tab-row">
-          <button class="rank-tab-btn active" id="rankTabAll" onclick="switchRankTab('all')">전체 순위</button>
-          <button class="rank-tab-btn" id="rankTabMy" onclick="switchRankTab('my')">내 순위</button>
+      <div class="rank-board-body" style="margin-top: 40px; padding: 14px;">
+        <div style="font-size: 14px; font-weight: 900; color: #8a6a4a; margin-bottom: 10px; text-align: center;">
+          도전을 완료하고 보상을 획득하세요! 🎁
         </div>
-
-        <div class="rank-content-box" id="rankContentBox">
-          <div id="rankViewAll" class="rank-view">
-            <div class="rank-podium-row">
-              <div class="podium-item rank-2">
-                <div class="podium-medal">🥈</div>
-                <div class="podium-avatar" style="background:#8fb9aa;">👧🏻</div>
-                <div class="podium-name">세종대왕</div>
-                <div class="podium-crown">🥈</div>
-              </div>
-              <div class="podium-item rank-1">
-                <div class="podium-medal">🥇</div>
-                <div class="podium-avatar" style="background:#e8c169;">👦🏻</div>
-                <div class="podium-name">한글팡팡</div>
-                <div class="podium-crown">👑</div>
-              </div>
-              <div class="podium-item rank-3">
-                <div class="podium-medal">🥉</div>
-                <div class="podium-avatar" style="background:#d49a6a;">👧🏽</div>
-                <div class="podium-name">훈민정음</div>
-                <div class="podium-crown">🥉</div>
-              </div>
-            </div>
-
-            <div class="rank-list-scroll">
-              <div class="rank-list-item"><span class="r-num">4</span><div class="r-avatar" style="background:#7ca9c0;">👦🏽</div><span class="r-name">한글좋아</span></div>
-              <div class="rank-list-item"><span class="r-num">5</span><div class="r-avatar" style="background:#e29578;">👧🏼</div><span class="r-name">나랏말싸미</span></div>
-              <div class="rank-list-item"><span class="r-num">6</span><div class="r-avatar" style="background:#83c5be;">👦🏼</div><span class="r-name">가나다라마바사</span></div>
-              <div class="rank-list-item"><span class="r-num">7</span><div class="r-avatar" style="background:#ffb703;">👦🏻</div><span class="r-name">아름다운한글</span></div>
-              <div class="rank-list-item"><span class="r-num">8</span><div class="r-avatar" style="background:#fb8500;">👧🏻</div><span class="r-name">한글짱짱</span></div>
-            </div>
-          </div>
-
-          <div id="rankViewMy" class="rank-view" style="display:none;">
-            <div class="my-rank-card">
-              <div class="my-rank-badge">🏆 내 현재 순위</div>
-              <div class="my-rank-score-box">
-                <div class="my-avatar-big" style="background:#e8c169;">👦🏻</div>
-                <div class="my-info">
-                  <h3>기획자님</h3>
-                  <p>상위 <b>5%</b> 이내 진입중!</p>
-                </div>
-              </div>
-              <div class="my-stats-row">
-                <div>순위: <b>12위</b></div>
-                <div>최고 점수: <b>77,700점</b></div>
-              </div>
-            </div>
-          </div>
+        <div class="rank-content-box" id="achieveContentBox" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- 업적 아이템들은 JS에서 동적으로 렌더링 됩니다 -->
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 글로벌 하단 바 -->
+  <!-- 글로벌 하단 바 (순위 버튼 ➔ 업적 버튼으로 변경) -->
   <div id="globalBottomBar" style="display: none;">
-    <button class="map-nav-btn" id="navRank" onclick="SFX.click(); showNavTab('rank');">
+    <button class="map-nav-btn" id="navAchieve" onclick="SFX.click(); openAchievePage();">
       <div class="nav-icon" style="background-image: url('assets/ranking.png');"></div>
-      <span>순위</span>
+      <span>업적</span>
     </button>
-    <button class="map-nav-btn active" id="navHome" onclick="SFX.click(); showNavTab('home');">
+    <button class="map-nav-btn active" id="navHome" onclick="SFX.click(); openMap();">
       <div class="nav-icon" style="background-image: url('assets/home.png');"></div>
       <span>홈</span>
     </button>
-    <button class="map-nav-btn" id="navShop" onclick="SFX.click(); showNavTab('shop');">
+    <button class="map-nav-btn" id="navShop" onclick="SFX.click(); openShop();">
       <div class="nav-icon" style="background-image: url('assets/shop.png');"></div>
       <span>상점</span>
     </button>
