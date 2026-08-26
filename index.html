@@ -61,11 +61,14 @@
 
   <div class="veil" id="veil"><div class="card" id="card"></div></div>
   
-  <!-- 메인 화면 (지도 로비) -->
+  <!-- 메인 화면 (사계절 100스테이지 지도 로비) -->
   <div id="mapScreen">
     <div id="mapScroll">
       <div id="mapInner">
-        <img id="mapBgImg" src="assets/map_bg.png" alt="Map Background">
+        <img class="map-bg-piece" src="assets/map_bg_1.png" alt="Spring Map">
+        <img class="map-bg-piece" src="assets/map_bg_2.png" alt="Summer Map">
+        <img class="map-bg-piece" src="assets/map_bg_3.png" alt="Autumn Map">
+        <img class="map-bg-piece" src="assets/map_bg_4.png" alt="Winter Map">
       </div>
     </div>
     
@@ -91,8 +94,6 @@
 
       <button class="map-icon-btn" id="btnMapSettings"></button>
     </div>
-
-    <!-- ✨ 홈 화면 중앙 하단 '게임 시작' 버튼 DOM 제거 완료 -->
   </div>
 
   <!-- [순위] 전체 페이지 화면 -->
@@ -161,7 +162,7 @@
     </div>
   </div>
 
-  <!-- ✨ 글로벌 하단 바 (높이 확장 및 아이콘 큼직하게 확대 반영) -->
+  <!-- 글로벌 하단 바 -->
   <div id="globalBottomBar" style="display: none;">
     <button class="map-nav-btn" id="navRank" onclick="SFX.click(); showNavTab('rank');">
       <div class="nav-icon" style="background-image: url('assets/ranking.png');"></div>
