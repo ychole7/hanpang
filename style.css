@@ -140,7 +140,7 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* 상점 박스 위치 (업적보다 위로 올려서 기와지붕과 간격 맞춤) */
 .shop-wrapper { 
-  position: absolute; top: 150px; bottom: 130px; left: 50%; transform: translateX(-50%); 
+  position: absolute; top: 120px; bottom: 130px; left: 50%; transform: translateX(-50%); 
   width: 92%; max-width: 420px; background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
   box-shadow: 0 16px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(179,126,70,0.15); 
   display: flex; flex-direction: column; align-items: center; padding: 18px 14px 14px; z-index: 1; 
