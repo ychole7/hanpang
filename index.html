@@ -122,6 +122,22 @@
     </div>
   </div>
 
+<!-- [상점] 전체 화면 탭 페이지 (새로 추가) -->
+  <div id="shopScreen">
+    <div class="shop-wrapper">
+      <div class="shop-roof">
+        <div class="shop-title-text">상 점</div>
+      </div>
+      <div class="shop-body">
+        <div class="shop-desc-text">코인을 사용해 유용한 아이템을 구매하세요!</div>
+        <div style="text-align: center; margin-bottom: 12px; font-size: 15px; color:#5a3a22; font-weight:800;">
+          보유 코인: <b style="color:#d98a00;" id="shopUI_coins">0</b>
+        </div>
+        <div class="shop-list-scroll" id="shopContentBox"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 글로벌 하단 바 (업적 아이콘 연동) -->
   <div id="globalBottomBar" style="display: none;">
     <button class="map-nav-btn" id="navAchieve" onclick="SFX.click(); openAchievePage();">

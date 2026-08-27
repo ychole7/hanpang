@@ -14,7 +14,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #bgLayer { position: absolute; inset: 0; z-index: 0; background: url('assets/bg_main.png') center / cover no-repeat; }
 
-/* 게임 화면(인플레이) 전용 상단 UI */
+/* 게임 화면 상단 UI */
 #topUI { position: absolute; top: -10px; left: -2%; width: 104%; height: 155px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_top.png') center top / 100% 100% no-repeat; }
 #topUI .top-menu-row { display: flex; gap: 6px; padding: calc(14px + env(safe-area-inset-top)) 4% 0; align-items: center; justify-content: space-between; }
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
@@ -54,7 +54,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .icon-btn { width: 46px; height: 46px; border-radius: 50%; background-color: transparent; background-size: contain; background-repeat: no-repeat; background-position: center; border: none; cursor: pointer; padding: 0; background-image: url('assets/settings.png'); filter: drop-shadow(0 3px 5px rgba(0,0,0,0.35)); flex-shrink: 0; }
 .icon-btn:active { transform: scale(0.95); }
 
-/* 인게임 하단 UI */
+/* 게임 하단 UI */
 #bottomUI { position: absolute; bottom: -20px; left: -2%; width: 104%; height: 125px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_bottom.png') center top / 100% 100% no-repeat; display: flex; justify-content: center; align-items: flex-start; gap: 14px; padding-top: 15px; }
 .item-btn { flex: 0 0 54px; width: 54px; height: 54px; border-radius: 50%; border: none !important; background-color: transparent !important; background-size: contain; background-position: center; background-repeat: no-repeat; box-shadow: 0 4px 8px rgba(0,0,0,0.5); cursor: pointer; padding: 0; transition: transform 0.1s; position: relative; }
 .item-btn:active { transform: translateY(4px); box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
@@ -70,7 +70,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 #gameArea { position: absolute; inset: 0; z-index: 5; }
 canvas { display: block; width: 100%; height: 100%; }
 
-/* 모달 (팝업창) */
+/* 모달 */
 .veil{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,5,2,.85);backdrop-filter:blur(4px);z-index:300;}
 .veil.on{display:grid}
 .card{background:linear-gradient(180deg,#3a2717,#2a1c12);border:2px solid #c8962f;border-radius:20px;padding:24px 26px;text-align:center;max-width:84%;box-shadow:0 8px 30px rgba(0,0,0,.8),inset 0 0 20px rgba(200,150,47,.12)}
@@ -80,7 +80,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .btn{margin-top:16px;background:linear-gradient(180deg,#e8c169,#c8962f);border:2px solid #8a5f22;border-radius:999px;padding:12px 30px;font-family:'Pretendard',sans-serif;font-weight:800;font-size:19px;color:#2a1c0a;text-shadow:0 1px 1px rgba(255,255,255,.3);box-shadow:0 3px 10px rgba(0,0,0,.4),inset 0 1px 2px rgba(255,255,255,.4); cursor:pointer;}
 .btn:active{transform:translateY(3px)}
 
-/* 사계절 연속 스크롤 맵 화면 */
+/* 맵 화면 */
 #mapScreen { position: absolute; inset: 0; display: none; z-index: 100; background: #22150b; overflow: hidden; }
 #mapScreen.on { display: block !important; }
 #mapScroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 140px; padding-top: 0; overscroll-behavior-y: contain; background: #22150b; }
@@ -127,243 +127,82 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn.active::before { content: ''; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 125px; height: 115px; background: url('assets/bottom_menu_select.png') center/contain no-repeat; z-index: -1; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
 
 /* =========================================
-   [업적] 전체 탭 화면 스타일 (시안 완벽 반영)
+   [업적 & 상점 공통 탭 레이아웃]
    ========================================= */
-#achieveScreen { 
-  position: absolute; 
-  inset: 0; 
-  display: none; 
-  z-index: 100; 
+#achieveScreen, #shopScreen { 
+  position: absolute; inset: 0; display: none; z-index: 100; 
   background: url('assets/map_bg.png') center / cover no-repeat; 
-  flex-direction: column; 
-  align-items: center; 
-  padding-top: max(30px, env(safe-area-inset-top)); 
-  padding-bottom: 115px; 
+  flex-direction: column; align-items: center; 
+  padding-top: max(30px, env(safe-area-inset-top)); padding-bottom: 115px; 
 }
-#achieveScreen.on { display: flex !important; }
-#achieveScreen::before { content: ''; position: absolute; inset: 0; background: rgba(30, 15, 5, 0.72); backdrop-filter: blur(5px); z-index: 0; }
+#achieveScreen.on, #shopScreen.on { display: flex !important; }
+#achieveScreen::before, #shopScreen::before { content: ''; position: absolute; inset: 0; background: rgba(30, 15, 5, 0.72); backdrop-filter: blur(5px); z-index: 0; }
 
-.achieve-wrapper { 
-  position: relative; 
-  width: 92%; 
-  max-width: 420px; 
-  flex: 1; 
-  max-height: 76vh; 
-  background: #fdf7e6; /* 은은한 양피지 질감 톤 */
-  border: 4px solid #b37e46; 
-  border-radius: 16px; 
+.achieve-wrapper, .shop-wrapper { 
+  position: relative; width: 92%; max-width: 420px; flex: 1; max-height: 76vh; 
+  background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
   box-shadow: 0 16px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(179,126,70,0.15); 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  padding: 18px 14px 14px; 
-  margin-top: 85px; 
-  z-index: 1; 
+  display: flex; flex-direction: column; align-items: center; 
+  padding: 18px 14px 14px; margin-top: 70px; z-index: 1; 
 }
 
-/* 새로 만들어주실 지붕+간판 전용 이미지 세팅 (수정본) */
-.achieve-roof { 
-  position: absolute; 
-  top: -65px; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 280px; 
-  height: 100px; 
-  background: url('assets/header_roof.png') center/contain no-repeat; 
-  filter: drop-shadow(0 6px 8px rgba(0,0,0,0.5)); 
-  z-index: 5; 
-  pointer-events: none; 
+/* 롤백된 CSS 기와 지붕 스타일 */
+.achieve-roof, .shop-roof { 
+  position: absolute; top: -52px; left: 50%; transform: translateX(-50%); 
+  width: 260px; height: 85px; background: url('assets/ui_top.png') center/cover no-repeat; 
+  display: flex; align-items: center; justify-content: center; 
+  filter: drop-shadow(0 6px 6px rgba(0,0,0,0.5)); z-index: 5; 
+}
+.achieve-title-text, .shop-title-text { 
+  font-size: 26px; font-weight: 900; color: #fff6da; text-shadow: 0 2px 4px rgba(0,0,0,0.9); margin-top: 10px; letter-spacing: 2px; 
 }
 
 /* 탭 메뉴 */
-.achieve-tab-row { 
-  display: flex; 
-  width: 100%; 
-  padding: 0 10px; 
-  position: absolute; 
-  top: -42px; 
-  left: 0; 
-  z-index: 10; 
-}
-.achieve-tab { 
-  flex: 1; 
-  background: #5e4229; 
-  border: 4px solid #b37e46; 
-  border-bottom: none; 
-  border-radius: 12px 12px 0 0; 
-  padding: 12px 10px 16px; 
-  font-family: 'Pretendard', sans-serif; 
-  font-size: 16px; 
-  font-weight: 900; 
-  color: #a8927d; 
-  cursor: pointer; 
-  transition: 0.15s; 
-  box-shadow: inset 0 -4px 10px rgba(0,0,0,0.2); 
-}
-.achieve-tab.active { 
-  background: #fdf7e6; 
-  color: #b85d19; 
-  padding-bottom: 20px; 
-  z-index: 2; 
-  box-shadow: none; 
-}
+.achieve-tab-row { display: flex; width: 100%; padding: 0 10px; position: absolute; top: -42px; left: 0; z-index: 10; }
+.achieve-tab { flex: 1; background: #5e4229; border: 4px solid #b37e46; border-bottom: none; border-radius: 12px 12px 0 0; padding: 12px 10px 16px; font-family: 'Pretendard', sans-serif; font-size: 16px; font-weight: 900; color: #a8927d; cursor: pointer; transition: 0.15s; box-shadow: inset 0 -4px 10px rgba(0,0,0,0.2); }
+.achieve-tab.active { background: #fdf7e6; color: #b85d19; padding-bottom: 20px; z-index: 2; box-shadow: none; }
 
-.achieve-desc-text { 
-  text-align: center; 
-  font-size: 13.5px; 
-  font-weight: 800; 
-  color: #b28c62; 
-  margin-bottom: 14px; 
-  margin-top: 8px; 
-  letter-spacing: -0.2px;
-}
+.achieve-body, .shop-body { width: 100%; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-.achieve-list-scroll { 
-  flex: 1; 
-  width: 100%; 
-  overflow-y: auto; 
-  overflow-x: hidden; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 12px; 
-  padding-bottom: 10px; 
-  scrollbar-width: none; 
-}
-.achieve-list-scroll::-webkit-scrollbar { display: none; }
+.achieve-desc-text, .shop-desc-text { text-align: center; font-size: 13.5px; font-weight: 800; color: #b28c62; margin-bottom: 14px; margin-top: 8px; letter-spacing: -0.2px; }
 
-/* 업적 개별 카드 */
-.ach-card { 
-  background: #fcf4dd; 
-  border: 2.5px solid #e6d3ba; 
-  border-radius: 16px; 
-  display: flex; 
-  align-items: center; 
-  padding: 14px 12px; 
-  gap: 12px; 
-  position: relative; 
-  box-shadow: 0 4px 8px rgba(0,0,0,0.06); 
-  overflow: hidden; 
-}
+.achieve-list-scroll, .shop-list-scroll { flex: 1; width: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; scrollbar-width: none; }
+.achieve-list-scroll::-webkit-scrollbar, .shop-list-scroll::-webkit-scrollbar { display: none; }
 
-/* 뱃지 이미지 */
-.ach-badge-img {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
-  flex-shrink: 0;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
-}
+/* 카드 (업적 & 상점 공통) */
+.ach-card, .shop-card { background: #fcf4dd; border: 2.5px solid #e6d3ba; border-radius: 16px; display: flex; align-items: center; padding: 14px 12px; gap: 12px; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.06); overflow: hidden; }
 
+/* 업적 전용 */
+.ach-badge-img { width: 72px; height: 72px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
 .ach-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .ach-title { font-size: 17px; font-weight: 900; letter-spacing: -0.5px; } 
-
-/* 뱃지에 따른 동적 텍스트 색상 */
 .ach-badge-img.book + .ach-info .ach-title { color: #2a613b; }
 .ach-badge-img.brain + .ach-info .ach-title { color: #2a5173; }
 .ach-badge-img.combo + .ach-info .ach-title { color: #3b2a59; }
 .ach-badge-img.spring + .ach-info .ach-title { color: #a32d4b; }
 .ach-badge-img.snow + .ach-info .ach-title { color: #194a7a; }
-
 .ach-desc { font-size: 12.5px; font-weight: 700; color: #5a3a22; }
 
-/* 프로그레스 바 고정 픽셀 크기 적용 */
-.ach-bar-bg { 
-  position: relative; 
-  width: 130px; 
-  height: 18px; 
-  background: #5c4028; 
-  border-radius: 999px; 
-  overflow: hidden; 
-  margin-top: 4px; 
-  border: 2px solid #4a7522; 
-  box-shadow: inset 0 3px 6px rgba(0,0,0,0.6), 0 1px 1px rgba(255,255,255,0.4); 
-}
-.ach-bar-fill { 
-  height: 100%; 
-  background: linear-gradient(180deg, #8eea42, #5fa81a); 
-  border-radius: 999px; 
-  transition: width 0.3s ease; 
-  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.4);
-}
-.ach-bar-text { 
-  position: absolute; 
-  inset: 0; 
-  font-size: 11px; 
-  font-weight: 900; 
-  color: #fff; 
-  text-shadow: 0 1px 2px rgba(0,0,0,0.7); 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-}
+/* 프로그레스 바 */
+.ach-bar-bg { position: relative; width: 130px; height: 18px; background: #5c4028; border-radius: 999px; overflow: hidden; margin-top: 4px; border: 2px solid #4a7522; box-shadow: inset 0 3px 6px rgba(0,0,0,0.6), 0 1px 1px rgba(255,255,255,0.4); }
+.ach-bar-fill { height: 100%; background: linear-gradient(180deg, #8eea42, #5fa81a); border-radius: 999px; transition: width 0.3s ease; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.4); }
+.ach-bar-text { position: absolute; inset: 0; font-size: 11px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; }
 
-/* 🚀 우측 보상 & 버튼 영역 (좌측 정렬 적용) */
-.ach-right { 
-  display: flex; 
-  flex-direction: column; 
-  align-items: flex-start; /* 좌측 정렬 */
-  gap: 8px; 
-  flex-shrink: 0; 
-  width: 90px; /* 고정 너비로 통일감 부여 */
-  z-index: 2; 
-}
-
-/* 엽전+숫자 부분을 감싸는 뱃지를 완벽하게 좌측 정렬 */
-.ach-reward-badge { 
-  display: flex; 
-  align-items: center; 
-  justify-content: flex-start;
-  gap: 4px; 
-  font-size: 19px; 
-  font-weight: 900; 
-  color: #5a3a22; 
-  width: 100%;
-  margin-left: 2px;
-}
+.ach-right, .shop-right { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; flex-shrink: 0; width: 90px; z-index: 2; }
+.ach-reward-badge { display: flex; align-items: center; justify-content: flex-start; gap: 4px; font-size: 19px; font-weight: 900; color: #5a3a22; width: 100%; margin-left: 2px; }
 .ach-reward-badge img { width: 24px; height: 24px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
 
-/* 버튼 디자인 통일 */
-.ach-btn { 
-  width: 100%; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  background: linear-gradient(180deg, #ffde59, #ffa700); 
-  border: 2px solid #fff; 
-  border-radius: 10px; 
-  padding: 8px 0; 
-  font-family: 'Pretendard', sans-serif; 
-  font-size: 14px; 
-  font-weight: 900; 
-  color: #fff; 
-  box-shadow: 0 4px 8px rgba(0,0,0,0.25); 
-  cursor: pointer; 
-  text-shadow: 0 1px 2px #a64d00, 0 -1px 2px #a64d00, 1px 0 2px #a64d00, -1px 0 2px #a64d00; 
-}
-.ach-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.25); }
+.ach-btn, .shop-btn { width: 100%; display: flex; justify-content: center; align-items: center; text-align: center; background: linear-gradient(180deg, #ffde59, #ffa700); border: 2px solid #fff; border-radius: 10px; padding: 8px 0; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 900; color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.25); cursor: pointer; text-shadow: 0 1px 2px #a64d00, 0 -1px 2px #a64d00, 1px 0 2px #a64d00, -1px 0 2px #a64d00; }
+.ach-btn:active, .shop-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.25); }
+.ach-btn.locked { background: linear-gradient(180deg, #b0b0b0, #808080); border: 2px solid #e0e0e0; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); opacity: 0.9; pointer-events: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); gap: 4px; }
+.shop-btn[disabled] { background: linear-gradient(180deg, #b0b0b0, #808080); border-color: #e0e0e0; text-shadow: 0 1px 2px rgba(0,0,0,0.6); pointer-events: none; opacity: 0.8; box-shadow:none;}
 
-/* 회색 진행 중 버튼 */
-.ach-btn.locked { 
-  background: linear-gradient(180deg, #b0b0b0, #808080); 
-  border: 2px solid #e0e0e0; 
-  color: #fff; 
-  text-shadow: 0 1px 2px rgba(0,0,0,0.6); 
-  opacity: 0.9; 
-  pointer-events: none; 
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-  gap: 4px;
-}
-
-/* 완료 리본 이미지 */
-.ach-ribbon {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 65px;
-  height: 65px;
-  object-fit: contain;
-  z-index: 10;
-}
-
+.ach-ribbon { position: absolute; top: -2px; right: -2px; width: 65px; height: 65px; object-fit: contain; z-index: 10; }
 .achieve-footer-note { text-align: center; font-size: 12.5px; font-weight: 800; color: #8a6a4a; margin-top: 8px; border-top: 1px solid rgba(179,126,70,0.3); padding-top: 12px; width: 100%; }
+
+/* 상점 전용 */
+.shop-icon-box { font-size: 38px; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 12px; border: 2.5px solid #dcb274; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; }
+.shop-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.shop-title { font-size: 17px; font-weight: 900; color: #5a3a22; display: flex; flex-direction: column; gap: 2px;}
+.shop-owned { font-size: 12px; color: #d98a00; font-weight: 900; }
+.shop-desc { font-size: 12px; font-weight: 700; color: #8a6a4a; line-height: 1.3;}
