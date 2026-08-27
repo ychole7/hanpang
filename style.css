@@ -149,7 +149,7 @@ canvas { display: block; width: 100%; height: 100%; }
   max-width: 420px; 
   flex: 1; 
   max-height: 76vh; 
-  background: #fdf7e6; /* 은은한 양피지 질감 톤 */
+  background: #fdf7e6; 
   border: 4px solid #b37e46; 
   border-radius: 16px; 
   box-shadow: 0 16px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(179,126,70,0.15); 
@@ -157,24 +157,25 @@ canvas { display: block; width: 100%; height: 100%; }
   flex-direction: column; 
   align-items: center; 
   padding: 18px 14px 14px; 
-  margin-top: 75px; /* 헤더 이미지를 위한 여백 */
+  margin-top: 85px; /* 헤더 이미지를 위한 여백 */
   z-index: 1; 
 }
 
-/* 새로운 목판 기와 헤더 이미지 */
+/* 🚀 핵심 수정 구역: 마스크 기법으로 아래쪽 빈 나무판자 완벽하게 자르기(Crop) */
 .achieve-roof { 
   position: absolute; 
-  top: -80px; 
+  top: -70px; /* 지붕이 살짝 위로 올라가게 조절 */
   left: 50%; 
   transform: translateX(-50%); 
-  width: 320px; 
-  height: 120px; 
-  background: url('assets/header_achievement_new.png') center/contain no-repeat; 
-  filter: drop-shadow(0 8px 10px rgba(0,0,0,0.5)); 
+  width: 380px; /* 지붕을 시원하고 넓게 펼침 */
+  height: 115px; /* 여기서 높이를 강제로 잘라서 아래쪽 텅 빈 나무판자를 가려버립니다! */
+  background: url('assets/header_achievement_new.png') center top / 380px auto no-repeat; 
+  filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4)); 
   z-index: 5; 
+  pointer-events: none; 
 }
 
-/* 탭 메뉴 (시안 폴더 탭 스타일) */
+/* 탭 메뉴 */
 .achieve-tab-row { 
   display: flex; 
   width: 100%; 
@@ -182,7 +183,7 @@ canvas { display: block; width: 100%; height: 100%; }
   position: absolute; 
   top: -42px; 
   left: 0; 
-  z-index: 0; 
+  z-index: 10; /* 지붕(5) 위로 올려서 탭 클릭 방해 금지 */
 }
 .achieve-tab { 
   flex: 1; 
@@ -202,7 +203,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .achieve-tab.active { 
   background: #fdf7e6; 
   color: #b85d19; 
-  padding-bottom: 20px; /* 양피지와 이어지게 */
+  padding-bottom: 20px; 
   z-index: 2; 
   box-shadow: none; 
 }
@@ -241,7 +242,7 @@ canvas { display: block; width: 100%; height: 100%; }
   gap: 12px; 
   position: relative; 
   box-shadow: 0 4px 8px rgba(0,0,0,0.06); 
-  overflow: hidden; /* 완료 리본이 카드에 맞게 잘리도록 */
+  overflow: hidden; 
 }
 
 /* 뱃지 이미지 */
@@ -256,7 +257,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .ach-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .ach-title { font-size: 17px; font-weight: 900; letter-spacing: -0.5px; } 
 
-/* 뱃지에 따른 동적 텍스트 색상 (시안 참고) */
+/* 뱃지에 따른 동적 텍스트 색상 */
 .ach-badge-img.book + .ach-info .ach-title { color: #2a613b; }
 .ach-badge-img.brain + .ach-info .ach-title { color: #2a5173; }
 .ach-badge-img.combo + .ach-info .ach-title { color: #3b2a59; }
@@ -265,20 +266,21 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .ach-desc { font-size: 12.5px; font-weight: 700; color: #5a3a22; }
 
-/* 프로그레스 바 (깊이감 있는 시안 스타일) */
+/* 프로그레스 바 (가로 130px 통일로 예쁘게 고정!) */
 .ach-bar-bg { 
   position: relative; 
-  width: 95%; 
+  width: 130px; 
   height: 18px; 
-  background: #5c4028; /* 어두운 나무/진한 갈색 트랙 */
+  background: #5c4028; 
   border-radius: 999px; 
   overflow: hidden; 
   margin-top: 4px; 
+  border: 2px solid #4a7522; 
   box-shadow: inset 0 3px 6px rgba(0,0,0,0.6), 0 1px 1px rgba(255,255,255,0.4); 
 }
 .ach-bar-fill { 
   height: 100%; 
-  background: linear-gradient(180deg, #8eea42, #5fa81a); /* 밝은 연두색 그라데이션 */
+  background: linear-gradient(180deg, #8eea42, #5fa81a); 
   border-radius: 999px; 
   transition: width 0.3s ease; 
   box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.4);
@@ -312,7 +314,7 @@ canvas { display: block; width: 100%; height: 100%; }
   color: #fff; 
   box-shadow: 0 4px 8px rgba(0,0,0,0.25); 
   cursor: pointer; 
-  text-shadow: 0 1px 2px #a64d00, 0 -1px 2px #a64d00, 1px 0 2px #a64d00, -1px 0 2px #a64d00; /* 갈색 텍스트 테두리 효과 */
+  text-shadow: 0 1px 2px #a64d00, 0 -1px 2px #a64d00, 1px 0 2px #a64d00, -1px 0 2px #a64d00; 
 }
 .ach-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.25); }
 
@@ -330,7 +332,7 @@ canvas { display: block; width: 100%; height: 100%; }
   gap: 4px;
 }
 
-/* 완료 리본 이미지 (에셋 연동) */
+/* 완료 리본 이미지 (에셋 연동 완료) */
 .ach-ribbon {
   position: absolute;
   top: -2px;
