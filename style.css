@@ -121,10 +121,11 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn span { display: none; }
 .nav-icon { width: 56px; height: 56px; background-size: contain; background-repeat: no-repeat; background-position: center; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4)); margin-bottom: 2px; }
 .map-nav-btn:active { transform: scale(0.92); }
-.map-nav-btn.active { transform: translateY(-42px); }
-.map-nav-btn.active .nav-icon { transform: scale(1.22) translateY(-14px); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)); }
-.map-nav-btn.active span { display: block; position: absolute; bottom: 8px; font-size: 19px; font-weight: 900; color: #5a3a22; text-shadow: 0 1px 2px rgba(255,255,255,0.8); white-space: nowrap; z-index: 2; }
-.map-nav-btn.active::before { content: ''; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 125px; height: 115px; background: url('assets/bottom_menu_select.png') center/contain no-repeat; z-index: -1; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
+.map-nav-btn.active { transform: translateY(-20px); }
+.map-nav-btn.active .nav-icon { transform: scale(1.15) translateY(-8px); filter: drop-shadow(0 6px 8px rgba(0,0,0,0.5)); }
+.map-nav-btn.active span { display: block; position: absolute; bottom: 2px; font-size: 17px; font-weight: 900; color: #5a3a22; text-shadow: 0 1px 2px rgba(255,255,255,0.8); white-space: nowrap; z-index: 2; }
+.map-nav-btn.active::before { content: ''; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 110px; height: 100px; background: url('assets/bottom_menu_select.png') center/contain no-repeat; z-index: -1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5)); }
+drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
 
 /* =========================================
    [업적 & 상점 공통 탭 레이아웃]
