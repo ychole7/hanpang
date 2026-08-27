@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 전체 코드 (최종 점검 버전)
+   낱글자 팡팡! — 전체 코드 (최종 수정 및 검수 완료본)
    ══════════════════════════════════════════ */
 
 let _mapLivesTimer = null;
@@ -298,6 +298,10 @@ function explodeAt(c,r){
 }
 function settle(f){
   let best=null,bd=1e9;
+  for(let c=0;c<cellsIn(0);c++){
+    const d=(f.x-cx(c,0))**2+(f.y-cy(0))**2;
+    if(d<bd){bd=d;best=[c,0];}
+  }
   for(const [c,r] of openCells()){ const d=(f.x-cx(c,r))**2+(f.y-cy(r))**2; if(d<bd){bd=d;best=[c,r];} }
   if(!best){ while(G.grid.length<=0) G.grid.push(new Array(cellsIn(G.grid.length)).fill(null)); for(let c=0;c<cellsIn(0);c++){ if(G.grid[0][c])continue; const d=(f.x-cx(c,0))**2+(f.y-cy(0))**2; if(d<bd){bd=d;best=[c,0];} } }
   G.fly=null; if(!best)return; const [c,r]=best; while(G.grid.length<=r) G.grid.push(new Array(cellsIn(G.grid.length)).fill(null));
@@ -1131,33 +1135,6 @@ window.addEventListener('load', () => {
   const btnMapSettings = document.getElementById('btnMapSettings');
   if (btnMapSettings) btnMapSettings.onclick = () => openSettings(true);
 
-  const btnShop=document.getElementById('btnShop'); if(btnShop) btnShop.onclick=()=>{ if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
-  
-  const btnSwap=document.getElementById('btnSwap'); if(btnSwap) btnSwap.onclick=()=>{ if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
-  const btnHint=document.getElementById('btnHint'); if(btnHint) btnHint.onclick=()=>{ if(G.hints<=0||G.fly||G.locked)return; SFX.click(); const hit=completionsFor(G.cur.s); if(!hit.length){toast('이 글자로는 만들 단어가 없어요');return;} hit.sort((a,b)=>(b.cat===G.goal)-(a.cat===G.goal)||b.word.length-a.word.length); G.hints--; G.hintCells=[[hit[0].c,hit[0].r]]; toast(hit[0].word,[[hit[0].c,hit[0].r]]); syncUI(); };
-  const btnBomb=document.getElementById('btnBomb'); if(btnBomb) btnBomb.onclick=()=>{ if(G.bombs<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='bomb' ? null : 'bomb'; syncUI(); };
-  const btnRainbow=document.getElementById('btnRainbow'); if(btnRainbow) btnRainbow.onclick=()=>{ if(G.rainbows<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='rainbow' ? null : 'rainbow'; syncUI(); };
-  
-  if(cv) { cv.addEventListener('pointerdown',e=>{G.dragging=true;aimAt(...localPt(e));}); cv.addEventListener('pointermove',e=>{if(G.dragging)aimAt(...localPt(e));}); cv.addEventListener('pointerup',()=>{ if(!G.dragging)return; G.dragging=false; if(G.aim!=null)shoot(G.aim); G.aim=null; }); cv.addEventListener('pointercancel',()=>{G.dragging=false;G.aim=null;}); }
-});
-
-// ✨ 최적화된 안전 부팅 및 이벤트 바인딩
-function boot(){ 
-  initCanvas();
-  resize(); 
-  G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
-  intro(); 
-  requestAnimationFrame(tick); 
-  loadAssets().catch(()=>{}); 
-}
-
-window.addEventListener('load', () => {
-  const btnSettings = document.getElementById('btnSettings');
-  if (btnSettings) btnSettings.onclick = () => openSettings(false);
-  
-  const btnMapSettings = document.getElementById('btnMapSettings');
-  if (btnMapSettings) btnMapSettings.onclick = () => openSettings(true);
-
   const btnShop = document.getElementById('btnShop'); 
   if(btnShop) btnShop.onclick = () => { if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
   
@@ -1180,6 +1157,15 @@ window.addEventListener('load', () => {
     cv.addEventListener('pointercancel', () => { G.dragging=false; G.aim=null; }); 
   }
 });
+
+function boot(){ 
+  initCanvas();
+  resize(); 
+  G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
+  intro(); 
+  requestAnimationFrame(tick); 
+  loadAssets().catch(()=>{}); 
+}
 
 function markFontsReady(){ FONTS_READY=true; SPR.clear(); }
 
