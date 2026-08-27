@@ -1141,6 +1141,7 @@ window.addEventListener('load', () => {
   if(cv) { cv.addEventListener('pointerdown',e=>{G.dragging=true;aimAt(...localPt(e));}); cv.addEventListener('pointermove',e=>{if(G.dragging)aimAt(...localPt(e));}); cv.addEventListener('pointerup',()=>{ if(!G.dragging)return; G.dragging=false; if(G.aim!=null)shoot(G.aim); G.aim=null; }); cv.addEventListener('pointercancel',()=>{G.dragging=false;G.aim=null;}); }
 });
 
+// ✨ 최적화된 안전 부팅 및 이벤트 바인딩
 function boot(){ 
   initCanvas();
   resize(); 
@@ -1150,5 +1151,47 @@ function boot(){
   loadAssets().catch(()=>{}); 
 }
 
+window.addEventListener('load', () => {
+  const btnSettings = document.getElementById('btnSettings');
+  if (btnSettings) btnSettings.onclick = () => openSettings(false);
+  
+  const btnMapSettings = document.getElementById('btnMapSettings');
+  if (btnMapSettings) btnMapSettings.onclick = () => openSettings(true);
+
+  const btnShop = document.getElementById('btnShop'); 
+  if(btnShop) btnShop.onclick = () => { if(veil.classList.contains('on'))return; G.locked=true; SFX.click(); openShop(); };
+  
+  const btnSwap = document.getElementById('btnSwap'); 
+  if(btnSwap) btnSwap.onclick = () => { if(G.swaps<=0||G.fly||G.locked)return; SFX.click(); G.swaps--; const t=G.cur; G.cur=G.queue[0]; G.queue[0]=t; syncUI(); };
+  
+  const btnHint = document.getElementById('btnHint'); 
+  if(btnHint) btnHint.onclick = () => { if(G.hints<=0||G.fly||G.locked)return; SFX.click(); const hit=completionsFor(G.cur.s); if(!hit.length){toast('이 글자로는 만들 단어가 없어요');return;} hit.sort((a,b)=>(b.cat===G.goal)-(a.cat===G.goal)||b.word.length-a.word.length); G.hints--; G.hintCells=[[hit[0].c,hit[0].r]]; toast(hit[0].word,[[hit[0].c,hit[0].r]]); syncUI(); };
+  
+  const btnBomb = document.getElementById('btnBomb'); 
+  if(btnBomb) btnBomb.onclick = () => { if(G.bombs<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='bomb' ? null : 'bomb'; syncUI(); };
+  
+  const btnRainbow = document.getElementById('btnRainbow'); 
+  if(btnRainbow) btnRainbow.onclick = () => { if(G.rainbows<=0||G.fly||G.locked)return; SFX.click(); G.activeItem = G.activeItem==='rainbow' ? null : 'rainbow'; syncUI(); };
+  
+  if(cv) { 
+    cv.addEventListener('pointerdown', e => { G.dragging=true; aimAt(...localPt(e)); }); 
+    cv.addEventListener('pointermove', e => { if(G.dragging) aimAt(...localPt(e)); }); 
+    cv.addEventListener('pointerup', () => { if(!G.dragging) return; G.dragging=false; if(G.aim!=null) shoot(G.aim); G.aim=null; }); 
+    cv.addEventListener('pointercancel', () => { G.dragging=false; G.aim=null; }); 
+  }
+});
+
 function markFontsReady(){ FONTS_READY=true; SPR.clear(); }
-if(document.fonts&&document.fonts.ready){ boot(); Promise.all([document.fonts.load("800 20px 'Pretendard'"),document.fonts.load("700 20px 'Pretendard'"),document.fonts.load("600 20px 'Pretendard'"),document.fonts.load("500 20px 'Pretendard'")]).then(()=>document.fonts.ready).then(markFontsReady).catch(()=>{ setTimeout(markFontsReady,800); }); setTimeout(()=>{ if(!FONTS_READY) markFontsReady(); },2000); } else { window.addEventListener('load',()=>{ boot(); setTimeout(markFontsReady,600); }); }
+
+if(document.fonts && document.fonts.ready){ 
+  boot(); 
+  Promise.all([
+    document.fonts.load("800 20px 'Pretendard'"),
+    document.fonts.load("700 20px 'Pretendard'"),
+    document.fonts.load("600 20px 'Pretendard'"),
+    document.fonts.load("500 20px 'Pretendard'")
+  ]).then(() => document.fonts.ready).then(markFontsReady).catch(() => { setTimeout(markFontsReady, 800); }); 
+  setTimeout(() => { if(!FONTS_READY) markFontsReady(); }, 2000); 
+} else { 
+  window.addEventListener('load', () => { boot(); setTimeout(markFontsReady, 600); }); 
+}
