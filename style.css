@@ -31,7 +31,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 /* 스마트폰 홈 화면에 추가된 앱(Standalone) 상태로 실행될 때만 상단바 높이만큼 아래로 푹 내려줌 */
 @media all and (display-mode: standalone) {
   #topUI .top-menu-row { 
-    padding: max(44px, env(safe-area-inset-top)) 4% 0; 
+    padding: max(22px, env(safe-area-inset-top)) 4% 0; 
   }
 }
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
