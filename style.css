@@ -21,11 +21,14 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
   background: url('assets/ui_top.png') center top / 100% 100% no-repeat; 
 }
 
-/* 상단 아이콘(설정, 하트, 엽전) 행 위치 강제 고정 */
+/* 상단 아이콘(설정, 하트, 엽전) 행 위치 완벽 고정 (스크린샷 기준) */
 #topUI .top-menu-row { 
-  display: flex; gap: 6px; 
-  /* 웹 브라우저로 볼 때는 기본 여백, 앱(PWA)으로 설치해 전체 화면으로 볼 때는 상단바(노치)만큼 여백을 자동으로 추가함 */
-  padding: 16px 4% 0; 
+  display: flex; 
+  gap: 6px; 
+  /* 스크린샷처럼 기와 안쪽 황금 위치에 정확히 안착하도록 패딩 값을 단일 고정합니다 */
+  padding: 12px 4% 0 !important; 
+  align-items: center; 
+  justify-content: space-between; 
 }
 
 /* 스마트폰 홈 화면에 추가된 앱(Standalone) 상태로 실행될 때만 상단바 높이만큼 아래로 푹 내려줌 */
