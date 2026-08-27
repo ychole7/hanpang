@@ -32,26 +32,33 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
 
-/* 🚀 상단 알약 박스 크기 슬림화 및 숫자 간격 조정 */
+/* 상단 알약 박스 크기를 키우고 가로 폭을 고정(width)하여 시간이 바뀌어도 크기가 변하지 않게 함 */
 #topUI .custom-pill, #mapTopBar .custom-pill { 
-  height: 28px !important; 
-  padding: 1px 6px 1px 24px !important; 
-  min-width: 62px !important; 
+  height: 36px !important;            /* 알약 높이 키우기 */
+  padding: 2px 8px 2px 28px !important; 
+  width: 110px !important;            /* 🚀 가로 폭을 110px로 딱 고정해서 타이머가 변해도 흔들리지 않음 */
+  min-width: unset !important;
 }
+
+/* 내부 아이콘 크기 살짝 키우기 */
 #topUI .pill-icon-float, #mapTopBar .pill-icon-float { 
-  width: 32px !important; 
-  height: 32px !important; 
-  left: -8px !important; 
+  width: 40px !important; 
+  height: 40px !important; 
+  left: -12px !important; 
 }
+
+/* 내부 글자 정렬 및 간격 */
 #topUI .pill-text-group, #mapTopBar .pill-text-group { 
-  font-size: 11px !important; 
-  gap: 6px !important; 
-  padding-left: 6px !important; /* 숫자가 아이콘에 겹치지 않게 간격 확보 */
+  font-size: 13px !important; 
+  gap: 4px !important; 
+  padding-left: 2px !important; 
+  justify-content: center !important;
+  flex: 1;
 }
-#topUI .pill-text-group b { font-size: 13px !important; }
-#topUI .pill-text-group span { font-size: 9px !important; color: #9c7b4f; }
-#topUI .pill-plus-btn, #mapTopBar .pill-plus-btn { width: 20px !important; height: 20px !important; font-size: 12px !important; border-width: 1.5px !important; }
-#topUI .icon-btn, #mapTopBar .map-icon-btn { width: 38px !important; height: 38px !important; }
+
+#topUI .pill-text-group b { font-size: 15px !important; }
+#topUI .pill-text-group span { font-size: 11px !important; color: #9c7b4f; width: 34px; text-align: center; }
+#topUI .pill-plus-btn, #mapTopBar .pill-plus-btn { width: 24px !important; height: 24px !important; font-size: 14px !important; border-width: 2px !important; }
 
 .stage-box { position: absolute; left: 2%; top: 65%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
 .score-box { position: absolute; right: 2%; top: 65%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
