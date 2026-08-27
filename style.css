@@ -232,21 +232,21 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* 하단 엽전 패키지 배너 */
 .shop-banner {
-  margin-top: 10px; background: linear-gradient(135deg, #4a2c5e, #311c40);
-  border: 2.5px solid #7a4f96; border-radius: 14px; padding: 10px 14px;
-  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 10px; 
+  width: 100%; height: 75px; /* 이미지 비율에 맞게 높이 조절 가능합니다 */
+  background: url('assets/shop_banner_bg.png') center/cover no-repeat;
+  border: 2.5px solid #7a4f96; border-radius: 14px; padding: 0 16px;
+  display: flex; align-items: center; justify-content: flex-end;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; flex-shrink: 0;
+  position: relative;
 }
 .shop-banner:active { transform: scale(0.98); }
-.shop-banner-left { display: flex; align-items: center; gap: 10px; }
-.shop-banner-chest { font-size: 28px; }
-.shop-banner-title { font-size: 15px; font-weight: 900; color: #ffd86f; }
-.shop-banner-desc { font-size: 11.5px; font-weight: 700; color: #d0b8e0; }
 .shop-banner-btn {
   background: linear-gradient(180deg, #8eea42, #5fa81a); border: 2px solid #fff;
-  border-radius: 999px; padding: 6px 12px; font-family: 'Pretendard', sans-serif;
-  font-size: 12px; font-weight: 900; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border-radius: 999px; padding: 6px 14px; font-family: 'Pretendard', sans-serif;
+  font-size: 13px; font-weight: 900; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   cursor: pointer; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  z-index: 2;
 }
 
 /* 🚀 상점 전용 투명 탭 스페이서 (업적과 뼈대 비율을 100% 일치시킴) */
