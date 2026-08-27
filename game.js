@@ -2,6 +2,7 @@
    낱글자 팡팡! — 전체 코드 (스톤 렌더링 완벽 복구 및 탭 전환 안정화)
    ══════════════════════════════════════════ */
 
+let _mapLivesTimer = null;
 const SAVE_KEY='pangpop_save_v1';
 function loadSave(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return null; const d=JSON.parse(raw); if(!d.free) d.free={stage:1,score:0,bestScore:0,bestStage:1}; if(!d.theme) d.theme={stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}; if(!d.achievements) d.achievements={}; if(typeof d.coins!=='number') d.coins=0; if(typeof d.revives!=='number') d.revives=0; if(typeof d.totalStars!=='number') d.totalStars=0; if(!d.lives) d.lives={count:6,lastUpdate:Date.now()}; return d; }catch(e){ return null; } }
 let SAVE = loadSave() || { free:{stage:1,score:0,bestScore:0,bestStage:1}, theme:{stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}, achievements:{}, lastMode:'theme', coins:0, revives:0, totalStars:0, lives:{count:6,lastUpdate:Date.now()} };
