@@ -138,9 +138,20 @@ canvas { display: block; width: 100%; height: 100%; }
 #achieveScreen.on, #shopScreen.on { display: flex !important; }
 #achieveScreen::before, #shopScreen::before { content: ''; position: absolute; inset: 0; background: rgba(30, 15, 5, 0.72); backdrop-filter: blur(5px); z-index: 0; }
 
-/* 🚀 내부 스크롤 완벽 고정 및 분리 */
-.achieve-wrapper, .shop-wrapper { 
-  position: absolute; top: 150px; bottom: 110px; 
+/* 업적 전용 박스 위치 */
+.achieve-wrapper { 
+  position: absolute; top: 175px; bottom: 110px; 
+  left: 50%; transform: translateX(-50%); 
+  width: 92%; max-width: 420px; 
+  background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
+  box-shadow: 0 16px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(179,126,70,0.15); 
+  display: flex; flex-direction: column; align-items: center; 
+  padding: 18px 14px 14px; z-index: 1; 
+}
+
+/* 상점 전용 박스 위치 (탭이 없으므로 top을 135px로 위로 바짝 붙임) */
+.shop-wrapper { 
+  position: absolute; top: 135px; bottom: 110px; 
   left: 50%; transform: translateX(-50%); 
   width: 92%; max-width: 420px; 
   background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
