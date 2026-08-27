@@ -127,7 +127,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn.active::before { content: ''; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 125px; height: 115px; background: url('assets/bottom_menu_select.png') center/contain no-repeat; z-index: -1; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
 
 /* =========================================
-   [업적] 전체 탭 화면 스타일 (시안 완벽 반영)
+   [업적] 전체 탭 화면 스타일
    ========================================= */
 #achieveScreen { 
   position: absolute; 
@@ -157,20 +157,20 @@ canvas { display: block; width: 100%; height: 100%; }
   flex-direction: column; 
   align-items: center; 
   padding: 18px 14px 14px; 
-  margin-top: 85px; /* 헤더 이미지를 위한 여백 */
+  margin-top: 85px; 
   z-index: 1; 
 }
 
-/* 🚀 핵심 수정 구역: 마스크 기법으로 아래쪽 빈 나무판자 완벽하게 자르기(Crop) */
+/* 새로 만들어주실 지붕+간판 전용 이미지 세팅 */
 .achieve-roof { 
   position: absolute; 
-  top: -70px; /* 지붕이 살짝 위로 올라가게 조절 */
+  top: -65px; 
   left: 50%; 
   transform: translateX(-50%); 
-  width: 380px; /* 지붕을 시원하고 넓게 펼침 */
-  height: 115px; /* 여기서 높이를 강제로 잘라서 아래쪽 텅 빈 나무판자를 가려버립니다! */
-  background: url('assets/header_achievement_new.png') center top / 380px auto no-repeat; 
-  filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4)); 
+  width: 270px; 
+  height: 100px; 
+  background: url('assets/header_roof.png') center/contain no-repeat; 
+  filter: drop-shadow(0 6px 8px rgba(0,0,0,0.5)); 
   z-index: 5; 
   pointer-events: none; 
 }
@@ -183,7 +183,7 @@ canvas { display: block; width: 100%; height: 100%; }
   position: absolute; 
   top: -42px; 
   left: 0; 
-  z-index: 10; /* 지붕(5) 위로 올려서 탭 클릭 방해 금지 */
+  z-index: 10; 
 }
 .achieve-tab { 
   flex: 1; 
@@ -266,7 +266,7 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .ach-desc { font-size: 12.5px; font-weight: 700; color: #5a3a22; }
 
-/* 프로그레스 바 (가로 130px 통일로 예쁘게 고정!) */
+/* 프로그레스 바 고정 픽셀 크기 적용 */
 .ach-bar-bg { 
   position: relative; 
   width: 130px; 
@@ -297,19 +297,44 @@ canvas { display: block; width: 100%; height: 100%; }
   justify-content: center; 
 }
 
-/* 우측 보상 & 버튼 영역 */
-.ach-right { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; min-width: 80px; z-index: 2; }
-.ach-reward-badge { display: flex; align-items: center; gap: 4px; font-size: 19px; font-weight: 900; color: #5a3a22; }
+/* 🚀 우측 보상 & 버튼 영역 (좌측 정렬 적용) */
+.ach-right { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: flex-start; /* 좌측 정렬 */
+  gap: 8px; 
+  flex-shrink: 0; 
+  width: 90px; /* 고정 너비로 통일감 부여 */
+  z-index: 2; 
+}
+
+/* 엽전+숫자 부분을 감싸는 뱃지를 완벽하게 좌측 정렬 */
+.ach-reward-badge { 
+  display: flex; 
+  align-items: center; 
+  justify-content: flex-start;
+  gap: 4px; 
+  font-size: 19px; 
+  font-weight: 900; 
+  color: #5a3a22; 
+  width: 100%;
+  margin-left: 2px;
+}
 .ach-reward-badge img { width: 24px; height: 24px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
 
-/* 노란색 보상 받기 버튼 */
+/* 버튼 디자인 통일 (너비 꽉 차게, 안의 글자는 가운데 정렬) */
 .ach-btn { 
+  width: 100%; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   background: linear-gradient(180deg, #ffde59, #ffa700); 
   border: 2px solid #fff; 
   border-radius: 10px; 
-  padding: 8px 16px; 
+  padding: 8px 0; 
   font-family: 'Pretendard', sans-serif; 
-  font-size: 14.5px; 
+  font-size: 14px; 
   font-weight: 900; 
   color: #fff; 
   box-shadow: 0 4px 8px rgba(0,0,0,0.25); 
@@ -327,12 +352,10 @@ canvas { display: block; width: 100%; height: 100%; }
   opacity: 0.9; 
   pointer-events: none; 
   box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-  display: flex; 
-  align-items: center; 
   gap: 4px;
 }
 
-/* 완료 리본 이미지 (에셋 연동 완료) */
+/* 완료 리본 이미지 */
 .ach-ribbon {
   position: absolute;
   top: -2px;
