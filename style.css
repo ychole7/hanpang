@@ -28,11 +28,14 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
   padding: max(20px, env(safe-area-inset-top, 20px)) 5% 0 !important; 
 }
 
-/* 인게임 설정 버튼 크기 및 위치 미세 조정 */
+/* 인게임 우측 상단 설정 버튼 절대 좌표 고정 */
 #topUI .icon-btn { 
-  transform: scale(0.85); 
-  transform-origin: top right;
-  margin-top: 2px;
+  position: absolute !important;
+  top: max(14px, env(safe-area-inset-top, 14px)) !important; /* 위쪽에서 떨어지는 거리 (숫자를 낮추면 위로 올라감) */
+  right: 16px !important;                                    /* 우측에서 떨어지는 거리 */
+  width: 38px !important; 
+  height: 38px !important;
+  z-index: 50;
 }
 
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
