@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 전체 코드 (상점/업적 탭 통합 및 함수 복구)
+   낱글자 팡팡! — 전체 코드 (누락된 탭 전환 및 상점/업적 함수 완벽 복구)
    ══════════════════════════════════════════ */
 
 const SAVE_KEY='pangpop_save_v1';
@@ -633,86 +633,6 @@ function syncUI(){
 
 const veil=document.getElementById('veil'),card=document.getElementById('card'); function show(html){if(card)card.innerHTML=html;if(veil)veil.classList.add('on');} function hide(){if(veil)veil.classList.remove('on');}
 
-// ✨ 상점 아이템 데이터
-const SHOP_ITEMS=[ 
-  {id:'hint3', icon:'💡', label:'힌트 +3', desc:'막힐 때 자리를 알려줘요', price:30, apply:()=>{G.hints+=3;}}, 
-  {id:'swap3', icon:'🔄', label:'교체 +3', desc:'글자를 다른 글자로 바꿔요', price:20, apply:()=>{G.swaps+=3;}}, 
-  {id:'bomb2', icon:'💣', label:'폭탄 +2', desc:'주변까지 한번에 터뜨려요', price:50, apply:()=>{G.bombs+=2;}}, 
-  {id:'rainbow2',icon:'🌈', label:'무지개 +2', desc:'가장 좋은 글자로 자동 발사', price:60, apply:()=>{G.rainbows+=2;}}, 
-  {id:'revive1', icon:'❤️', label:'부활권 +1', desc:'게임오버 시 이어서 플레이', price:80, apply:()=>{SAVE.revives=(SAVE.revives||0)+1;}} 
-];
-
-// ✨ 전체 화면 상점 탭 렌더링
-function openShop(){ 
-  const shopSc = document.getElementById('shopScreen');
-  const ms = document.getElementById('mapScreen');
-  const achSc = document.getElementById('achieveScreen');
-  const gameArea = document.getElementById('gameArea');
-  const topUI = document.getElementById('topUI');
-  const bottomUI = document.getElementById('bottomUI');
-  const globalBar = document.getElementById('globalBottomBar');
-  
-  if (ms) ms.classList.remove('on');
-  if (achSc) achSc.classList.remove('on');
-  if (gameArea) gameArea.style.display = 'none';
-  if (topUI) topUI.style.display = 'none';
-  if (bottomUI) bottomUI.style.display = 'none';
-  
-  if (shopSc) shopSc.classList.add('on');
-  if (globalBar) globalBar.style.display = 'flex';
-  
-  showNavTab('shop');
-  renderShopList();
-}
-
-function renderShopList() {
-  const box = document.getElementById('shopContentBox');
-  const coinUI = document.getElementById('shopUI_coins');
-  if(!box) return;
-  
-  const coins = SAVE.coins || 0;
-  if(coinUI) coinUI.textContent = coins.toLocaleString();
-
-  box.innerHTML = SHOP_ITEMS.map(it => {
-    const affordable = coins >= it.price;
-    let ownedText = '';
-    if (it.id === 'hint3') ownedText = `보유 ${G.hints}`;
-    else if (it.id === 'swap3') ownedText = `보유 ${G.swaps}`;
-    else if (it.id === 'bomb2') ownedText = `보유 ${G.bombs}`;
-    else if (it.id === 'rainbow2') ownedText = `보유 ${G.rainbows}`;
-    else if (it.id === 'revive1') ownedText = `보유 ${SAVE.revives || 0}`;
-
-    return `
-      <div class="shop-card">
-        <div class="shop-icon-box">${it.icon}</div>
-        <div class="shop-info">
-          <div class="shop-title">${it.label} <span class="shop-owned">(${ownedText})</span></div>
-          <div class="shop-desc">${it.desc}</div>
-        </div>
-        <div class="shop-right">
-          <button class="shop-btn" onclick="buyItem('${it.id}')" ${affordable ? '' : 'disabled'}>
-            <img src="assets/coin.png" style="width:20px;height:20px;"> ${it.price}
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function buyItem(id) {
-  const it = SHOP_ITEMS.find(x => x.id === id);
-  if (!it) return;
-  const coins = SAVE.coins || 0;
-  if (coins < it.price) return;
-  
-  SAVE.coins = coins - it.price;
-  it.apply();
-  saveGame(true);
-  SFX.buy();
-  syncUI();
-  renderShopList();
-}
-
 function calcStars(){ const goal = G.mode==='theme' ? G.targets.length : G.freeGoal; const ratio = Math.max(goal, Math.ceil(goal*1.3))/Math.max(1, G.shots); if(ratio>=0.85) return 3; if(ratio>=0.55) return 2; return 1; }
 function starRow(n){ let out=''; for(let i=0;i<3;i++) out+= i<n ? '<span style="color:#ffe08c;text-shadow:0 0 12px #ffb15c">★</span>' : '<span style="color:rgba(255,255,255,.25)">★</span>'; return `<div style="font-size:34px;letter-spacing:6px;margin:8px 0">${out}</div>`; }
 function win(){
@@ -732,204 +652,6 @@ function lose(){
   G.locked=true; SFX.gameOver(); const canRevive=(SAVE.revives||0)>0;
   show(`<h2>아쉬워요!</h2><p>버블이 바닥까지 내려왔어요.<br>스테이지 ${G.stage} · ${G.score.toLocaleString()}점</p>${canRevive?`<button class="btn" id="revive" style="border-color:#ff6b81;color:#ffe0e6;text-shadow:0 0 10px #ff6b81;box-shadow:0 0 16px rgba(255,107,129,.55),inset 0 0 14px rgba(255,107,129,.25);margin-top:14px">❤️ 부활권 사용 (보유 ${SAVE.revives})</button>`:''}<button class="btn" id="go" style="margin-top:${canRevive?10:16}px">다시 하기</button>`);
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
-}
-
-// ✨ 필수 화면 전환/실행 함수들 복구 완료!
-function intro() {
-  const introSc = document.getElementById('introScreen');
-  const mapSc = document.getElementById('mapScreen');
-  const achieveSc = document.getElementById('achieveScreen');
-  const shopSc = document.getElementById('shopScreen'); // 상점 탭 고려
-  const globalBar = document.getElementById('globalBottomBar');
-  
-  if (introSc) { introSc.style.display = 'flex'; introSc.classList.remove('hidden'); }
-  if (mapSc) { mapSc.classList.remove('on'); }
-  if (achieveSc) { achieveSc.classList.remove('on'); }
-  if (shopSc) { shopSc.classList.remove('on'); }
-  if (globalBar) { globalBar.style.display = 'none'; }
-
-  const btnStartAdv = document.getElementById('btnStartAdventure');
-  if (btnStartAdv) {
-    btnStartAdv.onclick = () => {
-      SFX.click(); 
-      if (introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
-      if (globalBar) { globalBar.style.display = 'flex'; }
-      G.mode = 'theme'; 
-      openMap(); 
-    };
-  }
-}
-
-function startGame(resume, atStage){ 
-  if(typeof atStage==='number'){ 
-    G.stage=atStage; G.score=0; 
-  }else if(resume){ 
-    const slot=SAVE[G.mode]; G.stage=slot?Math.max(1,slot.stage):1; G.score=slot?(slot.score||0):0; 
-  }else{ 
-    G.stage=1; G.score=0; 
-  } 
-  G.started=true; buildStage(); G.locked=false; saveGame(true); 
-  
-  const globalBar = document.getElementById('globalBottomBar');
-  if (globalBar) globalBar.style.display = 'none';
-}
-
-let _mapLivesTimer=null;
-function renderMapLives(){ 
-  const s=computeLives(); 
-  const uiLives = document.getElementById('uiLives'); 
-  if(uiLives) uiLives.textContent = s.count;
-
-  const mapLives = document.getElementById('mapUI_lives');
-  const mapTimer = document.getElementById('mapUI_timer');
-  if(mapLives) mapLives.textContent = s.count;
-  
-  if(mapTimer) {
-    if(s.count>=MAX_LIVES){ 
-      mapTimer.textContent = 'MAX'; 
-    } else {
-      const sec=Math.ceil(secToNextLife()); 
-      mapTimer.textContent = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`; 
-    }
-  }
-}
-
-const STAGE_COORDS = [
-  // [봄 구간: 1 ~ 20]
-  {x:59.6, y:99.4}, {x:70.5, y:98.5}, {x:72.4, y:97}, {x:60.6, y:96.4}, {x:49.9, y:95.3},
-  {x:51.2, y:93.8}, {x:33.8, y:91.7}, {x:62.3, y:92.8}, {x:69.9, y:91.6}, {x:62.1, y:89.9},
-  {x:50.7, y:88.9}, {x:47.2, y:85.9}, {x:57.1, y:87.5}, {x:64.6, y:86.2}, {x:60.6, y:84.4},
-  {x:49.9, y:82.7}, {x:59.8, y:81.9}, {x:64.6, y:80.4}, {x:50.9, y:79.3}, {x:49.9, y:77.3},
-
-  // [여름 구간: 21 ~ 40]
-  {x:65.2, y:74.1}, {x:63.5, y:72.7}, {x:48.7, y:72}, {x:31.6, y:69.3}, {x:48.3, y:70.3},
-  {x:57.5, y:69.2}, {x:67.2, y:68.1}, {x:63.3, y:66.4}, {x:51.6, y:65.3}, {x:43.3, y:62.1},
-  {x:54.9, y:63.7}, {x:62.9, y:62.6}, {x:69.1, y:61.6}, {x:61.1, y:60.1}, {x:47.9, y:59.4},
-  {x:44.3, y:58}, {x:54.7, y:57.3}, {x:65, y:56.2}, {x:59, y:54.8}, {x:48.7, y:53.5},
-
-  // [가을 구간: 41 ~ 60]
-  {x:60.6, y:49.4}, {x:68.7, y:48.2}, {x:55.7, y:47.4}, {x:45.6, y:46.4}, {x:31.8, y:43.2},
-  {x:48.1, y:44.8}, {x:60.2, y:44}, {x:67.2, y:42.7}, {x:63.1, y:41.2}, {x:50.7, y:40.3},
-  {x:51.8, y:38.8}, {x:43.9, y:37.2}, {x:62.7, y:37.6}, {x:66.6, y:36.1}, {x:54.5, y:34.9},
-  {x:45.4, y:34}, {x:53.2, y:32.5}, {x:63.3, y:31.5}, {x:61.5, y:30.1}, {x:49.9, y:28.5},
-
-  // [겨울 구간: 61 ~ 80]
-  {x:63.5, y:24.6}, {x:67.5, y:23.2}, {x:53.2, y:22.5}, {x:43.9, y:21.4}, {x:31.4, y:18.3},
-  {x:48.3, y:19.9}, {x:59.2, y:19.1}, {x:67.5, y:18}, {x:60.6, y:16.6}, {x:50.3, y:15.6},
-  {x:52.8, y:14.1}, {x:45.8, y:12}, {x:63.1, y:13}, {x:68.9, y:11.7}, {x:58.4, y:10.4},
-  {x:47, y:9}, {x:56.5, y:7.7}, {x:66.4, y:6.2}, {x:55.7, y:4.8}, {x:51.2, y:3.5}
-];
-
-// ✨ 업적 데이터
-const ACHIEVEMENTS = [
-  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, iconUrl: 'assets/badge_1.png', skin: 'book', type: 'word_count' },
-  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, iconUrl: 'assets/badge_2.png', skin: 'brain', type: 'word_count' },
-  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, iconUrl: 'assets/badge_3.png', skin: 'combo', type: 'combo_max' },
-  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, iconUrl: 'assets/badge_4.png', skin: 'spring', type: 'stage_reach' },
-  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, iconUrl: 'assets/badge_5.png', skin: 'snow', type: 'stage_reach' }
-];
-
-let currentAchieveTab = 'achieve';
-
-function switchAchieveTab(tab) {
-  SFX.click();
-  currentAchieveTab = tab;
-  const btnAch = document.getElementById('tabAchieveBtn');
-  const btnMis = document.getElementById('tabMissionBtn');
-  if(tab === 'achieve') {
-    if(btnAch) btnAch.classList.add('active');
-    if(btnMis) btnMis.classList.remove('active');
-  } else {
-    if(btnMis) btnMis.classList.add('active');
-    if(btnAch) btnAch.classList.remove('active');
-  }
-  renderAchieveList();
-}
-
-function checkAchievements(type, val){
-  if(!SAVE.achievements) SAVE.achievements = {};
-  
-  ACHIEVEMENTS.forEach(ach => {
-    if(!SAVE.achievements[ach.id]) SAVE.achievements[ach.id] = { progress: 0, claimed: false };
-    if(SAVE.achievements[ach.id].claimed) return;
-    
-    if(ach.type === 'word_count') {
-      SAVE.achievements[ach.id].progress += 1;
-    } else if(ach.type === 'combo_max') {
-      if(val > SAVE.achievements[ach.id].progress) SAVE.achievements[ach.id].progress = val;
-    } else if(ach.type === 'stage_reach') {
-      if(G.stage > SAVE.achievements[ach.id].progress) SAVE.achievements[ach.id].progress = G.stage;
-    }
-    if(SAVE.achievements[ach.id].progress > ach.target) SAVE.achievements[ach.id].progress = ach.target;
-  });
-  saveGame(true);
-}
-
-function openMap(_isRetry){
-  const ms=document.getElementById('mapScreen'); 
-  const introSc=document.getElementById('introScreen');
-  const achieveSc=document.getElementById('achieveScreen');
-  const shopSc=document.getElementById('shopScreen'); // 추가
-  const globalBar = document.getElementById('globalBottomBar');
-  const gameArea = document.getElementById('gameArea');
-  const topUI = document.getElementById('topUI');
-  const bottomUI = document.getElementById('bottomUI');
-  
-  if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
-  if(achieveSc) { achieveSc.classList.remove('on'); }
-  if(shopSc) { shopSc.classList.remove('on'); } // 추가
-  if(gameArea) { gameArea.style.display = 'block'; }
-  if(topUI) { topUI.style.display = 'block'; }
-  if(bottomUI) { bottomUI.style.display = 'flex'; }
-  
-  if(ms) ms.classList.add('on');
-  if(globalBar) { globalBar.style.display = 'flex'; }
-
-  showNavTab('home');
-
-  const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const TOTAL = MAX_STAGE; 
-  
-  const elCoins = document.getElementById('mapUI_coins');
-  if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
-
-  const scrollEl=document.getElementById('mapScroll'); const containerW=scrollEl.clientWidth||390;
-
-  let nodesContainer = document.getElementById('mapNodesContainer');
-  if (!nodesContainer) {
-    nodesContainer = document.createElement('div');
-    nodesContainer.id = 'mapNodesContainer';
-    nodesContainer.style.cssText = 'position:absolute; inset:0; pointer-events:none; z-index:5;';
-    scrollEl.querySelector('#mapInner').appendChild(nodesContainer);
-  }
-
-  let nodesHtml=''; 
-  for(let lv=1; lv<=TOTAL; lv++){ 
-    const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext;
-    const cls = done?'done':(isNext?'next':'locked');
-    
-    const coord = STAGE_COORDS[lv - 1] || { x: 50, y: 100 - lv };
-    const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; 
-    
-    nodesHtml += `<div class="mnode ${cls}" data-lv="${lv}" style="left:${coord.x}%;top:${coord.y}%; pointer-events:auto;">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':lv}${starHtml}</div>`; 
-  }
-  
-  nodesContainer.innerHTML = nodesHtml;
-
-  if(!_isRetry){ requestAnimationFrame(()=>{ if(Math.abs(scrollEl.clientWidth - containerW) > 2){ openMap(true); return; } }); } renderMapLives(); clearInterval(_mapLivesTimer); _mapLivesTimer=setInterval(renderMapLives,1000);
-  
-  requestAnimationFrame(()=>{ const nextEl=nodesContainer.querySelector('.mnode.next')||nodesContainer.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
-  
-  nodesContainer.querySelectorAll('.mnode').forEach(el=>{ 
-    el.onclick=()=>{ 
-      const lv=+el.dataset.lv; 
-      if(el.classList.contains('locked') || !spendLife()) return; 
-      SFX.click(); 
-      ms.classList.remove('on'); 
-      clearInterval(_mapLivesTimer); 
-      G.mode='theme'; 
-      startGame(false, lv); 
-    }; 
-  });
 }
 
 function openSettings(isMap) {
@@ -1014,6 +736,348 @@ function openSettings(isMap) {
       };
     };
   }
+}
+
+// -----------------------------------------------------
+// ✨ 전체 탭 UI 전환 코어 함수
+// -----------------------------------------------------
+function showNavTab(tabName) {
+  const btnAchieve = document.getElementById('navAchieve');
+  const btnHome = document.getElementById('navHome');
+  const btnShop = document.getElementById('navShop');
+
+  if(btnAchieve) btnAchieve.classList.remove('active');
+  if(btnHome) btnHome.classList.remove('active');
+  if(btnShop) btnShop.classList.remove('active');
+
+  if (tabName === 'achieve' && btnAchieve) btnAchieve.classList.add('active');
+  else if (tabName === 'home' && btnHome) btnHome.classList.add('active');
+  else if (tabName === 'shop' && btnShop) btnShop.classList.add('active');
+}
+
+// -----------------------------------------------------
+// ✨ 1. 상점 시스템 (전체 탭 방식)
+// -----------------------------------------------------
+const SHOP_ITEMS=[ 
+  {id:'hint3', icon:'💡', label:'힌트 +3', desc:'막힐 때 자리를 알려줘요', price:30, apply:()=>{G.hints+=3;}}, 
+  {id:'swap3', icon:'🔄', label:'교체 +3', desc:'글자를 다른 글자로 바꿔요', price:20, apply:()=>{G.swaps+=3;}}, 
+  {id:'bomb2', icon:'💣', label:'폭탄 +2', desc:'주변까지 한번에 터뜨려요', price:50, apply:()=>{G.bombs+=2;}}, 
+  {id:'rainbow2',icon:'🌈', label:'무지개 +2', desc:'가장 좋은 글자로 자동 발사', price:60, apply:()=>{G.rainbows+=2;}}, 
+  {id:'revive1', icon:'❤️', label:'부활권 +1', desc:'게임오버 시 이어서 플레이', price:80, apply:()=>{SAVE.revives=(SAVE.revives||0)+1;}} 
+];
+
+function openShop(){ 
+  SFX.click();
+  const shopSc = document.getElementById('shopScreen');
+  const ms = document.getElementById('mapScreen');
+  const achSc = document.getElementById('achieveScreen');
+  const gameArea = document.getElementById('gameArea');
+  const topUI = document.getElementById('topUI');
+  const bottomUI = document.getElementById('bottomUI');
+  const globalBar = document.getElementById('globalBottomBar');
+  
+  if (ms) ms.classList.remove('on');
+  if (achSc) achSc.classList.remove('on');
+  if (gameArea) gameArea.style.display = 'none';
+  if (topUI) topUI.style.display = 'none';
+  if (bottomUI) bottomUI.style.display = 'none';
+  
+  if (shopSc) shopSc.classList.add('on');
+  if (globalBar) globalBar.style.display = 'flex';
+  
+  showNavTab('shop');
+  renderShopList();
+}
+
+function renderShopList() {
+  const box = document.getElementById('shopContentBox');
+  const coinUI = document.getElementById('shopUI_coins');
+  if(!box) return;
+  
+  const coins = SAVE.coins || 0;
+  if(coinUI) coinUI.textContent = coins.toLocaleString();
+
+  box.innerHTML = SHOP_ITEMS.map(it => {
+    const affordable = coins >= it.price;
+    let ownedText = '';
+    if (it.id === 'hint3') ownedText = `보유 ${G.hints}`;
+    else if (it.id === 'swap3') ownedText = `보유 ${G.swaps}`;
+    else if (it.id === 'bomb2') ownedText = `보유 ${G.bombs}`;
+    else if (it.id === 'rainbow2') ownedText = `보유 ${G.rainbows}`;
+    else if (it.id === 'revive1') ownedText = `보유 ${SAVE.revives || 0}`;
+
+    return `
+      <div class="shop-card">
+        <div class="shop-icon-box">${it.icon}</div>
+        <div class="shop-info">
+          <div class="shop-title">${it.label} <span class="shop-owned">(${ownedText})</span></div>
+          <div class="shop-desc">${it.desc}</div>
+        </div>
+        <div class="shop-right">
+          <button class="shop-btn" onclick="buyItem('${it.id}')" ${affordable ? '' : 'disabled'}>
+            <img src="assets/coin.png" style="width:20px;height:20px;"> ${it.price}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function buyItem(id) {
+  const it = SHOP_ITEMS.find(x => x.id === id);
+  if (!it) return;
+  const coins = SAVE.coins || 0;
+  if (coins < it.price) return;
+  
+  SAVE.coins = coins - it.price;
+  it.apply();
+  saveGame(true);
+  SFX.buy();
+  syncUI();
+  renderShopList();
+}
+
+// -----------------------------------------------------
+// ✨ 2. 업적 시스템 (전체 탭 방식)
+// -----------------------------------------------------
+const ACHIEVEMENTS = [
+  { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, iconUrl: 'assets/badge_1.png', skin: 'book', type: 'word_count' },
+  { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, iconUrl: 'assets/badge_2.png', skin: 'brain', type: 'word_count' },
+  { id: 'combo_3', title: '연속의 예술', desc: '3연속 콤보 달성하기', target: 3, reward: 80, iconUrl: 'assets/badge_3.png', skin: 'combo', type: 'combo_max' },
+  { id: 'stage_20', title: '봄의 여행자', desc: '20 스테이지 클리어하기', target: 20, reward: 100, iconUrl: 'assets/badge_4.png', skin: 'spring', type: 'stage_reach' },
+  { id: 'stage_80', title: '설원 정복자', desc: '80 스테이지 최종 완주!', target: 80, reward: 500, iconUrl: 'assets/badge_5.png', skin: 'snow', type: 'stage_reach' }
+];
+
+let currentAchieveTab = 'achieve';
+
+function switchAchieveTab(tab) {
+  SFX.click();
+  currentAchieveTab = tab;
+  const btnAch = document.getElementById('tabAchieveBtn');
+  const btnMis = document.getElementById('tabMissionBtn');
+  if(tab === 'achieve') {
+    if(btnAch) btnAch.classList.add('active');
+    if(btnMis) btnMis.classList.remove('active');
+  } else {
+    if(btnMis) btnMis.classList.add('active');
+    if(btnAch) btnAch.classList.remove('active');
+  }
+  renderAchieveList();
+}
+
+function checkAchievements(type, val){
+  if(!SAVE.achievements) SAVE.achievements = {};
+  ACHIEVEMENTS.forEach(ach => {
+    if(!SAVE.achievements[ach.id]) SAVE.achievements[ach.id] = { progress: 0, claimed: false };
+    if(SAVE.achievements[ach.id].claimed) return;
+    
+    if(ach.type === 'word_count') {
+      SAVE.achievements[ach.id].progress += 1;
+    } else if(ach.type === 'combo_max') {
+      if(val > SAVE.achievements[ach.id].progress) SAVE.achievements[ach.id].progress = val;
+    } else if(ach.type === 'stage_reach') {
+      if(G.stage > SAVE.achievements[ach.id].progress) SAVE.achievements[ach.id].progress = G.stage;
+    }
+    if(SAVE.achievements[ach.id].progress > ach.target) SAVE.achievements[ach.id].progress = ach.target;
+  });
+  saveGame(true);
+}
+
+function openAchievePage() {
+  SFX.click();
+  const achSc = document.getElementById('achieveScreen');
+  const ms = document.getElementById('mapScreen');
+  const shopSc = document.getElementById('shopScreen');
+  const gameArea = document.getElementById('gameArea');
+  const topUI = document.getElementById('topUI');
+  const bottomUI = document.getElementById('bottomUI');
+  const globalBar = document.getElementById('globalBottomBar');
+  
+  if (ms) ms.classList.remove('on');
+  if (shopSc) shopSc.classList.remove('on');
+  if (gameArea) gameArea.style.display = 'none';
+  if (topUI) topUI.style.display = 'none';
+  if (bottomUI) bottomUI.style.display = 'none';
+  
+  if (achSc) achSc.classList.add('on');
+  if (globalBar) globalBar.style.display = 'flex';
+  
+  showNavTab('achieve');
+  renderAchieveList();
+}
+
+function renderAchieveList() {
+  const box = document.getElementById('achieveContentBox');
+  if(!box) return;
+  if(!SAVE.achievements) SAVE.achievements = {};
+
+  if(currentAchieveTab === 'mission') {
+    box.innerHTML = `<div style="text-align:center; padding:50px 20px; color:#b28c62; font-weight:800; font-size:15px;">🚧 일일 미션 준비 중입니다!<br><span style="font-size:13px; opacity:0.8;">내일 다시 찾아주세요 ✨</span></div>`;
+    return;
+  }
+  
+  box.innerHTML = ACHIEVEMENTS.map(ach => {
+    const data = SAVE.achievements[ach.id] || { progress: 0, claimed: false };
+    const progress = Math.min(data.progress, ach.target);
+    const done = progress >= ach.target;
+    const claimed = data.claimed;
+    const pct = Math.min(100, Math.round((progress / ach.target) * 100));
+    
+    let btnHtml = '';
+    const ribbonHtml = done ? `<img src="assets/ribbon_complete.png" class="ach-ribbon" alt="완료">` : '';
+
+    if (claimed) {
+      btnHtml = `<button class="ach-btn claimed" disabled>완료됨</button>`;
+    } else if (done) {
+      btnHtml = `<button class="ach-btn" onclick="claimAchieve('${ach.id}', ${ach.reward})">보상 받기</button>`;
+    } else {
+      btnHtml = `<button class="ach-btn locked" disabled>🔒 진행 중</button>`;
+    }
+    
+    return `
+      <div class="ach-card">
+        ${ribbonHtml}
+        <img src="${ach.iconUrl}" class="ach-badge-img ${ach.skin}" alt="${ach.title}">
+        <div class="ach-info">
+          <div class="ach-title">${ach.title}</div>
+          <div class="ach-desc">${ach.desc}</div>
+          <div class="ach-bar-bg">
+            <div class="ach-bar-fill" style="width: ${pct}%"></div>
+            <div class="ach-bar-text">${progress} / ${ach.target}</div>
+          </div>
+        </div>
+        <div class="ach-right">
+          <div class="ach-reward-badge"><img src="assets/coin.png" alt="coin">+${ach.reward}</div>
+          ${!claimed ? btnHtml : ''} 
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function claimAchieve(id, reward) {
+  SFX.buy();
+  if(!SAVE.achievements[id]) SAVE.achievements[id] = { progress: 0, claimed: false };
+  SAVE.achievements[id].claimed = true;
+  SAVE.coins = (SAVE.coins || 0) + reward;
+  saveGame(true);
+  renderAchieveList();
+  
+  const elCoins = document.getElementById('mapUI_coins');
+  if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
+  const uiCoins = document.getElementById('uiCoins');
+  if(uiCoins) uiCoins.textContent = (SAVE.coins||0).toLocaleString();
+
+  toast('🎁 업적 보상 💰+' + reward + ' 획득!');
+}
+
+// -----------------------------------------------------
+// ✨ 3. 홈 탭 (맵 화면 연동)
+// -----------------------------------------------------
+function openMap(_isRetry){
+  const ms=document.getElementById('mapScreen'); 
+  const introSc=document.getElementById('introScreen');
+  const achieveSc=document.getElementById('achieveScreen');
+  const shopSc=document.getElementById('shopScreen'); 
+  const globalBar = document.getElementById('globalBottomBar');
+  const gameArea = document.getElementById('gameArea');
+  const topUI = document.getElementById('topUI');
+  const bottomUI = document.getElementById('bottomUI');
+  
+  if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
+  if(achieveSc) { achieveSc.classList.remove('on'); }
+  if(shopSc) { shopSc.classList.remove('on'); } 
+  if(gameArea) { gameArea.style.display = 'block'; }
+  if(topUI) { topUI.style.display = 'block'; }
+  if(bottomUI) { bottomUI.style.display = 'flex'; }
+  
+  if(ms) ms.classList.add('on');
+  if(globalBar) { globalBar.style.display = 'flex'; }
+
+  showNavTab('home');
+
+  const stars=SAVE.theme.levelStars||{}; let maxUnlocked=1; for(let i=1;i<=MAX_STAGE;i++){ if(stars[i]!=null) maxUnlocked=i+1; } maxUnlocked=Math.min(maxUnlocked, MAX_STAGE); const TOTAL = MAX_STAGE; 
+  
+  const elCoins = document.getElementById('mapUI_coins');
+  if(elCoins) elCoins.textContent = (SAVE.coins||0).toLocaleString();
+
+  const scrollEl=document.getElementById('mapScroll'); const containerW=scrollEl.clientWidth||390;
+
+  let nodesContainer = document.getElementById('mapNodesContainer');
+  if (!nodesContainer) {
+    nodesContainer = document.createElement('div');
+    nodesContainer.id = 'mapNodesContainer';
+    nodesContainer.style.cssText = 'position:absolute; inset:0; pointer-events:none; z-index:5;';
+    scrollEl.querySelector('#mapInner').appendChild(nodesContainer);
+  }
+
+  let nodesHtml=''; 
+  for(let lv=1; lv<=TOTAL; lv++){ 
+    const done = stars[lv]!=null, isNext = !done && lv===maxUnlocked, locked = !done && !isNext;
+    const cls = done?'done':(isNext?'next':'locked');
+    
+    const coord = STAGE_COORDS[lv - 1] || { x: 50, y: 100 - lv };
+    const starHtml = done ? [[-10,-1],[0,-5],[10,-1]].map((sp,i)=>`<span class="mstar" style="left:calc(50% + ${sp[0]}px);top:${sp[1]}px">${i<stars[lv]?'★':'<span style=\'opacity:.35\'>★</span>'}</span>`).join('') : ''; 
+    
+    nodesHtml += `<div class="mnode ${cls}" data-lv="${lv}" style="left:${coord.x}%;top:${coord.y}%; pointer-events:auto;">${done?'<span class="mdone-halo"></span>':''}${locked?'<span class="mlock">🔒</span>':lv}${starHtml}</div>`; 
+  }
+  
+  nodesContainer.innerHTML = nodesHtml;
+
+  if(!_isRetry){ requestAnimationFrame(()=>{ if(Math.abs(scrollEl.clientWidth - containerW) > 2){ openMap(true); return; } }); } renderMapLives(); clearInterval(_mapLivesTimer); _mapLivesTimer=setInterval(renderMapLives,1000);
+  
+  requestAnimationFrame(()=>{ const nextEl=nodesContainer.querySelector('.mnode.next')||nodesContainer.querySelector('.mnode.done:last-of-type'); if(nextEl) nextEl.scrollIntoView({block:'center'}); });
+  
+  nodesContainer.querySelectorAll('.mnode').forEach(el=>{ 
+    el.onclick=()=>{ 
+      const lv=+el.dataset.lv; 
+      if(el.classList.contains('locked') || !spendLife()) return; 
+      SFX.click(); 
+      ms.classList.remove('on'); 
+      clearInterval(_mapLivesTimer); 
+      G.mode='theme'; 
+      startGame(false, lv); 
+    }; 
+  });
+}
+
+function intro() {
+  const introSc = document.getElementById('introScreen');
+  const mapSc = document.getElementById('mapScreen');
+  const achieveSc = document.getElementById('achieveScreen');
+  const shopSc = document.getElementById('shopScreen'); 
+  const globalBar = document.getElementById('globalBottomBar');
+  
+  if (introSc) { introSc.style.display = 'flex'; introSc.classList.remove('hidden'); }
+  if (mapSc) { mapSc.classList.remove('on'); }
+  if (achieveSc) { achieveSc.classList.remove('on'); }
+  if (shopSc) { shopSc.classList.remove('on'); } 
+  if (globalBar) { globalBar.style.display = 'none'; }
+
+  const btnStartAdv = document.getElementById('btnStartAdventure');
+  if (btnStartAdv) {
+    btnStartAdv.onclick = () => {
+      SFX.click(); 
+      if (introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
+      if (globalBar) { globalBar.style.display = 'flex'; }
+      G.mode = 'theme'; 
+      openMap(); 
+    };
+  }
+}
+
+function startGame(resume, atStage){ 
+  if(typeof atStage==='number'){ 
+    G.stage=atStage; G.score=0; 
+  }else if(resume){ 
+    const slot=SAVE[G.mode]; G.stage=slot?Math.max(1,slot.stage):1; G.score=slot?(slot.score||0):0; 
+  }else{ 
+    G.stage=1; G.score=0; 
+  } 
+  G.started=true; buildStage(); G.locked=false; saveGame(true); 
+  
+  const globalBar = document.getElementById('globalBottomBar');
+  if (globalBar) globalBar.style.display = 'none';
 }
 
 function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelStars={}); for(let i=1;i<=Math.max(1, MAX_STAGE-1);i++){ if(ls[i]==null) ls[i]=3; } }
