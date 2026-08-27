@@ -16,7 +16,11 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 /* 게임 화면 상단 UI */
 #topUI { position: absolute; top: -10px; left: -2%; width: 104%; height: 155px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_top.png') center top / 100% 100% no-repeat; }
-#topUI .top-menu-row { display: flex; gap: 6px; padding: calc(14px + env(safe-area-inset-top)) 4% 0; align-items: center; justify-content: space-between; }
+#topUI .top-menu-row { 
+  display: flex; gap: 6px; 
+  padding: 38px 4% 0; /* 상단 아이콘들이 기와 밑으로 쏙 들어오도록 패딩을 넉넉히 줌 */
+  align-items: center; justify-content: space-between; 
+}
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
 
 #topUI .custom-pill { height: 32px; padding: 1px 4px 1px 22px; border-width: 2.5px; min-width: 68px; }
