@@ -24,7 +24,8 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 /* 상단 아이콘(설정, 하트, 엽전) 행 위치 강제 고정 */
 #topUI .top-menu-row { 
   display: flex; gap: 6px; 
-  padding: 42px 4% 0; /* 숫자를 더 키우면 아이콘들이 아래로 내려옵니다 */
+  /* max 연산자를 써서 아이폰 노치 안전 영역과 기본 여백 중 큰 값을 알아서 적용하도록 설정 */
+  padding: max(38px, env(safe-area-inset-top, 38px)) 4% 0; 
   align-items: center; justify-content: space-between; 
 }
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
