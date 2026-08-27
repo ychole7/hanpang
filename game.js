@@ -982,9 +982,23 @@ const STAGE_COORDS = [
   {x:47, y:9}, {x:56.5, y:7.7}, {x:66.4, y:6.2}, {x:55.7, y:4.8}, {x:51.2, y:3.5}
 ];
 
-function renderMapLives() {
+function renderMapLives(){
   const el = document.getElementById('mapUI_lives');
-  if(el) el.textContent = computeLives().count;
+  const timerEl = document.getElementById('mapUI_timer'); // index.html에 있는 타이머 표시용 span
+  const s = computeLives();
+  
+  if(el) el.textContent = s.count;
+  
+  // 🚀 MAX를 FULL로 변경하고 타이머 연동
+  if(timerEl) {
+    if(s.count >= MAX_LIVES){
+      timerEl.textContent = 'FULL';
+    } else {
+      const sec = Math.ceil(secToNextLife());
+      const mm = Math.floor(sec / 60), ss = sec % 60;
+      timerEl.textContent = `${mm}:${String(ss).padStart(2,'0')}`;
+    }
+  }
 }
 
 function openMap(_isRetry){

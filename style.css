@@ -21,29 +21,37 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
   background: url('assets/ui_top.png') center top / 100% 100% no-repeat; 
 }
 
-/* 🚀 인게임 상단 아이콘 행 위치 통합 정렬 (웹/앱 모드 공통 안정화) */
+/* 인게임 상단 아이콘 행 위치 정렬 */
 #topUI .top-menu-row { 
   display: flex; 
   gap: 6px; 
-  /* 웹이든 앱이든 아이폰 노치(safe-area)만큼의 안전 공간을 항상 위쪽에 확보하여 아래로 예쁘게 내려줌 */
-  padding: max(20px, env(safe-area-inset-top, 20px)) 4% 0 !important; 
+  padding: max(16px, env(safe-area-inset-top, 16px)) 4% 0 !important; 
   align-items: center; 
   justify-content: space-between; 
 }
 
-#mapTopBar {
-  padding: max(20px, env(safe-area-inset-top, 20px)) 4% 0 !important;
-}
-
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
 
-#topUI .custom-pill { height: 32px; padding: 1px 4px 1px 22px; border-width: 2.5px; min-width: 68px; }
-#topUI .pill-icon-float { width: 32px; height: 32px; left: -10px; }
-#topUI .pill-text-group { font-size: 12px; gap: 2px; }
-#topUI .pill-text-group b { font-size: 13px; }
-#topUI .pill-text-group span { font-size: 8px; }
-#topUI .pill-plus-btn { width: 22px; height: 22px; font-size: 13px; border-width: 2px; }
-#topUI .icon-btn { width: 36px; height: 36px; }
+/* 🚀 상단 알약 박스 크기 슬림화 및 숫자 간격 조정 */
+#topUI .custom-pill, #mapTopBar .custom-pill { 
+  height: 28px !important; 
+  padding: 1px 6px 1px 24px !important; 
+  min-width: 62px !important; 
+}
+#topUI .pill-icon-float, #mapTopBar .pill-icon-float { 
+  width: 32px !important; 
+  height: 32px !important; 
+  left: -8px !important; 
+}
+#topUI .pill-text-group, #mapTopBar .pill-text-group { 
+  font-size: 11px !important; 
+  gap: 6px !important; 
+  padding-left: 6px !important; /* 숫자가 아이콘에 겹치지 않게 간격 확보 */
+}
+#topUI .pill-text-group b { font-size: 13px !important; }
+#topUI .pill-text-group span { font-size: 9px !important; color: #9c7b4f; }
+#topUI .pill-plus-btn, #mapTopBar .pill-plus-btn { width: 20px !important; height: 20px !important; font-size: 12px !important; border-width: 1.5px !important; }
+#topUI .icon-btn, #mapTopBar .map-icon-btn { width: 38px !important; height: 38px !important; }
 
 .stage-box { position: absolute; left: 2%; top: 65%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
 .score-box { position: absolute; right: 2%; top: 65%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
@@ -105,7 +113,7 @@ canvas { display: block; width: 100%; height: 100%; }
 #mapInner { position: relative; width: 100%; display: flex; flex-direction: column; background: #22150b; line-height: 0; font-size: 0; }
 .map-bg-piece { display: block; width: 100%; height: auto; object-fit: cover; pointer-events: none; margin: 0; padding: 0; border: none; vertical-align: top; }
 
-/* 🚀 홈 화면 상단바 위치도 인게임과 완벽히 동기화되도록 수정 */
+/* 홈 화면 상단바 정렬 */
 #mapTopBar { 
   position: absolute; 
   top: 0; 
@@ -131,22 +139,13 @@ canvas { display: block; width: 100%; height: 100%; }
 .mnode.locked{color:#8a7a60;filter:brightness(0.7) saturate(0.5);cursor:default;}
 .mstar{position:absolute;font-size:10px;color:#ffe08c;width:12px;height:12px;text-align:center;}
 
-/* 글로벌 하단 네비게이션 바 */
+/* 글로벌 하단 네비게이션 바 (위치 고정 완료) */
 #globalBottomBar { 
-  position: absolute; 
-  bottom: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 95px; 
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 95px; 
   background: url('assets/bottom_menu_bg.png') center top / 100% 100% no-repeat; 
-  display: flex; 
-  justify-content: space-around; 
-  align-items: flex-end; 
-  z-index: 300; 
-  /* 하단 여백을 깔끔하게 고정하여 붕 뜨는 현상 방지 */
-  padding-bottom: 12px !important; 
-  box-shadow: 0 -6px 15px rgba(0,0,0,0.5); 
-  pointer-events: auto; 
+  display: flex; justify-content: space-around; align-items: flex-end; 
+  z-index: 300; padding-bottom: 12px !important; 
+  box-shadow: 0 -6px 15px rgba(0,0,0,0.5); pointer-events: auto; 
 }
 .map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; width: 90px; height: 75px; padding: 0; font-family:'Pretendard',sans-serif; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .map-nav-btn span { display: none; }
