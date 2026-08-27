@@ -141,12 +141,17 @@ drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
 
 .achieve-wrapper, .shop-wrapper { 
   position: relative; width: 92%; max-width: 420px; 
-  flex: 1; min-height: 0; /* 🚀 핵심: 카드가 화면 밖으로 삐져나가지 않게 완벽히 가둡니다 (내부만 스크롤됨) */
-  margin-top: 140px; margin-bottom: 15px; /* 하단 바와 겹치지 않게 여백 추가 */
+  height: calc(100% - 150px); /* 🚀 핵심! 카드의 높이를 픽셀로 완벽히 가둬서 바닥을 뚫지 못하게 합니다 */
+  margin-top: 135px; margin-bottom: 15px; 
   background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
   box-shadow: 0 16px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(179,126,70,0.15); 
   display: flex; flex-direction: column; align-items: center; 
   padding: 18px 14px 14px; z-index: 1; 
+}
+/* 🚀 내부 바디도 함께 가두기 */
+.achieve-body, .shop-body { 
+  width: 100%; flex: 1; display: flex; flex-direction: column; 
+  min-height: 0; /* 이 코드가 있어야 스크롤이 작동합니다 */
 }
 
 .achieve-roof { 
@@ -174,7 +179,12 @@ drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
 
 .achieve-desc-text, .shop-desc-text { text-align: center; font-size: 13.5px; font-weight: 800; color: #b28c62; margin-bottom: 14px; margin-top: 8px; letter-spacing: -0.2px; }
 
-.achieve-list-scroll, .shop-list-scroll { flex: 1; width: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; scrollbar-width: none; }
+.achieve-list-scroll, .shop-list-scroll { 
+  flex: 1; width: 100%; overflow-y: auto; overflow-x: hidden; 
+  display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; 
+  scrollbar-width: none; 
+  min-height: 0; /* 🚀 리스트가 밖으로 삐져나가지 않고 안에서만 굴러가게 만드는 마법의 코드 */
+}
 .achieve-list-scroll::-webkit-scrollbar, .shop-list-scroll::-webkit-scrollbar { display: none; }
 
 /* 카드 (업적 & 상점 공통) */
