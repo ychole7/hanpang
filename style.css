@@ -14,7 +14,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #bgLayer { position: absolute; inset: 0; z-index: 0; background: url('assets/bg_main.png') center / cover no-repeat; }
 
-/* 게임 화면(인플레이) 전용 상단 UI */
+/* 게임 화면 상단 UI */
 #topUI { position: absolute; top: -10px; left: -2%; width: 104%; height: 155px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_top.png') center top / 100% 100% no-repeat; }
 #topUI .top-menu-row { display: flex; gap: 6px; padding: calc(14px + env(safe-area-inset-top)) 4% 0; align-items: center; justify-content: space-between; }
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
@@ -54,7 +54,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .icon-btn { width: 46px; height: 46px; border-radius: 50%; background-color: transparent; background-size: contain; background-repeat: no-repeat; background-position: center; border: none; cursor: pointer; padding: 0; background-image: url('assets/settings.png'); filter: drop-shadow(0 3px 5px rgba(0,0,0,0.35)); flex-shrink: 0; }
 .icon-btn:active { transform: scale(0.95); }
 
-/* 인게임 하단 UI */
+/* 게임 하단 UI */
 #bottomUI { position: absolute; bottom: -20px; left: -2%; width: 104%; height: 125px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_bottom.png') center top / 100% 100% no-repeat; display: flex; justify-content: center; align-items: flex-start; gap: 14px; padding-top: 15px; }
 .item-btn { flex: 0 0 54px; width: 54px; height: 54px; border-radius: 50%; border: none !important; background-color: transparent !important; background-size: contain; background-position: center; background-repeat: no-repeat; box-shadow: 0 4px 8px rgba(0,0,0,0.5); cursor: pointer; padding: 0; transition: transform 0.1s; position: relative; }
 .item-btn:active { transform: translateY(4px); box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
@@ -70,7 +70,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 #gameArea { position: absolute; inset: 0; z-index: 5; }
 canvas { display: block; width: 100%; height: 100%; }
 
-/* 모달 (팝업창) */
+/* 모달 */
 .veil{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,5,2,.85);backdrop-filter:blur(4px);z-index:300;}
 .veil.on{display:grid}
 .card{background:linear-gradient(180deg,#3a2717,#2a1c12);border:2px solid #c8962f;border-radius:20px;padding:24px 26px;text-align:center;max-width:84%;box-shadow:0 8px 30px rgba(0,0,0,.8),inset 0 0 20px rgba(200,150,47,.12)}
@@ -80,7 +80,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .btn{margin-top:16px;background:linear-gradient(180deg,#e8c169,#c8962f);border:2px solid #8a5f22;border-radius:999px;padding:12px 30px;font-family:'Pretendard',sans-serif;font-weight:800;font-size:19px;color:#2a1c0a;text-shadow:0 1px 1px rgba(255,255,255,.3);box-shadow:0 3px 10px rgba(0,0,0,.4),inset 0 1px 2px rgba(255,255,255,.4); cursor:pointer;}
 .btn:active{transform:translateY(3px)}
 
-/* 사계절 연속 스크롤 맵 화면 */
+/* 맵 화면 */
 #mapScreen { position: absolute; inset: 0; display: none; z-index: 100; background: #22150b; overflow: hidden; }
 #mapScreen.on { display: block !important; }
 #mapScroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 140px; padding-top: 0; overscroll-behavior-y: contain; background: #22150b; }
@@ -103,19 +103,11 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* 글로벌 하단 네비게이션 바 */
 #globalBottomBar { 
-  position: absolute; 
-  bottom: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 95px; 
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 95px; 
   background: url('assets/bottom_menu_bg.png') center top / 100% 100% no-repeat; 
-  display: flex; 
-  justify-content: space-around; 
-  align-items: flex-end; 
-  z-index: 300; 
-  padding-bottom: calc(14px + env(safe-area-inset-top)); 
-  box-shadow: 0 -6px 15px rgba(0,0,0,0.5); 
-  pointer-events: auto; 
+  display: flex; justify-content: space-around; align-items: flex-end; 
+  z-index: 300; padding-bottom: calc(14px + env(safe-area-inset-top)); 
+  box-shadow: 0 -6px 15px rgba(0,0,0,0.5); pointer-events: auto; 
 }
 .map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; width: 90px; height: 75px; padding: 0; font-family:'Pretendard',sans-serif; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .map-nav-btn span { display: none; }
@@ -127,7 +119,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .map-nav-btn.active::before { content: ''; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 110px; height: 100px; background: url('assets/bottom_menu_select.png') center/contain no-repeat; z-index: -1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5)); }
 
 /* =========================================
-   [업적 & 상점 공통 탭 레이아웃]
+   [업적 & 상점 공통 화면 레이아웃]
    ========================================= */
 #achieveScreen, #shopScreen { 
   position: absolute; inset: 0; display: none; z-index: 100; 
@@ -135,55 +127,45 @@ canvas { display: block; width: 100%; height: 100%; }
   flex-direction: column; align-items: center; 
   padding-top: max(30px, env(safe-area-inset-top)); padding-bottom: 115px; 
 }
-#achieveScreen.on, #shopScreen.on { display: flex !important; }
+#achieveScreen.on, #shopScreen.on { display: block !important; }
 #achieveScreen::before, #shopScreen::before { content: ''; position: absolute; inset: 0; background: rgba(30, 15, 5, 0.72); backdrop-filter: blur(5px); z-index: 0; }
 
-/* 업적 전용 박스 위치 */
+/* 업적 박스 위치 */
 .achieve-wrapper { 
-  position: absolute; top: 175px; bottom: 110px; 
-  left: 50%; transform: translateX(-50%); 
-  width: 92%; max-width: 420px; 
-  background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
+  position: absolute; top: 140px; bottom: 130px; left: 50%; transform: translateX(-50%); 
+  width: 92%; max-width: 420px; background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
   box-shadow: 0 16px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(179,126,70,0.15); 
-  display: flex; flex-direction: column; align-items: center; 
-  padding: 18px 14px 14px; z-index: 1; 
+  display: flex; flex-direction: column; align-items: center; padding: 18px 14px 14px; z-index: 1; 
 }
 
-/* 상점 전용 박스 위치 (탭이 없으므로 top을 135px로 위로 바짝 붙임) */
+/* 상점 박스 위치 (업적보다 위로 올려서 기와지붕과 간격 맞춤) */
 .shop-wrapper { 
-  position: absolute; top: 135px; bottom: 110px; 
-  left: 50%; transform: translateX(-50%); 
-  width: 92%; max-width: 420px; 
-  background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
+  position: absolute; top: 135px; bottom: 130px; left: 50%; transform: translateX(-50%); 
+  width: 92%; max-width: 420px; background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
   box-shadow: 0 16px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(179,126,70,0.15); 
-  display: flex; flex-direction: column; align-items: center; 
-  padding: 18px 14px 14px; z-index: 1; 
+  display: flex; flex-direction: column; align-items: center; padding: 18px 14px 14px; z-index: 1; 
 }
+
+/* 업적 기와지붕 */
 .achieve-roof { 
   position: absolute; top: -160px; left: 50%; transform: translateX(-50%); 
   width: 116%; height: 120px; background: url('assets/header_roof.png') center bottom/contain no-repeat; 
   z-index: 5; pointer-events: none; filter: drop-shadow(0 -2px 6px rgba(0,0,0,0.4)); 
 }
 
+/* 상점 기와지붕 (중복 제거 및 업적과 동일한 와이드 비율 적용) */
 .shop-roof { 
-  position: absolute; top: -160px; left: 50%; transform: translateX(-50%); 
-  width: 116%; height: 120px; 
-  background: url('assets/shop_roof.png') center bottom/contain no-repeat; 
+  position: absolute; top: -200px; left: 50%; transform: translateX(-50%); 
+  width: 116%; height: 120px; background: url('assets/shop_roof.png') center bottom/contain no-repeat; 
   z-index: 5; pointer-events: none; filter: drop-shadow(0 -2px 6px rgba(0,0,0,0.4)); 
 }
-
-.shop-title-text { font-size: 26px; font-weight: 900; color: #fff6da; text-shadow: 0 2px 4px rgba(0,0,0,0.9); margin-top: 10px; letter-spacing: 2px; }
 
 /* 탭 메뉴 */
 .achieve-tab-row { display: flex; width: 100%; padding: 0 10px; position: absolute; top: -42px; left: 0; z-index: 10; }
 .achieve-tab { flex: 1; background: #5e4229; border: 4px solid #b37e46; border-bottom: none; border-radius: 12px 12px 0 0; padding: 12px 10px 16px; font-family: 'Pretendard', sans-serif; font-size: 16px; font-weight: 900; color: #a8927d; cursor: pointer; transition: 0.15s; box-shadow: inset 0 -4px 10px rgba(0,0,0,0.2); }
 .achieve-tab.active { background: #fdf7e6; color: #b85d19; padding-bottom: 20px; z-index: 2; box-shadow: none; }
 
-.achieve-body, .shop-body { 
-  width: 100%; flex: 1; display: flex; flex-direction: column; 
-  min-height: 0; 
-}
-
+.achieve-body, .shop-body { width: 100%; flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .achieve-desc-text, .shop-desc-text { text-align: center; font-size: 13.5px; font-weight: 800; color: #b28c62; margin-bottom: 14px; margin-top: 8px; letter-spacing: -0.2px; }
 
 .achieve-list-scroll, .shop-list-scroll { 
@@ -193,10 +175,9 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .achieve-list-scroll::-webkit-scrollbar, .shop-list-scroll::-webkit-scrollbar { display: none; }
 
-/* 카드 (업적 & 상점 공통) */
+/* 카드 스타일 */
 .ach-card, .shop-card { background: #fcf4dd; border: 2.5px solid #e6d3ba; border-radius: 16px; display: flex; align-items: center; padding: 14px 12px; gap: 12px; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.06); overflow: hidden; flex-shrink: 0; }
 
-/* 업적 전용 */
 .ach-badge-img { width: 72px; height: 72px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
 .ach-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .ach-title { font-size: 17px; font-weight: 900; letter-spacing: -0.5px; } 
@@ -207,7 +188,6 @@ canvas { display: block; width: 100%; height: 100%; }
 .ach-badge-img.snow + .ach-info .ach-title { color: #194a7a; }
 .ach-desc { font-size: 12.5px; font-weight: 700; color: #5a3a22; }
 
-/* 프로그레스 바 */
 .ach-bar-bg { position: relative; width: 130px; height: 18px; background: #5c4028; border-radius: 999px; overflow: hidden; margin-top: 4px; border: 2px solid #4a7522; box-shadow: inset 0 3px 6px rgba(0,0,0,0.6), 0 1px 1px rgba(255,255,255,0.4); }
 .ach-bar-fill { height: 100%; background: linear-gradient(180deg, #8eea42, #5fa81a); border-radius: 999px; transition: width 0.3s ease; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.4); }
 .ach-bar-text { position: absolute; inset: 0; font-size: 11px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; }
@@ -222,25 +202,9 @@ canvas { display: block; width: 100%; height: 100%; }
 .shop-btn[disabled] { background: linear-gradient(180deg, #b0b0b0, #808080); border-color: #e0e0e0; text-shadow: 0 1px 2px rgba(0,0,0,0.6); pointer-events: none; opacity: 0.8; box-shadow:none;}
 
 .ach-ribbon { position: absolute; top: -2px; right: -2px; width: 65px; height: 65px; object-fit: contain; z-index: 10; }
-
-/* 하단 메시지 고정 */
 .achieve-footer-note { flex-shrink: 0; text-align: center; font-size: 13px; font-weight: 800; color: #8a6a4a; margin-top: 12px; border-top: 1.5px solid rgba(179,126,70,0.2); padding-top: 14px; padding-bottom: 2px; width: 100%; }
 
-/* 상점 전용 */
-.shop-icon-box { font-size: 38px; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 12px; border: 2.5px solid #dcb274; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; }
-.shop-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.shop-title { font-size: 17px; font-weight: 900; color: #5a3a22; display: flex; flex-direction: column; gap: 2px;}
-.shop-owned { font-size: 12px; color: #d98a00; font-weight: 900; }
-.shop-desc { font-size: 12px; font-weight: 700; color: #8a6a4a; line-height: 1.3;}
-
-/* 상점 헤더 기와 (업적과 동일 구조) */
-.shop-roof { 
-  position: absolute; top: -160px; left: 50%; transform: translateX(-50%); 
-  width: 116%; height: 120px; background: url('assets/shop_roof.png') center bottom/contain no-repeat; 
-  z-index: 5; pointer-events: none; filter: drop-shadow(0 -2px 6px rgba(0,0,0,0.4)); 
-}
-
-/* 보유 엽전 바 */
+/* 상점 전용 스타일 */
 .shop-coin-header {
   display: flex; align-items: center; justify-content: center; gap: 6px;
   background: #f5ebcd; border: 2px solid #e0c99b; border-radius: 999px;
@@ -250,7 +214,6 @@ canvas { display: block; width: 100%; height: 100%; }
 .shop-coin-icon { width: 22px; height: 22px; }
 .shop-coin-header b { color: #b85d19; font-size: 17px; }
 
-/* 상점 카드 개별 스타일 */
 .shop-card { 
   background: #fcf4dd; border: 2.5px solid #e6d3ba; border-radius: 16px; 
   display: flex; align-items: center; padding: 12px 14px; gap: 14px; 
@@ -265,17 +228,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .shop-title { font-size: 17px; font-weight: 900; color: #5a3a22; }
 .shop-owned { font-size: 13px; color: #b85d19; font-weight: 900; }
 .shop-desc { font-size: 12px; font-weight: 700; color: #8a6a4a; margin-top: 2px; }
-
 .shop-right { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 90px; }
-.shop-btn { 
-  width: 100%; display: flex; justify-content: center; align-items: center; gap: 4px;
-  background: linear-gradient(180deg, #ffde59, #ffa700); border: 2px solid #fff; 
-  border-radius: 999px; padding: 8px 0; font-family: 'Pretendard', sans-serif; 
-  font-size: 15px; font-weight: 900; color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.25); 
-  cursor: pointer; text-shadow: 0 1px 2px #a64d00, 0 -1px 2px #a64d00; 
-}
-.shop-btn:active { transform: translateY(2px); }
-.shop-btn[disabled] { background: linear-gradient(180deg, #b0b0b0, #808080); border-color: #e0e0e0; pointer-events: none; opacity: 0.8; box-shadow: none; text-shadow: none; }
 
 /* 하단 엽전 패키지 배너 */
 .shop-banner {
