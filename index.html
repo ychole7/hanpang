@@ -99,30 +99,20 @@
 <!-- [업적] 전체 화면 탭 페이지 -->
   <div id="achieveScreen">
     <div class="achieve-wrapper">
-      <!-- 상단 기와 지붕 헤더 (이미지 적용) -->
       <div class="achieve-roof"></div>
-
-      <!-- 본체 패널 -->
+      <div class="achieve-tab-row">
+        <button class="achieve-tab active" id="tabAchieveBtn" onclick="SFX.click(); switchAchieveTab('achieve');">업적</button>
+        <button class="achieve-tab" id="tabMissionBtn" onclick="SFX.click(); switchAchieveTab('mission');">일일 미션</button>
+      </div>
       <div class="achieve-body">
-        <!-- 탭 메뉴 (업적 / 일일 미션) -->
-        <div class="achieve-tab-row">
-          <button class="achieve-tab active" id="tabAchieveBtn" onclick="SFX.click(); switchAchieveTab('achieve');">업적</button>
-          <button class="achieve-tab" id="tabMissionBtn" onclick="SFX.click(); switchAchieveTab('mission');">일일 미션</button>
-        </div>
-        
         <div class="achieve-desc-text">다양한 업적을 달성하고 보상을 획득해보세요!</div>
-
-        <!-- 업적 리스트 스크롤 영역 -->
-        <div class="achieve-list-scroll" id="achieveContentBox">
-          <!-- JS에서 동적 렌더링 -->
-        </div>
-        
+        <div class="achieve-list-scroll" id="achieveContentBox"></div>
         <div class="achieve-footer-note">🌸 업적 보상은 즉시 지급됩니다.</div>
       </div>
     </div>
   </div>
 
-<!-- [상점] 전체 화면 탭 페이지 (새로 추가) -->
+  <!-- [상점] 전체 화면 탭 페이지 -->
   <div id="shopScreen">
     <div class="shop-wrapper">
       <div class="shop-roof">
