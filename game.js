@@ -800,18 +800,23 @@ function renderShopList() {
 
   box.innerHTML = SHOP_ITEMS.map(it => {
     const affordable = coins >= it.price;
-    let ownedText = '';
-    if (it.id === 'hint3') ownedText = `보유 ${G.hints}`;
-    else if (it.id === 'swap3') ownedText = `보유 ${G.swaps}`;
-    else if (it.id === 'bomb2') ownedText = `보유 ${G.bombs}`;
-    else if (it.id === 'rainbow2') ownedText = `보유 ${G.rainbows}`;
-    else if (it.id === 'revive1') ownedText = `보유 ${SAVE.revives || 0}`;
+    let ownedCount = 0;
+    let iconPath = '';
+
+    if (it.id === 'hint3') { ownedCount = G.hints; iconPath = 'assets/item_hint.png'; }
+    else if (it.id === 'swap3') { ownedCount = G.swaps; iconPath = 'assets/item_swap.png'; }
+    else if (it.id === 'bomb2') { ownedCount = G.bombs; iconPath = 'assets/item_bomb.png'; }
+    else if (it.id === 'rainbow2') { ownedCount = G.rainbows; iconPath = 'assets/item_rainbow.png'; }
+    else if (it.id === 'revive1') { ownedCount = SAVE.revives || 0; iconPath = ''; } // 하트는 이모지나 별도 에셋 대체 가능
 
     return `
       <div class="shop-card">
-        <div class="shop-icon-box">${it.icon}</div>
+        <div class="shop-icon-box">
+          ${iconPath ? `<img src="${iconPath}" style="width:42px;height:42px;object-fit:contain;">` : '<span style="font-size:36px;">❤️</span>'}
+        </div>
         <div class="shop-info">
-          <div class="shop-title">${it.label} <span class="shop-owned">(${ownedText})</span></div>
+          <div class="shop-title">${it.label}</div>
+          <div class="shop-owned">(보유 ${ownedCount})</div>
           <div class="shop-desc">${it.desc}</div>
         </div>
         <div class="shop-right">

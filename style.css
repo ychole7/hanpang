@@ -222,3 +222,66 @@ canvas { display: block; width: 100%; height: 100%; }
 .shop-title { font-size: 17px; font-weight: 900; color: #5a3a22; display: flex; flex-direction: column; gap: 2px;}
 .shop-owned { font-size: 12px; color: #d98a00; font-weight: 900; }
 .shop-desc { font-size: 12px; font-weight: 700; color: #8a6a4a; line-height: 1.3;}
+
+/* 상점 헤더 기와 (업적과 동일 구조) */
+.shop-roof { 
+  position: absolute; top: -160px; left: 50%; transform: translateX(-50%); 
+  width: 116%; height: 120px; background: url('assets/shop_roof.png') center bottom/contain no-repeat; 
+  z-index: 5; pointer-events: none; filter: drop-shadow(0 -2px 6px rgba(0,0,0,0.4)); 
+}
+
+/* 보유 엽전 바 */
+.shop-coin-header {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: #f5ebcd; border: 2px solid #e0c99b; border-radius: 999px;
+  padding: 6px 18px; margin-bottom: 12px; font-size: 15px; font-weight: 900; color: #5a3a22;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0;
+}
+.shop-coin-icon { width: 22px; height: 22px; }
+.shop-coin-header b { color: #b85d19; font-size: 17px; }
+
+/* 상점 카드 개별 스타일 */
+.shop-card { 
+  background: #fcf4dd; border: 2.5px solid #e6d3ba; border-radius: 16px; 
+  display: flex; align-items: center; padding: 12px 14px; gap: 14px; 
+  position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.06); flex-shrink: 0; 
+}
+.shop-icon-box { 
+  width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; 
+  background: #fffdf5; border-radius: 14px; border: 2px solid #dcb274; 
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.08); flex-shrink: 0; 
+}
+.shop-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.shop-title { font-size: 17px; font-weight: 900; color: #5a3a22; }
+.shop-owned { font-size: 13px; color: #b85d19; font-weight: 900; }
+.shop-desc { font-size: 12px; font-weight: 700; color: #8a6a4a; margin-top: 2px; }
+
+.shop-right { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 90px; }
+.shop-btn { 
+  width: 100%; display: flex; justify-content: center; align-items: center; gap: 4px;
+  background: linear-gradient(180deg, #ffde59, #ffa700); border: 2px solid #fff; 
+  border-radius: 999px; padding: 8px 0; font-family: 'Pretendard', sans-serif; 
+  font-size: 15px; font-weight: 900; color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.25); 
+  cursor: pointer; text-shadow: 0 1px 2px #a64d00, 0 -1px 2px #a64d00; 
+}
+.shop-btn:active { transform: translateY(2px); }
+.shop-btn[disabled] { background: linear-gradient(180deg, #b0b0b0, #808080); border-color: #e0e0e0; pointer-events: none; opacity: 0.8; box-shadow: none; text-shadow: none; }
+
+/* 하단 엽전 패키지 배너 */
+.shop-banner {
+  margin-top: 10px; background: linear-gradient(135deg, #4a2c5e, #311c40);
+  border: 2.5px solid #7a4f96; border-radius: 14px; padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; flex-shrink: 0;
+}
+.shop-banner:active { transform: scale(0.98); }
+.shop-banner-left { display: flex; align-items: center; gap: 10px; }
+.shop-banner-chest { font-size: 28px; }
+.shop-banner-title { font-size: 15px; font-weight: 900; color: #ffd86f; }
+.shop-banner-desc { font-size: 11.5px; font-weight: 700; color: #d0b8e0; }
+.shop-banner-btn {
+  background: linear-gradient(180deg, #8eea42, #5fa81a); border: 2px solid #fff;
+  border-radius: 999px; padding: 6px 12px; font-family: 'Pretendard', sans-serif;
+  font-size: 12px; font-weight: 900; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
