@@ -1171,13 +1171,12 @@ window.addEventListener('load', () => {
   if(cv) { cv.addEventListener('pointerdown',e=>{G.dragging=true;aimAt(...localPt(e));}); cv.addEventListener('pointermove',e=>{if(G.dragging)aimAt(...localPt(e));}); cv.addEventListener('pointerup',()=>{ if(!G.dragging)return; G.dragging=false; if(G.aim!=null)shoot(G.aim); G.aim=null; }); cv.addEventListener('pointercancel',()=>{G.dragging=false;G.aim=null;}); }
 });
 
-function applyDebugZones(){ const ls=SAVE.theme.levelStars||(SAVE.theme.levelStars={}); for(let i=1;i<=Math.max(1, MAX_STAGE-1);i++){ if(ls[i]==null) ls[i]=3; } }
+// 디버그용 전체 언락 함수를 비활성화하여 처음부터 시작하게 만듭니다.
 
 function boot(){ 
   initCanvas();
   resize(); 
-  applyDebugZones(); 
-  G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
+   G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
   intro(); 
   requestAnimationFrame(tick); 
   loadAssets().catch(()=>{}); 
