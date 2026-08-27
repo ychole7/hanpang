@@ -36,7 +36,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 #topUI .custom-pill, #mapTopBar .custom-pill { 
   height: 36px !important;            /* 알약 높이 키우기 */
   padding: 2px 8px 2px 28px !important; 
-  width: 110px !important;            /* 🚀 가로 폭을 110px로 딱 고정해서 타이머가 변해도 흔들리지 않음 */
+  width: 120px !important;            /* 🚀 가로 폭을 120px로 딱 고정해서 타이머가 변해도 흔들리지 않음 */
   min-width: unset !important;
 }
 
