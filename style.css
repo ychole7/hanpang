@@ -133,11 +133,20 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* 글로벌 하단 네비게이션 바 */
 #globalBottomBar { 
-  position: absolute; bottom: 0; left: 0; width: 100%; height: 95px; 
+  position: absolute; 
+  bottom: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 95px; 
   background: url('assets/bottom_menu_bg.png') center top / 100% 100% no-repeat; 
-  display: flex; justify-content: space-around; align-items: flex-end; 
-  z-index: 300; padding-bottom: calc(14px + env(safe-area-inset-top)); 
-  box-shadow: 0 -6px 15px rgba(0,0,0,0.5); pointer-events: auto; 
+  display: flex; 
+  justify-content: space-around; 
+  align-items: flex-end; 
+  z-index: 300; 
+  /* 하단 여백을 깔끔하게 고정하여 붕 뜨는 현상 방지 */
+  padding-bottom: 12px !important; 
+  box-shadow: 0 -6px 15px rgba(0,0,0,0.5); 
+  pointer-events: auto; 
 }
 .map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; width: 90px; height: 75px; padding: 0; font-family:'Pretendard',sans-serif; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .map-nav-btn span { display: none; }
