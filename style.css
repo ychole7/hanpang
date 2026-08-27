@@ -14,11 +14,17 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #bgLayer { position: absolute; inset: 0; z-index: 0; background: url('assets/bg_main.png') center / cover no-repeat; }
 
-/* 게임 화면 상단 UI */
-#topUI { position: absolute; top: -10px; left: -2%; width: 104%; height: 155px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_top.png') center top / 100% 100% no-repeat; }
+/* 게임 화면 상단 UI 전체 위치 및 기와 배경 */
+#topUI { 
+  position: absolute; top: 0px; left: -2%; width: 104%; height: 155px; 
+  z-index: 10; margin: 0; padding: 0; 
+  background: url('assets/ui_top.png') center top / 100% 100% no-repeat; 
+}
+
+/* 상단 아이콘(설정, 하트, 엽전) 행 위치 강제 고정 */
 #topUI .top-menu-row { 
   display: flex; gap: 6px; 
-  padding: 38px 4% 0; /* 상단 아이콘들이 기와 밑으로 쏙 들어오도록 패딩을 넉넉히 줌 */
+  padding: 42px 4% 0; /* 숫자를 더 키우면 아이콘들이 아래로 내려옵니다 */
   align-items: center; justify-content: space-between; 
 }
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
