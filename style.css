@@ -144,16 +144,18 @@ drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
   background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
   box-shadow: 0 16px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(179,126,70,0.15); 
   display: flex; flex-direction: column; align-items: center; 
-  padding: 18px 14px 14px; margin-top: 70px; z-index: 1; 
+  /* 🚀 기와지붕이 넉넉하게 들어갈 수 있도록 윗 공간을 130px로 훌쩍 늘렸습니다 */
+  padding: 18px 14px 14px; margin-top: 130px; z-index: 1; 
 }
 
-/* 🎨 업적 및 상점 지붕 스타일 분리 */
+/* 🚀 빵빵해진 기와 지붕 세팅 */
 .achieve-roof { 
-  position: absolute; top: -75px; left: 50%; transform: translateX(-50%); 
-  width: 320px; height: 110px; /* 새 기와 이미지 비율에 맞춤 */
-  background: url('assets/header_roof.png') center/contain no-repeat; 
-  z-index: 15; /* 탭보다 위로 올라오게 설정 */
-  pointer-events: none; filter: drop-shadow(0 6px 6px rgba(0,0,0,0.4)); 
+  position: absolute; top: -110px; left: 50%; transform: translateX(-50%); 
+  width: 116%; height: 130px; /* 양옆으로 시원하게 키움 */
+  background: url('assets/header_roof.png') center bottom/contain no-repeat; 
+  /* ★ 핵심: 탭 메뉴(10)보다 숫자를 낮춰서 탭 '뒤로' 쏙 들어가게 함! */
+  z-index: 5; 
+  pointer-events: none; filter: drop-shadow(0 -4px 6px rgba(0,0,0,0.4)); 
 }
 .shop-roof { 
   position: absolute; top: -52px; left: 50%; transform: translateX(-50%); 
