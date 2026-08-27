@@ -1083,11 +1083,12 @@ function openMap(_isRetry){
   });
   
   // 클릭 이벤트 바인딩
-  const nc = document.getElementById('mapNodesContainer');
+const nc = document.getElementById('mapNodesContainer');
   if (nc) {
       nc.querySelectorAll('.mnode').forEach(el=>{ 
         el.onclick=()=>{ 
           const lv=+el.dataset.lv; 
+          // 하트가 부족해서 안 열리는 경우를 방지하려면 !spendLife() 부분을 잠시 주석 처리하거나 확인해보세요.
           if(el.classList.contains('locked') || !spendLife()) return; 
           SFX.click(); 
           ms.classList.remove('on'); 
@@ -1135,10 +1136,17 @@ function startGame(resume, atStage){
   } 
   G.started=true; buildStage(); G.locked=false; saveGame(true); 
   
+  // ✨ 추가: 게임 시작 시 플레이 화면과 상하단 UI를 활성화합니다.
+  const gameArea = document.getElementById('gameArea');
+  const topUI = document.getElementById('topUI');
+  const bottomUI = document.getElementById('bottomUI');
+  if(gameArea) gameArea.style.display = 'block';
+  if(topUI) topUI.style.display = 'block';
+  if(bottomUI) bottomUI.style.display = 'flex';
+
   const globalBar = document.getElementById('globalBottomBar');
   if (globalBar) globalBar.style.display = 'none';
 }
-
 window.addEventListener('load', () => {
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) btnSettings.onclick = () => openSettings(false);
