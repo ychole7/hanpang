@@ -5,12 +5,6 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 #app { position: relative; width: 100%; height: 100dvh; max-height: 100%; overflow: hidden; }
 
-/* 태블릿/PC처럼 화면이 넓은 환경에서는 폰 비율(세로형)로 중앙에 고정해서 좌우로 늘어지지 않게 함 */
-@media (min-width: 481px) {
-  body { display: flex; align-items: center; justify-content: center; }
-  #app { width: min(480px, 100vw); height: min(100dvh, 900px); max-height: 900px; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 20px 60px rgba(0,0,0,0.75); }
-}
-
 /* 인트로 화면 */
 #introScreen { position: absolute; inset: 0; z-index: 250; background: url('assets/intro_bg.png') center / cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12vh; }
 #introScreen.hidden { display: none !important; }
@@ -22,7 +16,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 
 /* 게임 화면 상단 UI 전체 위치 및 기와 배경 */
 #topUI { 
-  position: absolute; top: 0px; left: -2%; width: 104%; height: clamp(134px, 39.7vw, 191px); 
+  position: absolute; top: 0px; left: -2%; width: 104%; height: 155px; 
   z-index: 10; margin: 0; padding: 0; 
   background: url('assets/ui_top.png') center top / 100% 100% no-repeat; 
 }
@@ -42,22 +36,22 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 }
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
 
-#topUI .custom-pill { height: clamp(28px, 8.2vw, 39px); padding: 1px 4px 1px 22px; border-width: 2.5px; min-width: 68px; }
-#topUI .pill-icon-float { width: clamp(28px, 8.2vw, 39px); height: clamp(28px, 8.2vw, 39px); left: -10px; }
-#topUI .pill-text-group { font-size: clamp(10px, 3.1vw, 15px); gap: 2px; }
-#topUI .pill-text-group b { font-size: clamp(11px, 3.3vw, 16px); }
-#topUI .pill-text-group span { font-size: clamp(7px, 2vw, 10px); }
-#topUI .pill-plus-btn { width: clamp(19px, 5.6vw, 27px); height: clamp(19px, 5.6vw, 27px); font-size: clamp(11px, 3.3vw, 16px); border-width: 2px; }
-#topUI .icon-btn { width: clamp(31px, 9.2vw, 44px); height: clamp(31px, 9.2vw, 44px); }
+#topUI .custom-pill { height: 32px; padding: 1px 4px 1px 22px; border-width: 2.5px; min-width: 68px; }
+#topUI .pill-icon-float { width: 32px; height: 32px; left: -10px; }
+#topUI .pill-text-group { font-size: 12px; gap: 2px; }
+#topUI .pill-text-group b { font-size: 13px; }
+#topUI .pill-text-group span { font-size: 8px; }
+#topUI .pill-plus-btn { width: 22px; height: 22px; font-size: 13px; border-width: 2px; }
+#topUI .icon-btn { width: 36px; height: 36px; }
 
 .stage-box { position: absolute; left: 2%; top: 65%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
 .score-box { position: absolute; right: 2%; top: 65%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; align-items: center; }
 .target-box { position: absolute; left: 24%; right: 24%; top: 0; height: 100%; }
 
-.side-title { color: #f5e3ae; opacity: 0.95; font-size: clamp(11px, 3.3vw, 16px); font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); margin-bottom: 2px; }
-.big-num { color: #ffffff; font-size: clamp(20px, 6.7vw, 32px); font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
+.side-title { color: #f5e3ae; opacity: 0.95; font-size: 13px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); margin-bottom: 2px; }
+.big-num { color: #ffffff; font-size: 26px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
 
-.target-title { position: absolute; top: 37%; left: 50%; transform: translateX(-50%); font-size: clamp(10px, 3.1vw, 15px); color: #ffffff; font-weight: 800; letter-spacing: 1px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+.target-title { position: absolute; top: 37%; left: 50%; transform: translateX(-50%); font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 1px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 .target-scroll-wrapper { position: absolute; top: 70%; left: 0; width: 100%; transform: translateY(-50%); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
 .target-scroll-wrapper::-webkit-scrollbar { display: none; }
 #targetBar { display: inline-flex; flex-wrap: nowrap; justify-content: center; gap: 4px; padding: 0 8px; min-width: 100%; }
@@ -78,8 +72,8 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
 .icon-btn:active { transform: scale(0.95); }
 
 /* 게임 하단 UI */
-#bottomUI { position: absolute; bottom: -20px; left: -2%; width: 104%; height: clamp(108px, 32vw, 154px); z-index: 10; margin: 0; padding: 0; background: url('assets/ui_bottom.png') center top / 100% 100% no-repeat; display: flex; justify-content: center; align-items: flex-start; gap: 14px; padding-top: 15px; }
-.item-btn { flex: 0 0 clamp(46px, 13.8vw, 66px); width: clamp(46px, 13.8vw, 66px); height: clamp(46px, 13.8vw, 66px); border-radius: 50%; border: none !important; background-color: transparent !important; background-size: contain; background-position: center; background-repeat: no-repeat; box-shadow: 0 4px 8px rgba(0,0,0,0.5); cursor: pointer; padding: 0; transition: transform 0.1s; position: relative; }
+#bottomUI { position: absolute; bottom: -20px; left: -2%; width: 104%; height: 125px; z-index: 10; margin: 0; padding: 0; background: url('assets/ui_bottom.png') center top / 100% 100% no-repeat; display: flex; justify-content: center; align-items: flex-start; gap: 14px; padding-top: 15px; }
+.item-btn { flex: 0 0 54px; width: 54px; height: 54px; border-radius: 50%; border: none !important; background-color: transparent !important; background-size: contain; background-position: center; background-repeat: no-repeat; box-shadow: 0 4px 8px rgba(0,0,0,0.5); cursor: pointer; padding: 0; transition: transform 0.1s; position: relative; }
 .item-btn:active { transform: translateY(4px); box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 .item-btn[disabled] { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
 .item-btn.active { box-shadow: 0 0 20px rgba(255,215,106,0.9); animation: pulseStart 1s infinite; }
@@ -114,7 +108,7 @@ canvas { display: block; width: 100%; height: 100%; }
 #mapTopBar > * { pointer-events: auto; }
 .map-top-left { display: flex; align-items: center; padding-left: 4px; gap: 4px; }
 
-.map-icon-btn { width: clamp(39px, 11.8vw, 57px); height: clamp(39px, 11.8vw, 57px); border: none; background-color: transparent; background-size: contain; background-repeat: no-repeat; background-position: center; cursor: pointer; padding: 0; transition: transform 0.1s; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.35)); }
+.map-icon-btn { width: 46px; height: 46px; border: none; background-color: transparent; background-size: contain; background-repeat: no-repeat; background-position: center; cursor: pointer; padding: 0; transition: transform 0.1s; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.35)); }
 .map-icon-btn:active { transform: scale(0.95); }
 #btnMapSettings { background-image: url('assets/settings.png'); }
 
@@ -126,15 +120,15 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* 글로벌 하단 네비게이션 바 */
 #globalBottomBar { 
-  position: absolute; bottom: 0; left: 0; width: 100%; height: clamp(82px, 24.4vw, 117px); 
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 95px; 
   background: url('assets/bottom_menu_bg.png') center top / 100% 100% no-repeat; 
   display: flex; justify-content: space-around; align-items: flex-end; 
   z-index: 300; padding-bottom: calc(14px + env(safe-area-inset-top)); 
   box-shadow: 0 -6px 15px rgba(0,0,0,0.5); pointer-events: auto; 
 }
-.map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; width: clamp(78px, 23.1vw, 111px); height: clamp(65px, 19.2vw, 92px); padding: 0; font-family:'Pretendard',sans-serif; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.map-nav-btn { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; width: 90px; height: 75px; padding: 0; font-family:'Pretendard',sans-serif; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .map-nav-btn span { display: none; }
-.nav-icon { width: clamp(48px, 14.4vw, 69px); height: clamp(48px, 14.4vw, 69px); background-size: contain; background-repeat: no-repeat; background-position: center; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4)); margin-bottom: 2px; }
+.nav-icon { width: 56px; height: 56px; background-size: contain; background-repeat: no-repeat; background-position: center; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4)); margin-bottom: 2px; }
 .map-nav-btn:active { transform: scale(0.92); }
 .map-nav-btn.active { transform: translateY(-20px); }
 .map-nav-btn.active .nav-icon { transform: scale(1.15) translateY(-8px); filter: drop-shadow(0 6px 8px rgba(0,0,0,0.5)); }
