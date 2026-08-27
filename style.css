@@ -26,7 +26,7 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
   display: flex; 
   gap: 6px; 
   /* 스크린샷처럼 기와 안쪽 황금 위치에 정확히 안착하도록 패딩 값을 단일 고정합니다 */
-  padding: 12px 4% 0 !important; 
+  padding: 14px 4% 0 !important; 
   align-items: center; 
   justify-content: space-between; 
 }
