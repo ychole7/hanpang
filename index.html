@@ -2,22 +2,17 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0604">
 <title>한글팡</title>
-<!-- 아이폰(iOS)에서 표시되는 앱 이름 설정 -->
 <meta name="apple-mobile-web-app-title" content="한글팡">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="stylesheet" href="style.css">
-<!-- PWA 매니페스트 연결 -->
 <link rel="manifest" href="manifest.json">
-
-<!-- 아이폰(iOS)에서 웹을 앱처럼 전체 화면으로 띄우고 상단바를 숨기는 설정 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="한글팡">
 <link rel="apple-touch-icon" href="assets/icon.png">
 </head>
 <body>
@@ -71,7 +66,7 @@
 
   <div class="veil" id="veil"><div class="card" id="card"></div></div>
   
-  <!-- 메인 화면 (사계절 순서: 아래 봄 -> 여름 -> 가을 -> 위 겨울) -->
+  <!-- 메인 화면 -->
   <div id="mapScreen">
     <div id="mapScroll">
       <div id="mapInner">
@@ -106,7 +101,7 @@
     </div>
   </div>
 
-<!-- [업적] 전체 화면 탭 페이지 -->
+  <!-- [업적] 전체 화면 탭 페이지 -->
   <div id="achieveScreen">
     <div class="achieve-wrapper">
       <div class="achieve-roof"></div>
@@ -122,33 +117,26 @@
     </div>
   </div>
 
-<!-- [상점] 전체 화면 탭 페이지 -->
+  <!-- [상점] 전체 화면 탭 페이지 -->
   <div id="shopScreen">
     <div class="shop-wrapper">
       <div class="shop-roof"></div>
-      
-      <!-- 🚀 업적의 탭 자리와 완벽히 똑같은 높이를 차지하는 투명 탭 스페이서 -->
       <div class="shop-fake-tab"></div>
-
       <div class="shop-body">
-        <!-- 보유 엽전 표시 영역 -->
         <div class="shop-coin-header">
           <img src="assets/coin.png" class="shop-coin-icon" alt="coin">
           <span>보유 엽전</span>
           <b id="shopUI_coins">730</b>
         </div>
-
-        <!-- 상점 아이템 리스트 스크롤 영역 -->
         <div class="shop-list-scroll" id="shopContentBox"></div>
-
-<!-- 하단 엽전 패키지 배너 (직접 만드신 이미지 적용) -->
         <div class="shop-banner" onclick="alert('엽전 충전 기능 준비 중입니다! ✨');">
           <button class="shop-banner-btn">바로가기 &gt;</button>
         </div>
-        </div>
       </div>
     </div>
-  </div>  <!-- 글로벌 하단 바 (업적 아이콘 연동) -->
+  </div>
+
+  <!-- 글로벌 하단 바 -->
   <div id="globalBottomBar" style="display: none;">
     <button class="map-nav-btn" id="navAchieve" onclick="SFX.click(); openAchievePage();">
       <div class="nav-icon" style="background-image: url('assets/achievement.png');"></div>

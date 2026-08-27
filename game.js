@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 전체 코드 (스톤 렌더링 완벽 복구 및 탭 전환 안정화)
+   낱글자 팡팡! — 전체 코드 (최종 점검 버전)
    ══════════════════════════════════════════ */
 
 let _mapLivesTimer = null;
@@ -655,7 +655,6 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
-// ✨ 모달 설정창
 function openSettings(isMap) {
   if (veil.classList.contains('on')) return;
   G.locked = true;
@@ -725,24 +724,12 @@ function openSettings(isMap) {
         </div>
       `);
       
-      document.getElementById('cancelQuitBtn').onclick = () => {
-        SFX.click();
-        hide();
-        G.locked = false; 
-      };
-      
-      document.getElementById('confirmQuitBtn').onclick = () => {
-        SFX.click();
-        hide();
-        openMap(); 
-      };
+      document.getElementById('cancelQuitBtn').onclick = () => { SFX.click(); hide(); G.locked = false; };
+      document.getElementById('confirmQuitBtn').onclick = () => { SFX.click(); hide(); openMap(); };
     };
   }
 }
 
-// -----------------------------------------------------
-// ✨ 하단 메뉴 탭 전환 코어 로직
-// -----------------------------------------------------
 function showNavTab(tabName) {
   const btnAchieve = document.getElementById('navAchieve');
   const btnHome = document.getElementById('navHome');
@@ -757,9 +744,6 @@ function showNavTab(tabName) {
   else if (tabName === 'shop' && btnShop) btnShop.classList.add('active');
 }
 
-// -----------------------------------------------------
-// ✨ 상점 시스템 (전체 탭 방식 완벽 적용)
-// -----------------------------------------------------
 const SHOP_ITEMS=[ 
   {id:'hint3', icon:'💡', label:'힌트 +3', desc:'막힐 때 자리를 알려줘요', price:30, apply:()=>{G.hints+=3;}}, 
   {id:'swap3', icon:'🔄', label:'교체 +3', desc:'글자를 다른 글자로 바꿔요', price:20, apply:()=>{G.swaps+=3;}}, 
@@ -808,7 +792,7 @@ function renderShopList() {
     else if (it.id === 'swap3') { ownedCount = G.swaps; iconPath = 'assets/item_swap.png'; }
     else if (it.id === 'bomb2') { ownedCount = G.bombs; iconPath = 'assets/item_bomb.png'; }
     else if (it.id === 'rainbow2') { ownedCount = G.rainbows; iconPath = 'assets/item_rainbow.png'; }
-    else if (it.id === 'revive1') { ownedCount = SAVE.revives || 0; iconPath = ''; } // 하트는 이모지나 별도 에셋 대체 가능
+    else if (it.id === 'revive1') { ownedCount = SAVE.revives || 0; iconPath = ''; }
 
     return `
       <div class="shop-card">
@@ -844,9 +828,6 @@ function buyItem(id) {
   renderShopList();
 }
 
-// -----------------------------------------------------
-// ✨ 업적 시스템 (전체 탭 방식 완벽 적용)
-// -----------------------------------------------------
 const ACHIEVEMENTS = [
   { id: 'word_10', title: '단어 수집가', desc: '누적 단어 10개 맞추기', target: 10, reward: 50, iconUrl: 'assets/badge_1.png', skin: 'book', type: 'word_count' },
   { id: 'word_50', title: '말랑말랑 두뇌', desc: '누적 단어 50개 맞추기', target: 50, reward: 150, iconUrl: 'assets/badge_2.png', skin: 'brain', type: 'word_count' },
@@ -978,9 +959,6 @@ function claimAchieve(id, reward) {
   toast('🎁 업적 보상 💰+' + reward + ' 획득!');
 }
 
-// -----------------------------------------------------
-// ✨ 홈 탭 (스톤 렌더링 로직 절대 보장)
-// -----------------------------------------------------
 const STAGE_COORDS = [
   {x:59.6, y:99.4}, {x:70.5, y:98.5}, {x:72.4, y:97}, {x:60.6, y:96.4}, {x:49.9, y:95.3},
   {x:51.2, y:93.8}, {x:33.8, y:91.7}, {x:62.3, y:92.8}, {x:69.9, y:91.6}, {x:62.1, y:89.9},
@@ -997,11 +975,10 @@ const STAGE_COORDS = [
   {x:63.5, y:24.6}, {x:67.5, y:23.2}, {x:53.2, y:22.5}, {x:43.9, y:21.4}, {x:31.4, y:18.3},
   {x:48.3, y:19.9}, {x:59.2, y:19.1}, {x:67.5, y:18}, {x:60.6, y:16.6}, {x:50.3, y:15.6},
   {x:52.8, y:14.1}, {x:45.8, y:12}, {x:63.1, y:13}, {x:68.9, y:11.7}, {x:58.4, y:10.4},
-  {x:47, y:9}, {x:56.5, y:7.7}, {x:66.4, y:6.2}, {x:55.7, y:4.8}, {x:51.2, y:3.5}
+  {x:47, y:9}, {x:56.5, y:7.7}, {x:66.4, y:6.2}, {x:55.7, y:4.8}, {x:51.2, y:3.5]
 ];
 
 function renderMapLives() {
-  // 맵 상단 등에 하트 개수를 표시하는 영역이 있다면 갱신해주는 함수입니다.
   const el = document.getElementById('mapUI_lives');
   if(el) el.textContent = computeLives().count;
 }
@@ -1019,9 +996,9 @@ function openMap(_isRetry){
   if(introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
   if(achieveSc) { achieveSc.classList.remove('on'); }
   if(shopSc) { shopSc.classList.remove('on'); } 
-  if(gameArea) { gameArea.style.display = 'block'; }
-  if(topUI) { topUI.style.display = 'block'; }
-  if(bottomUI) { bottomUI.style.display = 'flex'; }
+  if(gameArea) { gameArea.style.display = 'none'; }
+  if(topUI) { topUI.style.display = 'none'; }
+  if(bottomUI) { bottomUI.style.display = 'none'; }
   
   if(ms) ms.classList.add('on');
   if(globalBar) { globalBar.style.display = 'flex'; }
@@ -1042,15 +1019,13 @@ function openMap(_isRetry){
   const scrollEl = document.getElementById('mapScroll'); 
   const containerW = scrollEl ? scrollEl.clientWidth : 390;
 
-  // 스톤 렌더링 컨테이너를 가장 안전하게 부착
   const mapInner = document.getElementById('mapInner');
-  if (!mapInner) return; // mapInner가 없으면 중단하여 에러 방지
+  if (!mapInner) return;
 
   let nodesContainer = document.getElementById('mapNodesContainer');
   if (!nodesContainer) {
     nodesContainer = document.createElement('div');
     nodesContainer.id = 'mapNodesContainer';
-    // 크기를 100%로 강제하여 비율이 무너지지 않게 함
     nodesContainer.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;';
     mapInner.appendChild(nodesContainer);
   }
@@ -1067,7 +1042,6 @@ function openMap(_isRetry){
   }
   nodesContainer.innerHTML = nodesHtml;
 
-  // 리사이즈로 인한 어긋남 방지용 1회 재실행 로직
   if(!_isRetry && scrollEl){ 
       requestAnimationFrame(()=>{ 
           if(Math.abs(scrollEl.clientWidth - containerW) > 2){ 
@@ -1080,7 +1054,6 @@ function openMap(_isRetry){
   clearInterval(_mapLivesTimer); 
   _mapLivesTimer=setInterval(renderMapLives,1000);
   
-  // 현재 도달한 스톤 위치로 부드럽게 자동 스크롤
   requestAnimationFrame(()=>{ 
       const nc = document.getElementById('mapNodesContainer');
       if (nc) {
@@ -1089,13 +1062,11 @@ function openMap(_isRetry){
       }
   });
   
-  // 클릭 이벤트 바인딩
-const nc = document.getElementById('mapNodesContainer');
+  const nc = document.getElementById('mapNodesContainer');
   if (nc) {
       nc.querySelectorAll('.mnode').forEach(el=>{ 
         el.onclick=()=>{ 
           const lv=+el.dataset.lv; 
-          // 하트가 부족해서 안 열리는 경우를 방지하려면 !spendLife() 부분을 잠시 주석 처리하거나 확인해보세요.
           if(el.classList.contains('locked') || !spendLife()) return; 
           SFX.click(); 
           ms.classList.remove('on'); 
@@ -1107,7 +1078,6 @@ const nc = document.getElementById('mapNodesContainer');
   }
 }
 
-// ✨ 기타 실행 초기화 및 로드 함수들
 function intro() {
   const introSc = document.getElementById('introScreen');
   const mapSc = document.getElementById('mapScreen');
@@ -1143,7 +1113,6 @@ function startGame(resume, atStage){
   } 
   G.started=true; buildStage(); G.locked=false; saveGame(true); 
   
-  // ✨ 추가: 게임 시작 시 플레이 화면과 상하단 UI를 활성화합니다.
   const gameArea = document.getElementById('gameArea');
   const topUI = document.getElementById('topUI');
   const bottomUI = document.getElementById('bottomUI');
@@ -1154,6 +1123,7 @@ function startGame(resume, atStage){
   const globalBar = document.getElementById('globalBottomBar');
   if (globalBar) globalBar.style.display = 'none';
 }
+
 window.addEventListener('load', () => {
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) btnSettings.onclick = () => openSettings(false);
@@ -1171,12 +1141,10 @@ window.addEventListener('load', () => {
   if(cv) { cv.addEventListener('pointerdown',e=>{G.dragging=true;aimAt(...localPt(e));}); cv.addEventListener('pointermove',e=>{if(G.dragging)aimAt(...localPt(e));}); cv.addEventListener('pointerup',()=>{ if(!G.dragging)return; G.dragging=false; if(G.aim!=null)shoot(G.aim); G.aim=null; }); cv.addEventListener('pointercancel',()=>{G.dragging=false;G.aim=null;}); }
 });
 
-// 디버그용 전체 언락 함수를 비활성화하여 처음부터 시작하게 만듭니다.
-
 function boot(){ 
   initCanvas();
   resize(); 
-   G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
+  G.grid=[]; G.targets=[]; G.cur=null; G.queue=[]; G.locked=true; 
   intro(); 
   requestAnimationFrame(tick); 
   loadAssets().catch(()=>{}); 

@@ -21,22 +21,15 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
   background: url('assets/ui_top.png') center top / 100% 100% no-repeat; 
 }
 
-/* 상단 아이콘(설정, 하트, 엽전) 행 위치 완벽 고정 (스크린샷 기준) */
+/* 🚀 인게임 상단 아이콘 행 위치 통합 정렬 (웹/앱 모드 공통 안정화) */
 #topUI .top-menu-row { 
   display: flex; 
   gap: 6px; 
-  /* 스크린샷처럼 기와 안쪽 황금 위치에 정확히 안착하도록 패딩 값을 단일 고정합니다 */
-  padding: 16px 4% 0 !important; 
+  padding: max(16px, env(safe-area-inset-top, 16px)) 4% 0 !important; 
   align-items: center; 
   justify-content: space-between; 
 }
 
-/* 스마트폰 홈 화면에 추가된 앱(Standalone) 상태로 실행될 때만 상단바 높이만큼 아래로 푹 내려줌 */
-@media all and (display-mode: standalone) {
-  #topUI .top-menu-row { 
-    padding: max(22px, env(safe-area-inset-top)) 4% 0; 
-  }
-}
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
 
 #topUI .custom-pill { height: 32px; padding: 1px 4px 1px 22px; border-width: 2.5px; min-width: 68px; }
@@ -107,7 +100,19 @@ canvas { display: block; width: 100%; height: 100%; }
 #mapInner { position: relative; width: 100%; display: flex; flex-direction: column; background: #22150b; line-height: 0; font-size: 0; }
 .map-bg-piece { display: block; width: 100%; height: auto; object-fit: cover; pointer-events: none; margin: 0; padding: 0; border: none; vertical-align: top; }
 
-#mapTopBar { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 12px; z-index: 110; pointer-events: none; }
+/* 🚀 홈 화면 상단바 위치도 인게임과 완벽히 동기화되도록 수정 */
+#mapTopBar { 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: max(16px, env(safe-area-inset-top, 16px)) 4% 0 !important; 
+  z-index: 110; 
+  pointer-events: none; 
+}
 #mapTopBar > * { pointer-events: auto; }
 .map-top-left { display: flex; align-items: center; padding-left: 4px; gap: 4px; }
 
@@ -150,7 +155,6 @@ canvas { display: block; width: 100%; height: 100%; }
 #achieveScreen.on, #shopScreen.on { display: block !important; }
 #achieveScreen::before, #shopScreen::before { content: ''; position: absolute; inset: 0; background: rgba(30, 15, 5, 0.72); backdrop-filter: blur(5px); z-index: 0; }
 
-/* 업적 박스 위치 */
 .achieve-wrapper { 
   position: absolute; top: 140px; bottom: 130px; left: 50%; transform: translateX(-50%); 
   width: 92%; max-width: 420px; background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
@@ -158,7 +162,6 @@ canvas { display: block; width: 100%; height: 100%; }
   display: flex; flex-direction: column; align-items: center; padding: 18px 14px 14px; z-index: 1; 
 }
 
-/* 상점 박스 위치 (업적보다 위로 올려서 기와지붕과 간격 맞춤) */
 .shop-wrapper { 
   position: absolute; top: 140px; bottom: 130px; left: 50%; transform: translateX(-50%); 
   width: 92%; max-width: 420px; background: #fdf7e6; border: 4px solid #b37e46; border-radius: 16px; 
@@ -166,21 +169,18 @@ canvas { display: block; width: 100%; height: 100%; }
   display: flex; flex-direction: column; align-items: center; padding: 18px 14px 14px; z-index: 1; 
 }
 
-/* 업적 기와지붕 */
 .achieve-roof { 
   position: absolute; top: -160px; left: 50%; transform: translateX(-50%); 
   width: 116%; height: 120px; background: url('assets/header_roof.png') center bottom/contain no-repeat; 
   z-index: 5; pointer-events: none; filter: drop-shadow(0 -2px 6px rgba(0,0,0,0.4)); 
 }
 
-/* 상점 기와지붕 (중복 제거 및 업적과 동일한 와이드 비율 적용) */
 .shop-roof { 
   position: absolute; top: -150px; left: 50%; transform: translateX(-50%); 
   width: 116%; height: 120px; background: url('assets/shop_roof.png') center bottom/contain no-repeat; 
   z-index: 5; pointer-events: none; filter: drop-shadow(0 -2px 6px rgba(0,0,0,0.4)); 
 }
 
-/* 탭 메뉴 */
 .achieve-tab-row { display: flex; width: 100%; padding: 0 10px; position: absolute; top: -42px; left: 0; z-index: 10; }
 .achieve-tab { flex: 1; background: #5e4229; border: 4px solid #b37e46; border-bottom: none; border-radius: 12px 12px 0 0; padding: 12px 10px 16px; font-family: 'Pretendard', sans-serif; font-size: 16px; font-weight: 900; color: #a8927d; cursor: pointer; transition: 0.15s; box-shadow: inset 0 -4px 10px rgba(0,0,0,0.2); }
 .achieve-tab.active { background: #fdf7e6; color: #b85d19; padding-bottom: 20px; z-index: 2; box-shadow: none; }
@@ -195,7 +195,6 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .achieve-list-scroll::-webkit-scrollbar, .shop-list-scroll::-webkit-scrollbar { display: none; }
 
-/* 카드 스타일 */
 .ach-card, .shop-card { background: #fcf4dd; border: 2.5px solid #e6d3ba; border-radius: 16px; display: flex; align-items: center; padding: 14px 12px; gap: 12px; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.06); overflow: hidden; flex-shrink: 0; }
 
 .ach-badge-img { width: 72px; height: 72px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
@@ -224,7 +223,6 @@ canvas { display: block; width: 100%; height: 100%; }
 .ach-ribbon { position: absolute; top: -2px; right: -2px; width: 65px; height: 65px; object-fit: contain; z-index: 10; }
 .achieve-footer-note { flex-shrink: 0; text-align: center; font-size: 13px; font-weight: 800; color: #8a6a4a; margin-top: 12px; border-top: 1.5px solid rgba(179,126,70,0.2); padding-top: 14px; padding-bottom: 2px; width: 100%; }
 
-/* 상점 전용 스타일 */
 .shop-coin-header {
   display: flex; align-items: center; justify-content: center; gap: 6px;
   background: #f5ebcd; border: 2px solid #e0c99b; border-radius: 999px;
@@ -250,10 +248,9 @@ canvas { display: block; width: 100%; height: 100%; }
 .shop-desc { font-size: 12px; font-weight: 700; color: #8a6a4a; margin-top: 2px; }
 .shop-right { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 90px; }
 
-/* 하단 엽전 패키지 배너 */
 .shop-banner {
   margin-top: 10px; 
-  width: 100%; height: 75px; /* 이미지 비율에 맞게 높이 조절 가능합니다 */
+  width: 100%; height: 75px; 
   background: url('assets/shop_banner_bg.png') center/cover no-repeat;
   border: 2.5px solid #7a4f96; border-radius: 14px; padding: 0 16px;
   display: flex; align-items: center; justify-content: flex-end;
@@ -269,5 +266,4 @@ canvas { display: block; width: 100%; height: 100%; }
   z-index: 2;
 }
 
-/* 🚀 상점 전용 투명 탭 스페이서 (업적과 뼈대 비율을 100% 일치시킴) */
 .shop-fake-tab { width: 100%; height: 42px; position: absolute; top: -42px; left: 0; pointer-events: none; }
