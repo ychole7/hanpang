@@ -155,7 +155,7 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* 상점 기와지붕 (중복 제거 및 업적과 동일한 와이드 비율 적용) */
 .shop-roof { 
-  position: absolute; top: -160px; left: 50%; transform: translateX(-50%); 
+  position: absolute; top: -170px; left: 50%; transform: translateX(-50%); 
   width: 116%; height: 120px; background: url('assets/shop_roof.png') center bottom/contain no-repeat; 
   z-index: 5; pointer-events: none; filter: drop-shadow(0 -2px 6px rgba(0,0,0,0.4)); 
 }
