@@ -25,28 +25,10 @@
 
   <div id="bgLayer"></div>
 
-  <!-- 인게임 상단 UI -->
+  <!-- 인게임 상단 UI (하트·엽전 제거, 설정 버튼 우측 정렬) -->
   <div id="topUI">
-    <div class="top-menu-row">
+    <div class="top-menu-row" style="justify-content: flex-end;">
       <button class="icon-btn" id="btnSettings"></button>
-      
-      <div class="top-right-stats">
-        <div class="custom-pill">
-          <div class="pill-icon-float" style="background-image: url('assets/heart.png');"></div>
-          <div class="pill-text-group">
-            <b id="uiLives">6</b>
-          </div>
-          <button class="pill-plus-btn" onclick="SFX.click()">+</button>
-        </div>
-
-        <div class="custom-pill" style="margin-left: 10px;">
-          <div class="pill-icon-float" style="background-image: url('assets/coin.png');"></div>
-          <div class="pill-text-group">
-            <b id="uiCoins">0</b>
-          </div>
-          <button class="pill-plus-btn" onclick="SFX.click(); openShop();">+</button>
-        </div>
-      </div>
     </div>
     
     <div class="stage-box"><div class="side-title">스테이지</div><div id="uiStage" class="big-num">1</div></div>
@@ -66,7 +48,7 @@
 
   <div class="veil" id="veil"><div class="card" id="card"></div></div>
   
-  <!-- 메인 화면 -->
+  <!-- 메인 화면 (지도) -->
   <div id="mapScreen">
     <div id="mapScroll">
       <div id="mapInner">
@@ -83,7 +65,7 @@
           <div class="pill-icon-float" style="background-image: url('assets/heart.png');"></div>
           <div class="pill-text-group">
             <b id="mapUI_lives">5</b>
-            <span id="mapUI_timer">MAX</span>
+            <span id="mapUI_timer">FULL</span>
           </div>
           <button class="pill-plus-btn" onclick="SFX.click()">+</button>
         </div>

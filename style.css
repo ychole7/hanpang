@@ -21,13 +21,18 @@ body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);font-weight:
   background: url('assets/ui_top.png') center top / 100% 100% no-repeat; 
 }
 
-/* 인게임 상단 아이콘 행 위치 정렬 */
+/* 인게임 상단 아이콘 행: 우측 정렬 및 여백 확보 */
 #topUI .top-menu-row { 
   display: flex; 
-  gap: 6px; 
-  padding: max(16px, env(safe-area-inset-top, 16px)) 4% 0 !important; 
-  align-items: center; 
-  justify-content: space-between; 
+  justify-content: flex-end !important; /* 오른쪽으로 밀어줌 */
+  padding: max(20px, env(safe-area-inset-top, 20px)) 5% 0 !important; 
+}
+
+/* 인게임 설정 버튼 크기 및 위치 미세 조정 */
+#topUI .icon-btn { 
+  transform: scale(0.85); 
+  transform-origin: top right;
+  margin-top: 2px;
 }
 
 #topUI .top-right-stats { display: flex; align-items: center; gap: 6px; }
