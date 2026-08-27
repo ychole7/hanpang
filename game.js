@@ -999,6 +999,12 @@ const STAGE_COORDS = [
   {x:47, y:9}, {x:56.5, y:7.7}, {x:66.4, y:6.2}, {x:55.7, y:4.8}, {x:51.2, y:3.5}
 ];
 
+function renderMapLives() {
+  // 맵 상단 등에 하트 개수를 표시하는 영역이 있다면 갱신해주는 함수입니다.
+  const el = document.getElementById('mapUI_lives');
+  if(el) el.textContent = computeLives().count;
+}
+
 function openMap(_isRetry){
   const ms = document.getElementById('mapScreen'); 
   const introSc = document.getElementById('introScreen');
