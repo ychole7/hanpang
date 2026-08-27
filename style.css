@@ -287,3 +287,21 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 
 .shop-fake-tab { width: 100%; height: 42px; position: absolute; top: -42px; left: 0; pointer-events: none; }
+
+/* 🚀 인게임(#topUI) 화면 안에서만 상단 알약 및 설정 버튼 크기를 80% 수준으로 축소 */
+#topUI .custom-pill { 
+  transform: scale(0.8);          /* 크기를 딱 80%로 축소 */
+  transform-origin: top center;   /* 축소될 때 위쪽 기준 중앙으로 모이게 함 */
+  margin-top: 4px;                /* 노치와 겹치지 않게 위쪽 여백 살짝 조절 */
+}
+
+#topUI .icon-btn { 
+  transform: scale(0.85);         /* 설정 버튼도 80~85정도로 앙증맞게 축소 */
+  transform-origin: top left;
+  margin-top: 2px;
+}
+
+/* 인게임 상단 행 전체를 아래로 살짝 내려서 목표 단어 간판과의 겹침 방지 */
+#topUI .top-menu-row { 
+  padding-top: max(24px, env(safe-area-inset-top, 24px)) !important; 
+}
