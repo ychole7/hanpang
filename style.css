@@ -156,10 +156,10 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 
 .shop-roof { 
-  position: absolute; top: -52px; left: 50%; transform: translateX(-50%); 
-  width: 260px; height: 85px; background: url('assets/ui_top.png') center/cover no-repeat; 
-  display: flex; align-items: center; justify-content: center; 
-  filter: drop-shadow(0 6px 6px rgba(0,0,0,0.5)); z-index: 15; 
+  position: absolute; top: -160px; left: 50%; transform: translateX(-50%); 
+  width: 116%; height: 120px; 
+  background: url('assets/shop_roof.png') center bottom/contain no-repeat; 
+  z-index: 5; pointer-events: none; filter: drop-shadow(0 -2px 6px rgba(0,0,0,0.4)); 
 }
 
 .shop-title-text { font-size: 26px; font-weight: 900; color: #fff6da; text-shadow: 0 2px 4px rgba(0,0,0,0.9); margin-top: 10px; letter-spacing: 2px; }
