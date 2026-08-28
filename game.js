@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 전체 코드 (최종 대괄호 오류 수정완료본)
+   한글팡! — 전체 코드 (최종 대괄호 오류 수정완료본)
    ══════════════════════════════════════════ */
 
 let _mapLivesTimer = null;
@@ -14,6 +14,21 @@ function computeLives(){ let s=SAVE.lives; if(!s){ s=SAVE.lives={count:MAX_LIVES
 function secToNextLife(){ const s=computeLives(); return s.count>=MAX_LIVES ? 0 : Math.max(0, LIFE_REGEN_MS - (Date.now()-s.lastUpdate)) / 1000; }
 function spendLife(){ const s=computeLives(); if(s.count<=0){ const sec=Math.ceil(secToNextLife()); show(`<h2>하트가 없어요 ❤️</h2><p>다음 하트까지 <b>${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</b></p><p style="font-size:13px;opacity:.75;margin-top:6px">1분마다 하트가 하나씩 채워져요 (최대 ${MAX_LIVES}개)</p><button class="btn" id="livesOk">확인</button>`); document.getElementById('livesOk').onclick=()=>{ SFX.click(); hide(); }; return false; } s.count--; saveGame(true); return true; }
 let _saveTimer=null; function saveGame(immediate){ const write=()=>{ try{ const slot=SAVE[G.mode]||(SAVE[G.mode]={stage:1,score:0,bestScore:0,bestStage:1}); slot.stage=G.stage; slot.score=G.score; slot.bestScore=Math.max(slot.bestScore||0, G.score); slot.bestStage=Math.max(slot.bestStage||1, G.stage); SAVE.lastMode=G.mode; localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){} }; if(immediate){ clearTimeout(_saveTimer); write(); } else{ clearTimeout(_saveTimer); _saveTimer=setTimeout(write,500); } }
+
+// 기존 SFX 객체 위/아래 쯤에 BGM 오디오 객체 추가
+const BGM = new Audio('assets/bgm.mp3');
+BGM.loop = true; // 무한 반복 재생
+BGM.volume = 0.4; // 배경음악 크기 (0.0 ~ 1.0)
+
+function playBGM() {
+  if (soundOn()) {
+    BGM.play().catch(() => {}); // 브라우저 자동재생 정책 방어
+  }
+}
+
+function stopBGM() {
+  BGM.pause();
+}
 
 const DICT_BY_CAT = {
   '과일': ['사과','포도','딸기','수박','참외','자두','바나나','오렌지','레몬','복숭아','체리','망고','멜론','키위','앵두','살구','자몽','석류','토마토','대추','모과','매실','앵도','귤','감','배','밤','파인애플','블루베리','무화과','한라봉','청포도','머루','다래'],
@@ -683,15 +698,12 @@ function openSettings(isMap) {
 
   show(`
     <div class="custom-modal-box">
-      <!-- 우측 상단 닫기 X 버튼 -->
       <button class="modal-close-x" id="modalXBtn">✕</button>
       
-      <!-- 상단 제목 타이틀 배너 -->
       <div class="modal-title-banner">
         <span class="title-gear">⚙️</span> 설정
       </div>
 
-      <!-- 소리 / 진동 토글 카드 박스 영역 -->
       <div class="settings-grid">
         <div class="setting-card">
           <div class="setting-icon">🔊</div>
@@ -710,6 +722,74 @@ function openSettings(isMap) {
         </div>
       </div>
 
+      <div class="modal-actions-container">
+        ${extraBtns}
+      </div>
+
+      <!-- 🚀 크리에이티브 커먼즈 라이선스 표기 (크레딧) -->
+      <div class="modal-credit-text">
+        Music: "Adventures in Adventureland" by Kevin MacLeod (incompetech.com)<br>
+        Licensed under CC BY 4.0
+      </div>
+    </div>
+  `);
+
+  const closeAction = () => { hide(); G.locked = false; };
+  document.getElementById('modalXBtn').onclick = closeAction;
+
+  // 🔊 소리 ON/OFF 토글 시 BGM 제어 추가
+  document.getElementById('modalSound').onclick = function() {
+    SAVE.soundOn = !soundOn(); 
+    saveGame(true);
+    const isOn = soundOn();
+    this.classList.toggle('on', isOn);
+    this.querySelector('.toggle-slider span').textContent = isOn ? 'ON' : 'OFF';
+    
+    if(isOn) {
+      SFX.click();
+      playBGM();
+    } else {
+      stopBGM();
+    }
+  };
+
+  // 진동 토글
+  document.getElementById('modalVibe').onclick = function() {
+    SAVE.vibeOn = (SAVE.vibeOn === false) ? true : false; 
+    saveGame(true);
+    const isOn = (SAVE.vibeOn !== false);
+    this.classList.toggle('on', isOn);
+    this.querySelector('.toggle-slider span').textContent = isOn ? 'ON' : 'OFF';
+    if(soundOn()) SFX.click();
+    if(isOn && navigator.vibrate) navigator.vibrate(20);
+  };
+  
+  if(isMap) {
+    document.getElementById('modalCloseBtn').onclick = closeAction;
+  } else {
+    document.getElementById('goBtn').onclick = closeAction;
+    document.getElementById('restartBtn').onclick = (ev) => { ev.preventDefault(); if (!spendLife()) return; hide(); startGame(false, G.stage); };
+    document.getElementById('switchBtn').onclick = (ev) => { 
+      ev.preventDefault(); 
+      show(`
+        <div class="custom-modal-box">
+          <div class="modal-title-banner">그만하기</div>
+          <div style="font-size:40px; margin:15px 0;">😿</div>
+          <p style="margin:10px 0; font-size:15px; color:#5a3a22; line-height:1.4;">
+            타이틀로 나가시겠어요?<br>
+            <span style="font-size:13px; color:#c8641a; font-weight:800;">이번 플레이에서 얻은 점수가 사라집니다.</span>
+          </p>
+          <div class="modal-bottom-row" style="margin-top:20px;">
+            <button class="modal-action-btn success" id="cancelQuitBtn">취소</button>
+            <button class="modal-action-btn danger" id="confirmQuitBtn">나가기</button>
+          </div>
+        </div>
+      `);
+      document.getElementById('cancelQuitBtn').onclick = () => { SFX.click(); openSettings(false); };
+      document.getElementById('confirmQuitBtn').onclick = () => { SFX.click(); hide(); openMap(); };
+    };
+  }
+}
       <!-- 하단 액션 버튼 영역 -->
       <div class="modal-actions-container">
         ${extraBtns}
@@ -1143,10 +1223,11 @@ function intro() {
   if (shopSc) { shopSc.classList.remove('on'); } 
   if (globalBar) { globalBar.style.display = 'none'; }
 
-  const btnStartAdv = document.getElementById('btnStartAdventure');
+const btnStartAdv = document.getElementById('btnStartAdventure');
   if (btnStartAdv) {
     btnStartAdv.onclick = () => {
       SFX.click(); 
+      playBGM(); // 🚀 게임 첫 시작 시 배경음악 스타트!
       if (introSc) { introSc.classList.add('hidden'); introSc.style.display = 'none'; }
       if (globalBar) { globalBar.style.display = 'flex'; }
       G.mode = 'theme'; 
