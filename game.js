@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 전체 코드 (배경음/효과음 분리 버전)
+   낱글자 팡팡! — 전체 코드 (목표 글자 출현 확률 상향 버전)
    ══════════════════════════════════════════ */
 
 const BGM = new Audio('assets/bgm.mp3');
@@ -262,14 +262,38 @@ function completionsFor(s){ const res=[]; for(const [c,r] of openCells()){ const
 let _recentSyl=[];
 function newCur(){
   let chosen=null, pool2=[];
-  if(Math.random()<0.78){
-    const targetC=[], anyC=[];
-    for(const s of G.pool){ const hit=completionsFor(s); if(!hit.length) continue; anyC.push(s); if(hit.some(h=>h.word in G.done && !G.done[h.word])) targetC.push(s); }
-    pool2 = targetC.length ? (Math.random()<0.66 ? targetC : anyC) : anyC;
-    const fresh=pool2.filter(s=>!_recentSyl.includes(s)); if(fresh.length) chosen=pick(fresh); else if(pool2.length) chosen=pick(pool2);
+  
+  if(G.mode === 'theme' && G.targets && G.targets.length > 0 && Math.random() < 0.85) {
+    const targetSyls = new Set();
+    G.targets.forEach(w => {
+      if(!G.done[w]) {
+        for(let ch of w) targetSyls.add(ch);
+      }
+    });
+    
+    const availableTargets = G.pool.filter(s => targetSyls.has(s));
+    if(availableTargets.length > 0) {
+      pool2 = availableTargets;
+    }
   }
-  if(!chosen){ const f=G.pool.filter(s=>!_recentSyl.includes(s)); chosen=pick(f.length?f:G.pool); }
-  _recentSyl.push(chosen); if(_recentSyl.length>3) _recentSyl.shift(); return {s:chosen, col:randCol()};
+
+  if(!pool2.length && Math.random()<0.78){
+    const anyC=[];
+    for(const s of G.pool){ const hit=completionsFor(s); if(!hit.length) continue; anyC.push(s); }
+    pool2 = anyC;
+  }
+  
+  if(!pool2.length) pool2 = G.pool;
+
+  const fresh = pool2.filter(s => !_recentSyl.includes(s));
+  if(fresh.length) chosen = pick(fresh);
+  else if(pool2.length) chosen = pick(pool2);
+
+  if(!chosen){ const f = G.pool.filter(s => !_recentSyl.includes(s)); chosen = pick(f.length ? f : G.pool); }
+  
+  _recentSyl.push(chosen); 
+  if(_recentSyl.length > 3) _recentSyl.shift(); 
+  return { s: chosen, col: randCol() };
 }
 
 function shoot(angle){
@@ -672,7 +696,6 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
-// ✨ 배경음 / 효과음 분리 설정 모달 창
 function openSettings(isMap) {
   if (veil.classList.contains('on')) return;
   G.locked = true;
@@ -702,7 +725,6 @@ function openSettings(isMap) {
         <span class="title-gear">⚙️</span> 설정
       </div>
 
-      <!-- 배경음 / 효과음 토글 카드 영역 -->
       <div class="settings-grid">
         <div class="setting-card">
           <div class="setting-icon">🎶</div>
@@ -735,7 +757,6 @@ function openSettings(isMap) {
   const closeAction = () => { hide(); G.locked = false; };
   document.getElementById('modalXBtn').onclick = closeAction;
 
-  // 🎶 배경음(BGM) 토글 이벤트
   document.getElementById('modalBgm').onclick = function() {
     SAVE.bgmOn = !bgmOn(); 
     saveGame(true);
@@ -750,7 +771,6 @@ function openSettings(isMap) {
     }
   };
 
-  // 🔊 효과음(SFX) 토글 이벤트
   document.getElementById('modalSound').onclick = function() {
     SAVE.soundOn = !soundOn(); 
     saveGame(true);
