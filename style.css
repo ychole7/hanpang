@@ -313,3 +313,168 @@ canvas { display: block; width: 100%; height: 100%; }
 #topUI .top-menu-row { 
   padding-top: max(24px, env(safe-area-inset-top, 24px)) !important; 
 }
+
+/* 🚀 새로운 설정 모달 디자인 스타일 */
+.custom-modal-box {
+  position: relative;
+  background: #fdf7e6;
+  border: 4px solid #b37e46;
+  border-radius: 24px;
+  padding: 32px 20px 24px;
+  width: 330px;
+  max-width: 90vw;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.6), inset 0 0 25px rgba(179,126,70,0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 상단 타이틀 배너 */
+.modal-title-banner {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #6c4728, #482f1a);
+  border: 3px solid #f5dbb1;
+  border-radius: 999px;
+  padding: 6px 36px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff6da;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* 우측 상단 X 닫기 버튼 */
+.modal-close-x {
+  position: absolute;
+  top: -16px;
+  right: -10px;
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(180deg, #ff8a00, #d9531e);
+  border: 3px solid #ffe08c;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  cursor: pointer;
+  z-index: 10;
+}
+.modal-close-x:active { transform: scale(0.92); }
+
+/* 소리/진동 카드 그리드 */
+.settings-grid {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.setting-card {
+  flex: 1;
+  background: #fffdf5;
+  border: 2.5px solid #e2ccab;
+  border-radius: 16px;
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+}
+.setting-icon { font-size: 28px; margin-bottom: 4px; }
+.setting-label { font-size: 15px; font-weight: 900; color: #5a3a22; margin-bottom: 12px; }
+
+/* 토글 스위치 디자인 */
+.toggle-switch {
+  width: 72px;
+  height: 32px;
+  background: #d8c2a3;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  padding: 3px;
+}
+.toggle-switch.on { background: #6da63a; }
+.toggle-slider {
+  width: 26px;
+  height: 26px;
+  background: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  left: 3px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toggle-switch.on .toggle-slider { transform: translateX(40px); }
+.toggle-slider span { font-size: 9px; font-weight: 900; color: #5a3a22; }
+.toggle-switch.on .toggle-slider span { color: #4d821e; }
+
+/* 하단 버튼 컨테이너 */
+.modal-actions-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-bottom-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+/* 공통 액션 버튼 스타일 */
+.modal-action-btn {
+  width: 100%;
+  padding: 13px 0;
+  border-radius: 999px;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 17px;
+  font-weight: 900;
+  border: 2.5px solid #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.modal-action-btn:active { transform: translateY(2px); }
+
+/* 이어하기 (노란색/주황색 계열) */
+.modal-action-btn.primary {
+  background: linear-gradient(180deg, #ffca5c, #e5912b);
+  color: #fff6da;
+  border-color: #ffe8a4;
+}
+/* 새로 시작 (주황/다크오렌지 계열) */
+.modal-action-btn.danger {
+  flex: 1;
+  background: linear-gradient(180deg, #f57c38, #d44c15);
+  color: #ffffff;
+  border-color: #ffd2b3;
+}
+/* 메인 화면 (초록색 계열) */
+.modal-action-btn.success {
+  flex: 1;
+  background: linear-gradient(180deg, #7dbd3b, #53911c);
+  color: #ffffff;
+  border-color: #caf29b;
+}

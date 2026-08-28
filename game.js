@@ -659,76 +659,110 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
+// ✨ 새로운 디자인 시안이 적용된 설정 모달 창
 function openSettings(isMap) {
   if (veil.classList.contains('on')) return;
   G.locked = true;
   SFX.click();
 
-  const sOn = soundOn() ? '🔊' : '🔇';
-  const vOn = (SAVE.vibeOn !== false) ? '📳' : '📴';
+  const sOn = soundOn();
+  const vOn = (SAVE.vibeOn !== false);
 
   let extraBtns = '';
   if(isMap) {
-    extraBtns = `<button class="btn" id="modalCloseBtn" style="width:100%; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">닫기</button>`;
+    extraBtns = `<button class="modal-action-btn primary" id="modalCloseBtn" style="width:100%;">닫기</button>`;
   } else {
     extraBtns = `
-      <button class="btn" id="goBtn" style="width:100%;">이어서 하기</button>
-      <div style="margin-top:16px; display:flex; gap:10px;">
-        <button class="btn" id="restartBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">새로 시작</button>
-        <button class="btn" id="switchBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">메인 화면</button>
+      <button class="modal-action-btn primary" id="goBtn"><span class="btn-icon">🔄</span> 이어서 하기</button>
+      <div class="modal-bottom-row">
+        <button class="modal-action-btn danger" id="restartBtn"><span class="btn-icon">🏠</span> 새로 시작</button>
+        <button class="modal-action-btn success" id="switchBtn"><span class="btn-icon">🚪</span> 메인 화면</button>
       </div>
     `;
   }
 
   show(`
-    <h2>⚙️ 설정</h2>
-    <div style="display:flex; justify-content:center; gap:20px; margin: 20px 0;">
-      <div style="text-align:center;">
-        <button class="icon-btn" id="modalSound" style="width:54px; height:54px; font-size:24px;">${sOn}</button>
-        <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">소리</div>
+    <div class="custom-modal-box">
+      <!-- 우측 상단 닫기 X 버튼 -->
+      <button class="modal-close-x" id="modalXBtn">✕</button>
+      
+      <!-- 상단 제목 타이틀 배너 -->
+      <div class="modal-title-banner">
+        <span class="title-gear">⚙️</span> 설정
       </div>
-      <div style="text-align:center;">
-        <button class="icon-btn" id="modalVibe" style="width:54px; height:54px; font-size:24px;">${vOn}</button>
-        <div style="font-size:12px; margin-top:6px; color:#dcc9a0;">진동</div>
+
+      <!-- 소리 / 진동 토글 카드 박스 영역 -->
+      <div class="settings-grid">
+        <div class="setting-card">
+          <div class="setting-icon">🔊</div>
+          <div class="setting-label">소리</div>
+          <div class="toggle-switch ${sOn ? 'on' : ''}" id="modalSound">
+            <div class="toggle-slider"><span>${sOn ? 'ON' : 'OFF'}</span></div>
+          </div>
+        </div>
+
+        <div class="setting-card">
+          <div class="setting-icon">📳</div>
+          <div class="setting-label">진동</div>
+          <div class="toggle-switch ${vOn ? 'on' : ''}" id="modalVibe">
+            <div class="toggle-slider"><span>${vOn ? 'ON' : 'OFF'}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 액션 버튼 영역 -->
+      <div class="modal-actions-container">
+        ${extraBtns}
       </div>
     </div>
-    ${extraBtns}
   `);
 
+  // 닫기 공통 동작
+  const closeAction = () => { hide(); G.locked = false; };
+  document.getElementById('modalXBtn').onclick = closeAction;
+
+  // 소리 토글 이벤트
   document.getElementById('modalSound').onclick = function() {
     SAVE.soundOn = !soundOn(); saveGame(true);
-    this.textContent = soundOn() ? '🔊' : '🔇';
-    if(soundOn()) SFX.click();
+    const isOn = soundOn();
+    this.classList.toggle('on', isOn);
+    this.querySelector('.toggle-slider span').textContent = isOn ? 'ON' : 'OFF';
+    if(isOn) SFX.click();
   };
+
+  // 진동 토글 이벤트
   document.getElementById('modalVibe').onclick = function() {
-    SAVE.vibeOn = SAVE.vibeOn === false ? true : false; saveGame(true);
-    this.textContent = SAVE.vibeOn !== false ? '📳' : '📴';
+    SAVE.vibeOn = (SAVE.vibeOn === false) ? true : false; saveGame(true);
+    const isOn = (SAVE.vibeOn !== false);
+    this.classList.toggle('on', isOn);
+    this.querySelector('.toggle-slider span').textContent = isOn ? 'ON' : 'OFF';
     if(soundOn()) SFX.click();
-    if(SAVE.vibeOn !== false && navigator.vibrate) navigator.vibrate(20);
+    if(isOn && navigator.vibrate) navigator.vibrate(20);
   };
   
   if(isMap) {
-    document.getElementById('modalCloseBtn').onclick = () => { hide(); G.locked = false; };
+    document.getElementById('modalCloseBtn').onclick = closeAction;
   } else {
-    document.getElementById('goBtn').onclick = () => { hide(); G.locked = false; };
+    document.getElementById('goBtn').onclick = closeAction;
     document.getElementById('restartBtn').onclick = (ev) => { ev.preventDefault(); if (!spendLife()) return; hide(); startGame(false, G.stage); };
     
     document.getElementById('switchBtn').onclick = (ev) => { 
       ev.preventDefault(); 
       show(`
-        <h2>그만하기</h2>
-        <div style="font-size:40px; margin:10px 0;">😿</div>
-        <p style="margin:10px 0; line-height:1.4;">
-          타이틀로 나가시겠어요?<br>
-          <span style="font-size:13px; color:#ff9a5c;">이번 플레이에서 얻은 점수가 사라집니다.</span>
-        </p>
-        <div style="display:flex; gap:10px; margin-top:16px;">
-          <button class="btn" id="cancelQuitBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#8ebf63,#4a822b); border-color:#2c5215; color:#fff;">취소</button>
-          <button class="btn" id="confirmQuitBtn" style="flex:1; padding:10px; font-size:15px; background:linear-gradient(180deg,#ffb15c,#e55a2b); border-color:#8a2f12; color:#fff;">나가기</button>
+        <div class="custom-modal-box">
+          <div class="modal-title-banner">그만하기</div>
+          <div style="font-size:40px; margin:15px 0;">😿</div>
+          <p style="margin:10px 0; font-size:15px; color:#5a3a22; line-height:1.4;">
+            타이틀로 나가시겠어요?<br>
+            <span style="font-size:13px; color:#c8641a; font-weight:800;">이번 플레이에서 얻은 점수가 사라집니다.</span>
+          </p>
+          <div class="modal-bottom-row" style="margin-top:20px;">
+            <button class="modal-action-btn success" id="cancelQuitBtn">취소</button>
+            <button class="modal-action-btn danger" id="confirmQuitBtn">나가기</button>
+          </div>
         </div>
       `);
-      
-      document.getElementById('cancelQuitBtn').onclick = () => { SFX.click(); hide(); G.locked = false; };
+      document.getElementById('cancelQuitBtn').onclick = () => { SFX.click(); openSettings(false); };
       document.getElementById('confirmQuitBtn').onclick = () => { SFX.click(); hide(); openMap(); };
     };
   }
