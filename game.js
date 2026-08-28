@@ -1,13 +1,15 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 전체 코드 (최종 수정본)
+   낱글자 팡팡! — 전체 코드 (배경음/효과음 분리 버전)
    ══════════════════════════════════════════ */
 
 const BGM = new Audio('assets/bgm.mp3');
 BGM.loop = true;
 BGM.volume = 0.4;
 
+function bgmOn(){ return SAVE && SAVE.bgmOn !== false; }
+
 function playBGM() {
-  if (soundOn()) {
+  if (bgmOn()) {
     BGM.play().catch(() => {});
   }
 }
@@ -19,8 +21,10 @@ function stopBGM() {
 let _mapLivesTimer = null;
 const SAVE_KEY='pangpop_save_v1';
 function loadSave(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return null; const d=JSON.parse(raw); if(!d.free) d.free={stage:1,score:0,bestScore:0,bestStage:1}; if(!d.theme) d.theme={stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}; if(!d.achievements) d.achievements={}; if(typeof d.coins!=='number') d.coins=0; if(typeof d.revives!=='number') d.revives=0; if(typeof d.totalStars!=='number') d.totalStars=0; if(!d.lives) d.lives={count:6,lastUpdate:Date.now()}; return d; }catch(e){ return null; } }
-let SAVE = loadSave() || { free:{stage:1,score:0,bestScore:0,bestStage:1}, theme:{stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}, achievements:{}, lastMode:'theme', coins:0, revives:0, totalStars:0, lives:{count:6,lastUpdate:Date.now()} };
+let SAVE = loadSave() || { free:{stage:1,score:0,bestScore:0,bestStage:1}, theme:{stage:1,score:0,bestScore:0,bestStage:1,levelStars:{}}, achievements:{}, lastMode:'theme', coins:0, revives:0, totalStars:0, lives:{count:6,lastUpdate:Date.now()}, soundOn:true, bgmOn:true };
 
+if(typeof SAVE.bgmOn === 'undefined') SAVE.bgmOn = true;
+if(typeof SAVE.soundOn === 'undefined') SAVE.soundOn = true;
 if(typeof SAVE.vibeOn === 'undefined') SAVE.vibeOn = true;
 
 const MAX_LIVES=6, LIFE_REGEN_MS=60000;
@@ -250,7 +254,7 @@ function openCells(){
   const out=[],seen=new Set();
   for(let r=0;r<G.grid.length;r++) for(let c=0;c<cellsIn(r);c++){
     if(!at(c,r))continue;
-    for(const [nc,nr] of nbrs(c,r)){ if(nr<0||nr>=G.maxRows||nc<0||nc>=cellsIn(nr)||(nr<G.grid.length&&G.grid[nr][nc]))continue;
+    for(const [nc,nr] of nbrs(c,r)){ if(nr<0||nr>=G.maxRows||nc<0||nc>=cellsIn(nc)||(nr<G.grid.length&&G.grid[nr][nc]))continue;
       const k=nc+','+nr; if(!seen.has(k)){ seen.add(k); out.push([nc,nr]); } }
   } return out;
 }
@@ -668,14 +672,14 @@ function lose(){
   if(canRevive){ const rev=document.getElementById('revive'); if(rev) rev.onclick=()=>{ SFX.buy(); SAVE.revives--; saveGame(true); hide(); G.locked=false; for(let i=0;i<2&&G.grid.length>0;i++)G.grid.pop(); BOARDLAYER=null; toast('❤️ 부활! 아래 두 줄이 사라졌어요'); checkState(); syncUI(); }; } const goBtn=document.getElementById('go'); if(goBtn) goBtn.onclick=()=>{if(!spendLife())return;hide();G.locked=false;G.score=0;buildStage();};
 }
 
-// ✨ 새로운 디자인 시안이 적용된 설정 모달 창
+// ✨ 배경음 / 효과음 분리 설정 모달 창
 function openSettings(isMap) {
   if (veil.classList.contains('on')) return;
   G.locked = true;
   SFX.click();
 
+  const bOn = bgmOn();
   const sOn = soundOn();
-  const vOn = (SAVE.vibeOn !== false);
 
   let extraBtns = '';
   if(isMap) {
@@ -692,39 +696,35 @@ function openSettings(isMap) {
 
   show(`
     <div class="custom-modal-box">
-      <!-- 우측 상단 닫기 X 버튼 -->
       <button class="modal-close-x" id="modalXBtn">✕</button>
       
-      <!-- 상단 제목 타이틀 배너 -->
       <div class="modal-title-banner">
         <span class="title-gear">⚙️</span> 설정
       </div>
 
-      <!-- 소리 / 진동 토글 카드 박스 영역 -->
+      <!-- 배경음 / 효과음 토글 카드 영역 -->
       <div class="settings-grid">
         <div class="setting-card">
+          <div class="setting-icon">🎶</div>
+          <div class="setting-label">배경음</div>
+          <div class="toggle-switch ${bOn ? 'on' : ''}" id="modalBgm">
+            <div class="toggle-slider"><span>${bOn ? 'ON' : 'OFF'}</span></div>
+          </div>
+        </div>
+
+        <div class="setting-card">
           <div class="setting-icon">🔊</div>
-          <div class="setting-label">소리</div>
+          <div class="setting-label">효과음</div>
           <div class="toggle-switch ${sOn ? 'on' : ''}" id="modalSound">
             <div class="toggle-slider"><span>${sOn ? 'ON' : 'OFF'}</span></div>
           </div>
         </div>
-
-        <div class="setting-card">
-          <div class="setting-icon">📳</div>
-          <div class="setting-label">진동</div>
-          <div class="toggle-switch ${vOn ? 'on' : ''}" id="modalVibe">
-            <div class="toggle-slider"><span>${vOn ? 'ON' : 'OFF'}</span></div>
-          </div>
-        </div>
       </div>
 
-      <!-- 하단 액션 버튼 영역 -->
       <div class="modal-actions-container">
         ${extraBtns}
       </div>
 
-      <!-- 🚀 크리에이티브 커먼즈 라이선스 표기 (크레딧) -->
       <div class="modal-credit-text">
         Music: "Adventures in Adventureland" by Kevin MacLeod (incompetech.com)<br>
         Licensed under CC BY 4.0
@@ -735,31 +735,29 @@ function openSettings(isMap) {
   const closeAction = () => { hide(); G.locked = false; };
   document.getElementById('modalXBtn').onclick = closeAction;
 
-  // 소리 토글 이벤트
-  document.getElementById('modalSound').onclick = function() {
-    SAVE.soundOn = !soundOn(); 
+  // 🎶 배경음(BGM) 토글 이벤트
+  document.getElementById('modalBgm').onclick = function() {
+    SAVE.bgmOn = !bgmOn(); 
     saveGame(true);
-    const isOn = soundOn();
+    const isOn = bgmOn();
     this.classList.toggle('on', isOn);
     this.querySelector('.toggle-slider span').textContent = isOn ? 'ON' : 'OFF';
     
     if(isOn) {
-      SFX.click();
       playBGM();
     } else {
       stopBGM();
     }
   };
 
-  // 진동 토글 이벤트
-  document.getElementById('modalVibe').onclick = function() {
-    SAVE.vibeOn = (SAVE.vibeOn === false) ? true : false; 
+  // 🔊 효과음(SFX) 토글 이벤트
+  document.getElementById('modalSound').onclick = function() {
+    SAVE.soundOn = !soundOn(); 
     saveGame(true);
-    const isOn = (SAVE.vibeOn !== false);
+    const isOn = soundOn();
     this.classList.toggle('on', isOn);
     this.querySelector('.toggle-slider span').textContent = isOn ? 'ON' : 'OFF';
-    if(soundOn()) SFX.click();
-    if(isOn && navigator.vibrate) navigator.vibrate(20);
+    if(isOn) SFX.click();
   };
   
   if(isMap) {
@@ -784,7 +782,6 @@ function openSettings(isMap) {
           </div>
         </div>
       `);
-      
       document.getElementById('cancelQuitBtn').onclick = () => { SFX.click(); openSettings(false); };
       document.getElementById('confirmQuitBtn').onclick = () => { SFX.click(); hide(); openMap(); };
     };
