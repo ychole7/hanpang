@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 전체 코드 (최종 밸런싱 및 BGM/SFX 분리 완성본)
+   낱글자 팡팡! — 전체 코드 (낱글자 출현 밸런싱 조절 완료본)
    ══════════════════════════════════════════ */
 
 const BGM = new Audio('assets/bgm.mp3');
@@ -263,7 +263,8 @@ let _recentSyl=[];
 function newCur(){
   let chosen=null, pool2=[];
   
-  if(G.mode === 'theme' && G.targets && G.targets.length > 0 && Math.random() < 0.85) {
+  // 🚀 밸런싱 조정: 목표 낱글자 출현 확률을 0.85 -> 0.35로 적당하게 낮춤 (자연스럽고 쾌적한 밸런스)
+  if(G.mode === 'theme' && G.targets && G.targets.length > 0 && Math.random() < 0.35) {
     const targetSyls = new Set();
     G.targets.forEach(w => {
       if(!G.done[w]) {
