@@ -489,3 +489,11 @@ canvas { display: block; width: 100%; height: 100%; }
   font-weight: 500;
   opacity: 0.85;
 }
+
+/* 🚀 모바일에서 화면을 꾹 누를 때 뜨는 기본 팝업(복사하기 등) 방지 */
+#app, #gameArea, #cv, canvas {
+  -webkit-touch-callout: none !important; /* 사파리 꾹 누르기 메뉴 차단 */
+  -webkit-user-select: none !important;   /* 사파리 텍스트 선택 차단 */
+  user-select: none !important;           /* 표준 텍스트 선택 차단 */
+  -webkit-tap-highlight-color: transparent; /* 터치 시 파란색 하이라이트 박스 제거 */
+}
