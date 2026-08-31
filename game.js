@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   낱글자 팡팡! — 전체 코드 (낱글자 출현 밸런싱 조절 완료본)
+   낱글자 팡팡! — 전체 코드 (12, 13 스테이지 위치 교체 완료본)
    ══════════════════════════════════════════ */
 
 const BGM = new Audio('assets/bgm.mp3');
@@ -263,7 +263,6 @@ let _recentSyl=[];
 function newCur(){
   let chosen=null, pool2=[];
   
-  // 🚀 밸런싱 조정: 목표 낱글자 출현 확률을 0.85 -> 0.35로 적당하게 낮춤 (자연스럽고 쾌적한 밸런스)
   if(G.mode === 'theme' && G.targets && G.targets.length > 0 && Math.random() < 0.35) {
     const targetSyls = new Set();
     G.targets.forEach(w => {
@@ -685,7 +684,7 @@ function win(){
   checkAchievements('stage_reach', G.stage);
 
   saveGame(true); SFX.stageClear(); addShake(8+stars*2); flash(0.3);
-  let extra=''; if(G.mode==='theme'){ if(isFinal){ extra=`<p>🏆 80 스테이지를 모두 완주했어요!</p><p style="font-size:14px;opacity:.85">정말 대단해요. 계속해서 도전할 수 있어요.</p>`; }else if(isMilestone){ extra=`<p>🎁 마일스톤 달성! 보너스 코인 +${milestoneBonus}</p>`; }else{ extra=`<p>목표 단어를 모두 만들었어요 🎉</p><p style="margin-top:8px;font-size:14px;opacity:.85">다음 주제: <b>${CATS[(G.stage)%CATS.length]}</b></p>`; } }else{ extra=`<p>목표 단어 개수를 달성했어요 🎉</p>`; }
+  let extra=''; if(G.mode==='theme'){ if(isFinal){ extra=`<p>🏆 80 스테이지를 모두 완주했어요!</p><p style="font-size:14px;opacity:.85">정말 대단해요. 계속해서 도전할 수 있어요.</p>`; }else if(isMilestone){ extra=`<p>🎁 마일ส톤 달성! 보너스 코인 +${milestoneBonus}</p>`; }else{ extra=`<p>목표 단어를 모두 만들었어요 🎉</p><p style="margin-top:8px;font-size:14px;opacity:.85">다음 주제: <b>${CATS[(G.stage)%CATS.length]}</b></p>`; } }else{ extra=`<p>목표 단어 개수를 달성했어요 🎉</p>`; }
   const mapBtn=G.mode==='theme'?`<a href="#" id="toMap" style="display:block;margin-top:10px;color:#d9a94a;font-size:14px">🗺️ 지도로 보기</a>`:'';
   show(`<h2>스테이지 ${G.stage} 완료!</h2>${starRow(stars)}${extra}<p>점수 <b>${G.score.toLocaleString()}</b> · 💰+${coinGain}</p><button class="btn" id="go">${isFinal?'한번 더 플레이':'다음 스테이지'}</button>${mapBtn}`);
   const btnGo=document.getElementById('go'); if(btnGo) btnGo.onclick=()=>{ SFX.click(); if(G.mode==='theme'){ G.stage=Math.min(G.stage+1, MAX_STAGE); } else{ G.stage++; } hide();G.locked=false;buildStage();saveGame(true); };
@@ -1041,7 +1040,7 @@ function claimAchieve(id, reward) {
 const STAGE_COORDS = [
   {x:59.6, y:99.4}, {x:70.5, y:98.5}, {x:72.4, y:97}, {x:60.6, y:96.4}, {x:49.9, y:95.3},
   {x:51.2, y:93.8}, {x:33.8, y:91.7}, {x:62.3, y:92.8}, {x:69.9, y:91.6}, {x:62.1, y:89.9},
-  {x:50.7, y:88.9}, {x:47.2, y:85.9}, {x:57.1, y:87.5}, {x:64.6, y:86.2}, {x:60.6, y:84.4},
+  {x:50.7, y:88.9}, {x:57.1, y:87.5}, {x:47.2, y:85.9}, {x:64.6, y:86.2}, {x:60.6, y:84.4}, /* 🚀 12번(index 11)과 13번(index 12) 좌표 위치 교체 완료 */
   {x:49.9, y:82.7}, {x:59.8, y:81.9}, {x:64.6, y:80.4}, {x:50.9, y:79.3}, {x:49.9, y:77.3},
   {x:65.2, y:74.1}, {x:63.5, y:72.7}, {x:48.7, y:72}, {x:31.6, y:69.3}, {x:48.3, y:70.3},
   {x:57.5, y:69.2}, {x:67.2, y:68.1}, {x:63.3, y:66.4}, {x:51.6, y:65.3}, {x:43.3, y:62.1},
